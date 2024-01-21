@@ -1,3 +1,13 @@
 <resources>
+    <!-- Common -->
     <string name="app_name">GroupMarket</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <!-- FCM -->
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="request_notification_permission">Request permission</string>
+    <string name="notification_permission_title">Notification permission</string>
+    <string name="notification_permission_description">Do You want to be notified about new ads ?. Please grant the permission.</string>
+    <string name="notification_permission_settings">The notification permission lets You know about new ads. Please navigate to your device settings and enable notifications for GroupMarket.</string>
+
 </resources>
