@@ -71,7 +71,10 @@ fun NavGraphBuilder.groupMarketGraph(navController: NavHostController) {
     }
     composable(
         route = "$AD_DETAIL_SCREEN$AD_ID_ARG",
-        arguments = listOf(navArgument("$AD_ID"))
+        arguments = listOf(navArgument(AD_ID) {
+            nullable = true
+            defaultValue = null
+        })
     ) {
 
     }

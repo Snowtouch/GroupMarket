@@ -7,6 +7,6 @@ import org.koin.dsl.module
 
 val serviceModule = module {
     single { AccountServiceImpl(get()) }
-    single { DatabaseServiceImpl() }
+    single { DatabaseServiceImpl(get(), get()) }
     single { StorageServiceImpl() }
 }

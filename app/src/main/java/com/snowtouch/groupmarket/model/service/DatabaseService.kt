@@ -1,10 +1,11 @@
 package com.snowtouch.groupmarket.model.service
 
 import com.snowtouch.groupmarket.model.Advertisement
-import kotlinx.coroutines.flow.Flow
+import com.snowtouch.groupmarket.model.User
+import kotlinx.coroutines.flow.StateFlow
 
 interface DatabaseService {
-    val advertisements: Flow<List<Advertisement>>
-
+    val userData: StateFlow<User?>
+    suspend fun enableUserDataListener(onError: (Throwable?) -> Unit)
     suspend fun createAdvertisement(advertisement: Advertisement)
 }

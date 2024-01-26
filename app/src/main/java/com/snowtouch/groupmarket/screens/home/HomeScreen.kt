@@ -12,9 +12,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.snowtouch.groupmarket.common.composable.AdvertisementCard
 import com.snowtouch.groupmarket.model.Advertisement
 import com.snowtouch.groupmarket.model.User
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HomeScreen(){
+fun HomeScreen(
+    viewModel: HomeScreenViewModel = koinViewModel()
+){
+    val
     HomeScreenContent()
 }
 

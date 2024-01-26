@@ -1,11 +1,15 @@
 package com.snowtouch.groupmarket.screens.home
 
-import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.snowtouch.groupmarket.common.snackbar.SnackbarState
+import com.snowtouch.groupmarket.model.User
+import com.snowtouch.groupmarket.model.service.DatabaseService
 import com.snowtouch.groupmarket.screens.GroupMarketViewModel
-import org.koin.core.component.inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import org.koin.core.context.GlobalContext.get
 
-class HomeScreenViewModel : GroupMarketViewModel() {
-
+class HomeScreenViewModel(
+    databaseService: DatabaseService
+) : GroupMarketViewModel() {
+    private val _userData: StateFlow<User?> = databaseService.userData
+    val userData: StateFlow<User?> = _userData
 }
