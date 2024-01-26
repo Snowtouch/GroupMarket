@@ -4,6 +4,7 @@ import com.snowtouch.groupmarket.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface AccountService {
+    val userLogged: Boolean
     val currentUserId: String
     val currentUser: Flow<User>
 

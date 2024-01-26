@@ -34,5 +34,4 @@ val firebaseModule = module {
             FirebaseStorage.getInstance()
         }
     }
-    //single { RealtimeDatabaseServiceImpl(get()) }
 }

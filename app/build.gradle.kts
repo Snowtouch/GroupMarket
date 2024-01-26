@@ -68,12 +68,14 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     implementation ("io.insert-koin:koin-android:3.5.3")
     implementation("io.insert-koin:koin-androidx-compose:3.5.3")
     implementation("io.insert-koin:koin-androidx-compose-navigation:3.5.3")
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-    implementation("com.google.firebase:firebase-auth-ktx:22.3.0")
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
     implementation("com.google.firebase:firebase-database-ktx:20.3.0")
     implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
 
