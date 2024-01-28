@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.snowtouch.groupmarket.common.composable.AdvertisementCard
 import com.snowtouch.groupmarket.model.Advertisement
 import com.snowtouch.groupmarket.model.User
@@ -18,7 +19,7 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(
     viewModel: HomeScreenViewModel = koinViewModel()
 ){
-    val
+    val userData = viewModel.userData.collectAsStateWithLifecycle()
     HomeScreenContent()
 }
 
