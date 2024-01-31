@@ -12,12 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -28,7 +23,6 @@ import com.snowtouch.groupmarket.common.composable.PermissionDialog
 import com.snowtouch.groupmarket.common.composable.RationaleDialog
 import com.snowtouch.groupmarket.common.snackbar.SnackbarGlobalDelegate
 import com.snowtouch.groupmarket.koin_modules.snackbarModule
-import com.snowtouch.groupmarket.screens.home.HomeScreen
 import com.snowtouch.groupmarket.theme.GroupMarketTheme
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
@@ -51,32 +45,9 @@ fun GroupMarketApp(isScreenSizeCompact: Boolean) {
                         BigScreenNavBar(navController) }
                 }
             ) { paddingValues ->
-
-                NavHost(
-                    navController = navController,
-                    startDestination = HOME_SCREEN,
-                    modifier = Modifier.padding(paddingValues),
-                    builder = {
-                        groupMarketGraph(navController)
-                    }
-                )
+                MainNavigation(Modifier.padding(paddingValues))
             }
         }
-    }
-}
-
-fun NavGraphBuilder.groupMarketGraph(navController: NavHostController) {
-    composable(HOME_SCREEN) {
-        HomeScreen()
-    }
-    composable(
-        route = "$AD_DETAIL_SCREEN$AD_ID_ARG",
-        arguments = listOf(navArgument(AD_ID) {
-            nullable = true
-            defaultValue = null
-        })
-    ) {
-
     }
 }
 @OptIn(ExperimentalPermissionsApi::class)

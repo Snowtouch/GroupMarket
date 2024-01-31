@@ -14,7 +14,7 @@ open class GroupMarketViewModel : ViewModel(), KoinComponent {
 
     private val snackbarGlobalDelegate : SnackbarGlobalDelegate by inject()
 
-    fun showSnackbar(
+    private fun showSnackbar(
         state: SnackbarState,
         message: String,
         actionLabel: String? = null,

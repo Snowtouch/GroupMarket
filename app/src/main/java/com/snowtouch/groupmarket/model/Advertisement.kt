@@ -8,7 +8,7 @@ data class Advertisement(
     val uid: String = "",
     val groupId: String = "",
     val title: String = "",
-    val images: List<Int> = emptyList(),
+    val images: List<String> = emptyList(),
     val description: String = "",
     val price: String = "",
     val postDate: String = ""

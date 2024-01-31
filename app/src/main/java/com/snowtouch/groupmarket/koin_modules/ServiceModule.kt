@@ -6,7 +6,7 @@ import com.snowtouch.groupmarket.model.service.impl.StorageServiceImpl
 import org.koin.dsl.module
 
 val serviceModule = module {
-    single { AccountServiceImpl(get()) }
-    single { DatabaseServiceImpl(get(), get()) }
-    single { StorageServiceImpl() }
+    single { AccountServiceImpl(get(), get()) }
+    single { DatabaseServiceImpl(get(), get(), get()) }
+    single { StorageServiceImpl(get()) }
 }

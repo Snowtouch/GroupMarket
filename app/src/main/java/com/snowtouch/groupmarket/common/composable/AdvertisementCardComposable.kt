@@ -39,7 +39,7 @@ import com.snowtouch.groupmarket.model.User
 @Composable
 fun AdvertisementCard(
     advertisement: Advertisement,
-    user: User,
+    favoritesList: List<String> = emptyList(),
     onClick: () -> Unit
 ) {
     Card(
@@ -92,8 +92,8 @@ fun AdvertisementCard(
                     horizontalAlignment = Alignment.End
                     ) {
                     SetFavoriteButton(
-                        favoritesList = user.favoritesList,
-                        advertisementId = advertisement.id) {
+                        favoritesList = favoritesList,
+                        advertisementId = advertisement.uid) {
                     }
                     Text(
                         text = advertisement.postDate,
@@ -105,13 +105,13 @@ fun AdvertisementCard(
 }
 @Composable
 fun SetFavoriteButton(
-    favoritesList: List<String>,
+    favoritesList: List<String>? = emptyList(),
     advertisementId: String,
     onClick: () -> Unit
 ) {
     IconButton(onClick = onClick ) {
         Icon(
-            imageVector = if (favoritesList.contains(advertisementId))
+            imageVector = if (favoritesList?.contains(advertisementId) == true)
                 Icons.Filled.Favorite
             else
                 Icons.Outlined.FavoriteBorder,
@@ -124,11 +124,17 @@ fun SetFavoriteButton(
 @Preview
 @Composable
 fun CardPreview(){
-    val list: List<Int> = listOf(R.drawable.sample_ad_image)
-    val user = User("1", listOf("1"))
+    val list: List<String> = listOf(R.drawable.sample_ad_image.toString())
+    val userFavorites = listOf<String>("2")
     AdvertisementCard(
         Advertisement(
-            "1", "title",list ,"description", "123", "1.1.2012"),
-        user
+            uid = "1",
+            groupId = "2",
+            title = "aaaaaaaaa",
+            images = list,
+            description = "askooocood",
+            price = "344",
+            postDate = "13-10-2023"),
+        userFavorites
     ) {}
 }
