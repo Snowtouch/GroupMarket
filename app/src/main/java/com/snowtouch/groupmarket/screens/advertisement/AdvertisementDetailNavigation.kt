@@ -5,12 +5,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.compose.navigation.koinNavViewModel
 
 private const val advertisementIdArg = "advertisementId"
 
 fun NavGraphBuilder.advertisementDetailScreen(onNavigateBack: () -> Unit) {
-    composable("advertisement/${advertisementIdArg}") {
-        val viewModel: AdvertisementScreenViewModel = koinViewModel()
+    composable("advertisement/{$advertisementIdArg}") {
+        val viewModel: AdvertisementDetailScreenViewModel = koinNavViewModel()
         AdvertisementDetailScreen(
             viewModel,
             onNavigateBack

@@ -1,11 +1,12 @@
 package com.snowtouch.groupmarket.screens.advertisement
 
 import androidx.compose.runtime.Composable
+import com.snowtouch.groupmarket.model.Advertisement
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 internal fun AdvertisementDetailScreen(
-    viewModel: AdvertisementScreenViewModel = koinViewModel(),
+    viewModel: AdvertisementDetailScreenViewModel = koinViewModel(),
     onNavigateBack: () -> Unit
 ) {
 

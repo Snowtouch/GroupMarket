@@ -79,4 +79,23 @@ class DatabaseServiceImpl(
             return@withContext emptyList()
         }
     }
+
+    override suspend fun getUserFavoriteAdvertisementsList(): List<Advertisement> = withContext(ioDispatcher) {
+        val favoritesList = _userData.value?.favoritesList.orEmpty()
+
+        if (favoritesList.isNotEmpty()) {
+            val favoriteAdsSnapshot = adsReference
+                .orderByKey()
+                .startAt(favoritesList.first())
+                .endAt(favoritesList.last())
+                .get()
+                .await()
+
+            return@withContext favoriteAdsSnapshot.children.mapNotNull { adSnapshot ->
+                adSnapshot.getValue(Advertisement::class.java)
+            }
+        }
+
+        return@withContext emptyList()
+    }
 }

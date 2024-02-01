@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,9 +21,16 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel = koinViewModel(),
     navigateToAdDetails: () -> Unit
 ){
-    val userData = viewModel.userData.collectAsStateWithLifecycle()
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState
 
+    HomeScreenContent(
+        newestAds = uiState.newestAds,
+        favoritesAds = uiState.userFavoriteAds,
+        recentlyWatchedAds = uiState.userRecentlyWatchedAds,
+        onAdvertisementClick = navigateToAdDetails,
+        onFavoriteButtonClick = viewModel.
+    )
 }
 
 @Composable
@@ -29,7 +38,8 @@ fun HomeScreenContent(
     newestAds: List<Advertisement>,
     favoritesAds: List<Advertisement>,
     recentlyWatchedAds: List<Advertisement>,
-    onAdvertisementClick: () -> Unit
+    onAdvertisementClick: () -> Unit,
+    onFavoriteButtonClick: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.wrapContentSize(),
@@ -38,7 +48,21 @@ fun HomeScreenContent(
         AdvertisementGrid(
             gridTitle = "Newest advertisements",
             advertisementList = newestAds,
-            onAdvertisementClick = onAdvertisementClick
+            onAdvertisementClick = onAdvertisementClick,
+            onFavoriteButtonClick = onFavoriteButtonClick
+        )
+        Divider()
+        AdvertisementGrid(
+            gridTitle = "Your favorites",
+            advertisementList = favoritesAds,
+            onAdvertisementClick = onAdvertisementClick,
+            onFavoriteButtonClick = onFavoriteButtonClick
+        )
+        AdvertisementGrid(
+            gridTitle = "Recently watched",
+            advertisementList = recentlyWatchedAds,
+            onAdvertisementClick = onAdvertisementClick,
+            onFavoriteButtonClick = onFavoriteButtonClick
         )
     }
 }
@@ -47,13 +71,18 @@ fun AdvertisementGrid(
     gridTitle: String,
     advertisementList: List<Advertisement>,
     userFavorites: List<String> = emptyList(),
-    onAdvertisementClick: () -> Unit
+    onAdvertisementClick: () -> Unit,
+    onFavoriteButtonClick: (String) -> Unit
 ) {
     Text(text = gridTitle)
-    LazyHorizontalStaggeredGrid(
-        rows = StaggeredGridCells.Fixed(1)
-    ) {items(advertisementList.size) { advertisement: Int ->
-            AdvertisementCard(advertisementList[advertisement], userFavorites, onAdvertisementClick)
+    LazyHorizontalStaggeredGrid(rows = StaggeredGridCells.Fixed(1)
+    ) {items(advertisementList) { advertisement ->
+            AdvertisementCard(
+                advertisement = advertisement,
+                favoritesList = userFavorites,
+                onCardClick = onAdvertisementClick,
+                onFavoriteButtonClick = onFavoriteButtonClick
+            )
         }
     }
 }

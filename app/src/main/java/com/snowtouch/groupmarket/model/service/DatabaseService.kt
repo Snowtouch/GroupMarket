@@ -8,5 +8,6 @@ interface DatabaseService {
     val userData: StateFlow<User?>
     suspend fun enableUserDataListener(onError: (Throwable?) -> Unit)
     suspend fun createAdvertisement(advertisement: Advertisement)
-    suspend fun getLatestAdvertisementsList() : List<Advertisement>
+    suspend fun getLatestAdvertisementsList(): List<Advertisement>
+    suspend fun getUserFavoriteAdvertisementsList() : List<Advertisement>
 }

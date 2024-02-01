@@ -15,16 +15,27 @@ class HomeScreenViewModel(private val databaseService: DatabaseService) : GroupM
         private set
 
     init {
-        getLatestAdvertisements()
+        fetchLatestAdvertisements()
+        fetchUserFavoriteAdvertisements()
     }
-
-    private fun getLatestAdvertisements() {
+    fun updateUserData(user: User) {
+        _userData.value = user
+    }
+    private fun fetchUserFavoriteAdvertisements() {
+        launchCatching {
+            val userFavoriteAds = databaseService.getUserFavoriteAdvertisementsList()
+            uiState.value = uiState.value.copy(userFavoriteAds = userFavoriteAds)
+        }
+    }
+    private fun fetchLatestAdvertisements() {
          launchCatching {
-             val latestAdvertisements = databaseService.getLatestAdvertisementsList()
-             uiState.value = uiState.value.copy(newestAdvertisements = latestAdvertisements)
+             val newestAdvertisements = databaseService.getLatestAdvertisementsList()
+             uiState.value = uiState.value.copy(newestAds = newestAdvertisements)
         }
     }
 }
 data class HomeScreenUiState(
-    val newestAdvertisements: List<Advertisement> = emptyList()
+    val newestAds: List<Advertisement> = emptyList(),
+    val userFavoriteAds: List<Advertisement> = emptyList(),
+    val userRecentlyWatchedAds: List<Advertisement> = emptyList()
 )

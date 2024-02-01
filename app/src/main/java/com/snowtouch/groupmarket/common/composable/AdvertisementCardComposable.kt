@@ -33,17 +33,17 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.snowtouch.groupmarket.R
 import com.snowtouch.groupmarket.model.Advertisement
-import com.snowtouch.groupmarket.model.User
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdvertisementCard(
     advertisement: Advertisement,
     favoritesList: List<String> = emptyList(),
-    onClick: () -> Unit
+    onCardClick: () -> Unit,
+    onFavoriteButtonClick: (String) -> Unit
 ) {
     Card(
-        onClick = onClick,
+        onClick = onCardClick,
         modifier = Modifier
     ) {
         Column(
@@ -93,8 +93,9 @@ fun AdvertisementCard(
                     ) {
                     SetFavoriteButton(
                         favoritesList = favoritesList,
-                        advertisementId = advertisement.uid) {
-                    }
+                        advertisementId = advertisement.uid,
+                        onFavoriteButtonClick = onFavoriteButtonClick
+                    )
                     Text(
                         text = advertisement.postDate,
                     )
@@ -107,9 +108,9 @@ fun AdvertisementCard(
 fun SetFavoriteButton(
     favoritesList: List<String>? = emptyList(),
     advertisementId: String,
-    onClick: () -> Unit
+    onFavoriteButtonClick: (String) -> Unit
 ) {
-    IconButton(onClick = onClick ) {
+    IconButton(onClick = { onFavoriteButtonClick(advertisementId) }) {
         Icon(
             imageVector = if (favoritesList?.contains(advertisementId) == true)
                 Icons.Filled.Favorite
@@ -125,7 +126,7 @@ fun SetFavoriteButton(
 @Composable
 fun CardPreview(){
     val list: List<String> = listOf(R.drawable.sample_ad_image.toString())
-    val userFavorites = listOf<String>("2")
+    val userFavorites = listOf("2")
     AdvertisementCard(
         Advertisement(
             uid = "1",
@@ -135,6 +136,7 @@ fun CardPreview(){
             description = "askooocood",
             price = "344",
             postDate = "13-10-2023"),
-        userFavorites
+        userFavorites,
+        {}
     ) {}
 }
