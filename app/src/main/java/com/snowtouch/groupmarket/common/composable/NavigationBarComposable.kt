@@ -8,7 +8,6 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,17 +31,12 @@ fun CompactScreenNavBar(navController: NavHostController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
-        navMenu.forEach{
+        navMenu.forEach{ navBarItem ->
             NavigationBarItem(
-                selected = currentRoute == it.route,
-                onClick = {
-                          navController.navigate(it.route) {
-                              popUpToId
-                              launchSingleTop = true
-                          }
-                },
-                icon = { Icon(painterResource(id = it.icon), contentDescription = it.title) },
-                label = { Text(text = it.title) }
+                selected = currentRoute == navBarItem.route,
+                onClick = { navController.navigate(navBarItem.route) },
+                icon = { Icon(painterResource(id = navBarItem.icon), contentDescription = navBarItem.title) },
+                label = { Text(text = navBarItem.title) }
             )
         }
     }
@@ -54,17 +48,12 @@ fun BigScreenNavBar(navController: NavHostController) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
-        navMenu.forEach{
+        navMenu.forEach{navBarItem ->
             NavigationRailItem(
-                selected = currentRoute == it.route,
-                onClick = {
-                    navController.navigate(it.route) {
-                        popUpToId
-                        launchSingleTop = true
-                    }
-                },
-                icon = { Icon(painterResource(id = it.icon), contentDescription = it.title) },
-                label = { Text(text = it.title) }
+                selected = currentRoute == navBarItem.route,
+                onClick = { navController.navigate(navBarItem.route) },
+                icon = { Icon(painterResource(id = navBarItem.icon), contentDescription = navBarItem.title) },
+                label = { Text(text = navBarItem.title) }
             )
         }
     }

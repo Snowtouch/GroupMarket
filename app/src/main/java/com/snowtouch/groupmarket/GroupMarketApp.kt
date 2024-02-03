@@ -11,7 +11,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -22,30 +24,40 @@ import com.snowtouch.groupmarket.common.composable.CompactScreenNavBar
 import com.snowtouch.groupmarket.common.composable.PermissionDialog
 import com.snowtouch.groupmarket.common.composable.RationaleDialog
 import com.snowtouch.groupmarket.common.snackbar.SnackbarGlobalDelegate
+import com.snowtouch.groupmarket.koin_modules.firebaseModule
+import com.snowtouch.groupmarket.koin_modules.serviceModule
 import com.snowtouch.groupmarket.koin_modules.snackbarModule
+import com.snowtouch.groupmarket.koin_modules.viewModelModule
 import com.snowtouch.groupmarket.theme.GroupMarketTheme
+import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun GroupMarketApp(isScreenSizeCompact: Boolean) {
     val snackbarGlobalDelegate = koinInject<SnackbarGlobalDelegate>()
     val navController = rememberNavController()
     GroupMarketTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            Scaffold(
-                snackbarHost = {
-                    SnackbarHost(hostState = snackbarGlobalDelegate.snackbarHostState) {
-                        Snackbar(snackbarData = it) }
-                },
-                bottomBar = {
-                    if (isScreenSizeCompact) {
-                        CompactScreenNavBar(navController) }
-                    else  {
-                        BigScreenNavBar(navController) }
+        KoinAndroidContext {
+            Surface(color = MaterialTheme.colorScheme.background) {
+                Scaffold(
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarGlobalDelegate.snackbarHostState) {
+                            Snackbar(snackbarData = it)
+                        }
+                    },
+                    bottomBar = {
+                        if (isScreenSizeCompact) {
+                            CompactScreenNavBar(navController)
+                        } else {
+                            BigScreenNavBar(navController)
+                        }
+                    }
+                ) { paddingValues ->
+                    MainNavigation(Modifier.padding(paddingValues), navController)
                 }
-            ) { paddingValues ->
-                MainNavigation(Modifier.padding(paddingValues))
             }
         }
     }
@@ -67,8 +79,9 @@ fun RequestNotificationPermissionDialog() {
 @Composable
 fun GroupMarketPreview(){
     KoinApplication(application = {
-        modules(snackbarModule) }
+        modules(snackbarModule, firebaseModule, serviceModule, viewModelModule) }
     ) {
-        GroupMarketApp(isScreenSizeCompact = true)
+        val navController = rememberNavController()
+        MainNavigation(navController = navController)
     }
 }

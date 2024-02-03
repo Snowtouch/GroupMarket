@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -45,6 +47,7 @@ fun AdvertisementCard(
     Card(
         onClick = onCardClick,
         modifier = Modifier
+            .size(width = 300.dp, height = 350.dp)
     ) {
         Column(
             modifier = Modifier.padding(8.dp)
@@ -83,13 +86,14 @@ fun AdvertisementCard(
             ) {
                 Text(
                     text = advertisement.price,
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier
+                        .padding(8.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
                 )
                 Column(
                     modifier = Modifier,
-                    horizontalAlignment = Alignment.End
+                    horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                     SetFavoriteButton(
                         favoritesList = favoritesList,

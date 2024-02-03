@@ -5,7 +5,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
-import com.google.firebase.database.snapshots
 import com.snowtouch.groupmarket.model.Advertisement
 import com.snowtouch.groupmarket.model.User
 import com.snowtouch.groupmarket.model.service.AccountService
@@ -18,19 +17,19 @@ import kotlinx.coroutines.withContext
 
 class DatabaseServiceImpl(
     private val auth: AccountService,
-    private val database: FirebaseDatabase,
-    private val ioDispatcher: CoroutineDispatcher
+    private val firebaseDatabase: FirebaseDatabase,
+    private val dispatcher: CoroutineDispatcher
 ) : DatabaseService {
 
-    private val currentUserReference = database.getReference("users").child(auth.currentUserId)
-    private val usersReference = database.getReference("users")
-    private val adsReference = database.getReference("ads")
+    private val currentUserReference = firebaseDatabase.getReference("users").child(auth.currentUserId)
+    private val usersReference = firebaseDatabase.getReference("users")
+    private val adsReference = firebaseDatabase.getReference("ads")
 
     private val _userData = MutableStateFlow<User?>(null)
     override val userData: StateFlow<User?> get() = _userData
 
     override suspend fun enableUserDataListener(onError: (Throwable?) -> Unit) {
-        withContext(ioDispatcher) {
+        withContext(dispatcher) {
             currentUserReference
                 .addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
@@ -45,7 +44,7 @@ class DatabaseServiceImpl(
         }
     }
     override suspend fun createAdvertisement(advertisement: Advertisement) {
-        withContext(ioDispatcher){
+        withContext(dispatcher){
             val key = adsReference.push().key
             val advertisementValues = advertisement.toMap()
 
@@ -54,11 +53,28 @@ class DatabaseServiceImpl(
                 "/users/${auth.currentUserId}/advertisements/$key" to advertisementValues,
                 "/groups/${advertisement.groupId}/$key" to advertisementValues
             )
-            database.reference.updateChildren(childUpdates).await()
+            firebaseDatabase.reference.updateChildren(childUpdates).await()
         }
     }
 
-    override suspend fun getLatestAdvertisementsList(): List<Advertisement> = withContext(ioDispatcher) {
+    override suspend fun addOrRemoveFavoriteAd(adId: String) {
+        withContext(dispatcher) {
+            val favoritesListReference = currentUserReference.child("favoritesList")
+            val currentList = _userData.value?.favoritesList?.toMutableList() ?: mutableListOf()
+
+            if (currentList.contains(adId)) {
+                currentList.remove(adId)
+            } else {
+                currentList.add(adId)
+            }
+            val updateMap = mapOf<String, Any>("favoritesList" to currentList)
+
+            favoritesListReference.updateChildren(updateMap).await()
+        }
+    }
+
+
+    override suspend fun getLatestAdvertisementsList(): List<Advertisement> = withContext(dispatcher) {
         try {
             val newestAds = adsReference
                 .limitToFirst(10)
@@ -80,7 +96,7 @@ class DatabaseServiceImpl(
         }
     }
 
-    override suspend fun getUserFavoriteAdvertisementsList(): List<Advertisement> = withContext(ioDispatcher) {
+    override suspend fun getUserFavoriteAdvertisementsList(): List<Advertisement> = withContext(dispatcher) {
         val favoritesList = _userData.value?.favoritesList.orEmpty()
 
         if (favoritesList.isNotEmpty()) {

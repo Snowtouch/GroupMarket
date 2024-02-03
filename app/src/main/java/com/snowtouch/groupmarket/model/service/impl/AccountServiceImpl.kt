@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 
 class AccountServiceImpl(
     private val auth: FirebaseAuth,
-    private val ioDispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher
     ) : AccountService {
 
     override val userLogged: Boolean
@@ -25,7 +25,7 @@ class AccountServiceImpl(
                 this.trySend(auth.currentUser?.let { User(it.uid) } ?: User())
             }
 
-            withContext(ioDispatcher) {
+            withContext(dispatcher) {
                 auth.addAuthStateListener(listener)
             }
 
@@ -33,25 +33,25 @@ class AccountServiceImpl(
         }
 
     override suspend fun createAccount(email: String, password: String) {
-        withContext(ioDispatcher) {
+        withContext(dispatcher) {
             auth.createUserWithEmailAndPassword(email, password).await()
         }
     }
 
     override suspend fun authenticate(email: String, password: String) {
-        withContext(ioDispatcher) {
+        withContext(dispatcher) {
             auth.signInWithEmailAndPassword(email, password).await()
         }
     }
 
     override suspend fun deleteAccount(password: String) {
-        withContext(ioDispatcher) {
+        withContext(dispatcher) {
             auth.currentUser?.delete()
         }
     }
 
     override suspend fun signOut() {
-        withContext(ioDispatcher) {
+        withContext(dispatcher) {
             auth.signOut()
         }
     }

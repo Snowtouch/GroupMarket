@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -14,9 +15,10 @@ class GroupMarketActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
-            val isScreenSizeCompact = windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+            val isScreenSizeCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
             GroupMarketApp(isScreenSizeCompact)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 RequestNotificationPermissionDialog()
         }
