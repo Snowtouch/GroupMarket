@@ -8,10 +8,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.snowtouch.groupmarket.screens.account.AccountScreen
 import com.snowtouch.groupmarket.screens.account.AccountScreenViewModel
+import com.snowtouch.groupmarket.screens.account.accountGraph
 import com.snowtouch.groupmarket.screens.groups.GroupsScreen
 import com.snowtouch.groupmarket.screens.groups.GroupsScreenViewModel
 import com.snowtouch.groupmarket.screens.home.HomeScreen
 import com.snowtouch.groupmarket.screens.home.HomeScreenViewModel
+import com.snowtouch.groupmarket.screens.login.LoginScreen
+import com.snowtouch.groupmarket.screens.login.LoginScreenViewModel
 import com.snowtouch.groupmarket.screens.messages.MessagesScreen
 import com.snowtouch.groupmarket.screens.messages.MessagesScreenViewModel
 import com.snowtouch.groupmarket.screens.new_advertisement.NewAdvertisementScreen
@@ -24,7 +27,8 @@ enum class MainRoutes(val value: String) {
     Groups("groups"),
     NewAd("new_ad"),
     Messages("messages"),
-    Account("account")
+    Account("account"),
+    Login("login")
 }
 @Composable
 fun MainNavigation(
@@ -55,9 +59,10 @@ fun MainNavigation(
                 navController.navigate("conversationId")
             }
         }
-        composable(MainRoutes.Account.name) {
-            val viewModel: AccountScreenViewModel = koinViewModel()
-            AccountScreen(viewModel = viewModel)
+        accountGraph(navController)
+        composable(MainRoutes.Login.name) {
+            val viewModel: LoginScreenViewModel = koinViewModel()
+            LoginScreen(viewModel = viewModel, {})
         }
     }
 }

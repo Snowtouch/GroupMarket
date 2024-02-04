@@ -23,17 +23,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun AccountScreen(viewModel: AccountScreenViewModel){
-    AccountScreenContent(signOutButtonOnClick = { /*TODO*/ }) {
-        
-    }
+fun AccountScreen(
+    viewModel: AccountScreenViewModel = koinViewModel(),
+    onNavigateToOptionClick: (String) -> Unit
+){
+    AccountScreenContent(
+        signOutButtonOnClick = viewModel::signOut,
+        onOptionClickNavigate = onNavigateToOptionClick
+    )
 }
 @Composable
 fun AccountScreenContent(
     signOutButtonOnClick: () -> Unit,
-    onOptionClickNavigate: () -> Unit
+    onOptionClickNavigate: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -42,7 +47,6 @@ fun AccountScreenContent(
             .verticalScroll(scrollState)
             .fillMaxWidth()
             .padding(24.dp)
-            .background(MaterialTheme.colorScheme.background)
     ) {
         Row(
             modifier = Modifier
@@ -85,12 +89,12 @@ fun CategoryTitleText(accountScreenCategory: AccountScreenCategory) {
 @Composable
 fun CategoryOptionItem(
     accountCategoryOption: AccountCategoryOption,
-    onOptionClickNavigate: () -> Unit
+    onOptionClickNavigate: (String) -> Unit
 ) {
     Row(
         modifier = Modifier
             .padding(12.dp)
-            .clickable(onClick = onOptionClickNavigate),
+            .clickable(onClick = { onOptionClickNavigate(accountCategoryOption.name) }),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (accountCategoryOption.icon != null) {

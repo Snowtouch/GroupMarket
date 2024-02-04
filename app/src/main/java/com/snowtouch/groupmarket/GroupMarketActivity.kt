@@ -19,8 +19,8 @@ class GroupMarketActivity : ComponentActivity() {
 
             GroupMarketApp(isScreenSizeCompact)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                RequestNotificationPermissionDialog()
+            //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            //   RequestNotificationPermissionDialog()
         }
     }
 }
