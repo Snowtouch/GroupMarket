@@ -9,6 +9,7 @@ import com.snowtouch.groupmarket.screens.home.HomeScreenViewModel
 import com.snowtouch.groupmarket.screens.login.LoginScreenViewModel
 import com.snowtouch.groupmarket.screens.messages.MessagesScreenViewModel
 import com.snowtouch.groupmarket.screens.new_advertisement.NewAdvertisementScreenViewModel
+import com.snowtouch.groupmarket.screens.new_group.CreateNewGroupScreenViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -16,11 +17,12 @@ val viewModelModule = module {
     viewModel { GroupMarketViewModel() }
     viewModel { HomeScreenViewModel(get()) }
     viewModel { GroupsScreenViewModel() }
-    viewModel { NewAdvertisementScreenViewModel(get()) }
+    viewModel { CreateNewGroupScreenViewModel(get()) }
+    viewModel { NewAdvertisementScreenViewModel(get(), get()) }
     viewModel { MessagesScreenViewModel() }
     viewModel { AdvertisementDetailScreenViewModel(get()) }
 
     viewModel { AccountScreenViewModel(get()) }
     viewModel { LoginScreenViewModel(get()) }
-    viewModel { CreateAccountScreenViewModel(get()) }
+    viewModel { CreateAccountScreenViewModel(get(), get()) }
 }

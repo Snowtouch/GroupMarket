@@ -1,6 +1,5 @@
 package com.snowtouch.groupmarket.screens.account
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,17 +27,20 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AccountScreen(
     viewModel: AccountScreenViewModel = koinViewModel(),
-    onNavigateToOptionClick: (String) -> Unit
+    onNavigateToOptionClick: (String) -> Unit,
+    onSignOutNavigate: () -> Unit
 ){
     AccountScreenContent(
-        signOutButtonOnClick = viewModel::signOut,
-        onOptionClickNavigate = onNavigateToOptionClick
+        onSignOutButtonClick =  viewModel::signOut,
+        onOptionClickNavigate = onNavigateToOptionClick,
+        onSignOutNavigate = onSignOutNavigate
     )
 }
 @Composable
 fun AccountScreenContent(
-    signOutButtonOnClick: () -> Unit,
-    onOptionClickNavigate: (String) -> Unit
+    onSignOutButtonClick: () -> Unit,
+    onOptionClickNavigate: (String) -> Unit,
+    onSignOutNavigate: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -54,7 +56,10 @@ fun AccountScreenContent(
             horizontalArrangement = Arrangement.End
         ) {
             ElevatedButton(
-                onClick = signOutButtonOnClick,
+                onClick = {
+                    onSignOutButtonClick()
+                    onSignOutNavigate()
+                },
                 modifier = Modifier.size(width = 95.dp, height = 40.dp),
                 shape = MaterialTheme.shapes.small,
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
@@ -109,6 +114,7 @@ fun CategoryOptionItem(
 @Composable
 fun AccountScreenPreview() {
     AccountScreenContent(
+        {},
         {},
         {}
     )

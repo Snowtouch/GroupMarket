@@ -13,3 +13,6 @@ fun Modifier.alertDialog() : Modifier {
 fun Modifier.textButton(): Modifier {
     return this.fillMaxWidth().padding(16.dp, 8.dp, 16.dp, 0.dp)
 }
+fun Modifier.cardContentPadding(): Modifier {
+    return this.fillMaxWidth().padding(8.dp)
+}

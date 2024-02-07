@@ -1,5 +1,6 @@
 package com.snowtouch.groupmarket.common.composable
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,8 @@ fun AdvertisementCard(
     Card(
         onClick = onCardClick,
         modifier = Modifier
-            .size(width = 300.dp, height = 350.dp)
+            .size(width = 300.dp, height = 350.dp),
+        shape = MaterialTheme.shapes.small
     ) {
         Column(
             modifier = Modifier.padding(8.dp)
@@ -97,7 +99,7 @@ fun AdvertisementCard(
                     ) {
                     SetFavoriteButton(
                         favoritesList = favoritesList,
-                        advertisementId = advertisement.uid,
+                        advertisementId = advertisement.ownerUid,
                         onFavoriteButtonClick = onFavoriteButtonClick
                     )
                     Text(
@@ -129,11 +131,11 @@ fun SetFavoriteButton(
 @Preview
 @Composable
 fun CardPreview(){
-    val list: List<String> = listOf(R.drawable.sample_ad_image.toString())
+    val list: List<Uri> = emptyList()
     val userFavorites = listOf("2")
     AdvertisementCard(
         Advertisement(
-            uid = "1",
+            ownerUid = "1",
             groupId = "2",
             title = "aaaaaaaaa",
             images = list,

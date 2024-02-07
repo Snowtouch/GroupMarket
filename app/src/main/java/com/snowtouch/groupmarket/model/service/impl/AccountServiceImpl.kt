@@ -46,7 +46,7 @@ class AccountServiceImpl(
 
     override suspend fun deleteAccount(password: String) {
         withContext(dispatcher) {
-            auth.currentUser?.delete()
+            auth.currentUser?.delete()?.await()
         }
     }
 

@@ -1,17 +1,12 @@
 package com.snowtouch.groupmarket.screens.home
 
-import androidx.compose.foundation.layout.Arrangement
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -112,9 +107,9 @@ fun AdvertisementGridRow(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    val list: List<String> = listOf(R.drawable.sample_ad_image.toString())
+    val list: List<Uri> = emptyList()
     val sampleAd1 = Advertisement(
-        uid = "1",
+        ownerUid = "1",
         groupId = "2",
         title = "aaaaaaaaa",
         images = list,
@@ -122,7 +117,7 @@ fun HomeScreenPreview() {
         price = "344",
         postDate = "13-10-2023")
     val sampleAd2 = Advertisement(
-        uid = "2",
+        ownerUid = "2",
         groupId = "5",
         title = "bbbbbb",
         images = list,

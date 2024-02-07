@@ -15,12 +15,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.snowtouch.groupmarket.MainRoutes
 import com.snowtouch.groupmarket.R
+import com.snowtouch.groupmarket.screens.groups.groupsRoute
 
 data class NavBarItem(val icon: Int, val title: String, val route: String)
 
 val navMenu = arrayOf(
     NavBarItem(R.drawable.baseline_home_24, "Home", MainRoutes.Home.name),
-    NavBarItem(R.drawable.baseline_group_24, "Groups", MainRoutes.Groups.name),
+    NavBarItem(R.drawable.baseline_group_24, "Groups", groupsRoute),
     NavBarItem(R.drawable.baseline_add_circle_24, "New ad", MainRoutes.NewAd.name),
     NavBarItem(R.drawable.baseline_email_24, "Messages", MainRoutes.Messages.name),
     NavBarItem(R.drawable.baseline_account_circle_24, "Account", MainRoutes.Account.name)

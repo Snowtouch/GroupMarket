@@ -1,14 +1,18 @@
 package com.snowtouch.groupmarket.common.composable
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.snowtouch.groupmarket.R
+import com.snowtouch.groupmarket.common.ext.cardContentPadding
 
 @Composable
 fun EmailField(value: String, onNewValue: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -39,6 +44,34 @@ fun PasswordField(value: String, onNewValue: (String) -> Unit, modifier: Modifie
     PasswordField(value, R.string.password_field_text, onNewValue, modifier)
 }
 
+@Composable
+fun CardEmptyValidatedTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onNewValue: (String) -> Unit,
+    label: String,
+    placeholder: String,
+    singleLine: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+) {
+    var isEmpty by remember { mutableStateOf(false) }
+
+    ElevatedCard(modifier.cardContentPadding()) {
+        TextField(
+            value = value,
+            onValueChange = {
+                onNewValue(it)
+                isEmpty = it.isBlank()
+            },
+            modifier = modifier.fillMaxWidth(),
+            label = { Text(text = label) },
+            placeholder = { Text(text = placeholder) },
+            isError = isEmpty,
+            singleLine = singleLine,
+            keyboardOptions = keyboardOptions
+        )
+    }
+}
 @Composable
 fun RepeatPasswordField(
     value: String,

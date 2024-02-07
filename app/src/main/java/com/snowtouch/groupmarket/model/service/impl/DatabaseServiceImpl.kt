@@ -24,6 +24,7 @@ class DatabaseServiceImpl(
     private val currentUserReference = firebaseDatabase.getReference("users").child(auth.currentUserId)
     private val usersReference = firebaseDatabase.getReference("users")
     private val adsReference = firebaseDatabase.getReference("ads")
+    private val groupsReference = firebaseDatabase.getReference("groups")
 
     private val _userData = MutableStateFlow<User?>(null)
     override val userData: StateFlow<User?> get() = _userData
@@ -43,15 +44,42 @@ class DatabaseServiceImpl(
                 })
         }
     }
-    override suspend fun createAdvertisement(advertisement: Advertisement) {
+
+    override suspend fun createNewUserData(user: User) {
+        withContext(dispatcher) {
+            usersReference
+                .child(auth.currentUserId)
+                .setValue(user)
+        }
+    }
+    override suspend fun getNewAdReferenceKey(): String? {
+        return withContext(dispatcher) {
+            adsReference.push().key
+        }
+    }
+
+    override suspend fun getUserGroupsNames(): List<String> {
+        val groupUidList = _userData.value?.groups.orEmpty()
+
+        return if (groupUidList.isNotEmpty()) {
+            withContext(dispatcher) {
+                groupUidList.map { groupUid ->
+                    groupsReference.child(groupUid).child("name").get().await().value as String
+                }
+            }
+        } else {
+            emptyList()
+        }
+    }
+    override suspend fun createAdvertisement(advertisement: Advertisement, ref: String) {
         withContext(dispatcher){
-            val key = adsReference.push().key
-            val advertisementValues = advertisement.toMap()
+            val adWithNewKey = advertisement.copy(ownerUid = auth.currentUserId)
+            val advertisementValues = adWithNewKey.toMap()
 
             val childUpdates = hashMapOf<String, Any>(
-                "/ads/$key" to advertisementValues,
-                "/users/${auth.currentUserId}/advertisements/$key" to advertisementValues,
-                "/groups/${advertisement.groupId}/$key" to advertisementValues
+                "/ads/$ref" to advertisementValues,
+                "/users/${auth.currentUserId}/advertisements/$ref" to advertisementValues,
+                "/groups/${advertisement.groupId}/$ref" to advertisementValues
             )
             firebaseDatabase.reference.updateChildren(childUpdates).await()
         }
@@ -111,7 +139,6 @@ class DatabaseServiceImpl(
                 adSnapshot.getValue(Advertisement::class.java)
             }
         }
-
         return@withContext emptyList()
     }
 }

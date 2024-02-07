@@ -14,7 +14,7 @@ import org.koin.dsl.module
 val serviceModule = module {
     single<AccountService> { AccountServiceImpl(get(), get()) }
     single<DatabaseService> { DatabaseServiceImpl(get(), get(), get()) }
-    single<StorageService> { StorageServiceImpl(get()) }
+    single<StorageService> { StorageServiceImpl(get(), get()) }
 
     single<CoroutineDispatcher> { Dispatchers.IO }
 }

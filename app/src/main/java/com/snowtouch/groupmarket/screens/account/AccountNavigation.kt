@@ -8,10 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.snowtouch.groupmarket.MainRoutes
 import com.snowtouch.groupmarket.screens.create_account.CreateAccountScreen
 import com.snowtouch.groupmarket.screens.login.LoginScreen
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import org.koin.java.KoinJavaComponent.inject
-import org.koin.core.component.inject
 
 const val accountRoute = "account"
 const val loginRoute = "login"
@@ -22,15 +19,13 @@ fun NavGraphBuilder.accountGraph(
 ) {
     navigation(startDestination = MainRoutes.Account.name, route = accountRoute) {
         composable(MainRoutes.Account.name) {
-            val viewModel: AccountScreenViewModel = koinViewModel()
             val auth = koinInject<FirebaseAuth>()
 
             if (auth.currentUser!=null)
                 AccountScreen(
-                    viewModel = viewModel,
-                    onNavigateToOptionClick = {
-                        navController.navigate(it)
-                    })
+                    onNavigateToOptionClick = { navController.navigate(it) },
+                    onSignOutNavigate = { navController.navigate(loginRoute)}
+                )
             else
                 LoginScreen(onCreateAccountClick = { navController.navigate("create_account") })
         }

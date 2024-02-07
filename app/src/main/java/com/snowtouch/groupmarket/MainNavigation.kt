@@ -11,6 +11,7 @@ import com.snowtouch.groupmarket.screens.account.AccountScreenViewModel
 import com.snowtouch.groupmarket.screens.account.accountGraph
 import com.snowtouch.groupmarket.screens.groups.GroupsScreen
 import com.snowtouch.groupmarket.screens.groups.GroupsScreenViewModel
+import com.snowtouch.groupmarket.screens.groups.groupsGraph
 import com.snowtouch.groupmarket.screens.home.HomeScreen
 import com.snowtouch.groupmarket.screens.home.HomeScreenViewModel
 import com.snowtouch.groupmarket.screens.login.LoginScreen
@@ -40,15 +41,13 @@ fun MainNavigation(
         composable(MainRoutes.Home.name) {
             val viewModel: HomeScreenViewModel = koinViewModel()
             HomeScreen(viewModel) {
-                navController.navigate("advertisement")
+                navController.navigate("advertisement") {
+                    popUpToId
+                    launchSingleTop
+                }
             }
         }
-        composable(MainRoutes.Groups.name) {
-            val viewModel: GroupsScreenViewModel = koinViewModel()
-            GroupsScreen(viewModel) {
-                navController.navigate("group")
-            }
-        }
+        groupsGraph(navController)
         composable(MainRoutes.NewAd.name) {
             val viewModel: NewAdvertisementScreenViewModel = koinViewModel()
             NewAdvertisementScreen(viewModel = viewModel)
@@ -56,7 +55,10 @@ fun MainNavigation(
         composable(MainRoutes.Messages.name) {
             val viewModel: MessagesScreenViewModel = koinViewModel()
             MessagesScreen(viewModel = viewModel) {
-                navController.navigate("conversationId")
+                navController.navigate("conversationId") {
+                    popUpToId
+                    launchSingleTop
+                }
             }
         }
         accountGraph(navController)

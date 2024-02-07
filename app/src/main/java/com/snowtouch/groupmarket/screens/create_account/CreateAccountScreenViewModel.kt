@@ -7,11 +7,15 @@ import com.snowtouch.groupmarket.common.ext.isValidPassword
 import com.snowtouch.groupmarket.common.ext.passwordMatches
 import com.snowtouch.groupmarket.common.snackbar.SnackbarGlobalDelegate
 import com.snowtouch.groupmarket.common.snackbar.SnackbarState
+import com.snowtouch.groupmarket.model.User
 import com.snowtouch.groupmarket.model.service.AccountService
+import com.snowtouch.groupmarket.model.service.DatabaseService
 import com.snowtouch.groupmarket.screens.GroupMarketViewModel
 
-class CreateAccountScreenViewModel(private val accountService: AccountService)
-    : GroupMarketViewModel() {
+class CreateAccountScreenViewModel(
+    private val accountService: AccountService,
+    private val databaseService: DatabaseService
+) : GroupMarketViewModel() {
 
     var uiState = mutableStateOf(CreateAccountUiState())
         private set
@@ -45,6 +49,7 @@ class CreateAccountScreenViewModel(private val accountService: AccountService)
         Log.d("Account creation", "passed")
         launchCatching {
             accountService.createAccount(email, password)
+            databaseService.createNewUserData(User(email = email))
         }
     }
 }
