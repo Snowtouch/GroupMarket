@@ -19,5 +19,4 @@ This application is designed to enable users to post advertisements and communic
 - Koin for Dependency injection
 - Coil 
 - JUnit4 for unit testing
-- Espresso for Ui testing
 - SonarQube for basic auto code review
