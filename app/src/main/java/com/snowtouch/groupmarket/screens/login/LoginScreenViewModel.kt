@@ -28,6 +28,7 @@ class LoginScreenViewModel(private val accountService: AccountService): GroupMar
         }
         launchCatching {
             accountService.authenticate(email, password)
+            showSnackbar(SnackbarState.DEFAULT,"Logged in successfully")
         }
     }
 }

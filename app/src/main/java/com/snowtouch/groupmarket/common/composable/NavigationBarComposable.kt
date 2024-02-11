@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.snowtouch.groupmarket.MainRoutes
 import com.snowtouch.groupmarket.R
+import com.snowtouch.groupmarket.screens.account.auth
 import com.snowtouch.groupmarket.screens.groups.groupsRoute
 
 data class NavBarItem(val icon: Int, val title: String, val route: String)

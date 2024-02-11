@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,21 +21,28 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginScreenViewModel = koinViewModel(),
-    onCreateAccountClick: () -> Unit
+    viewModel: LoginScreenViewModel,
+    onCreateAccountClick: () -> Unit,
+    onLoginButtonClick: () -> Unit
 ) {
     val uiState by viewModel.uiState
 
-    LoginScreenContent(
-        uiState = uiState,
-        onEmailChange = viewModel::onEmailChange,
-        onPasswordChange = viewModel::onPasswordChange,
-        onLoginButtonClick = { viewModel.login(uiState.email, uiState.password) },
-        onCreateAccountClick = onCreateAccountClick
-    )
+    Scaffold {
+        LoginScreenContent(
+            modifier = Modifier.padding(paddingValues = it),
+            uiState = uiState,
+            onEmailChange = viewModel::onEmailChange,
+            onPasswordChange = viewModel::onPasswordChange,
+            onLoginButtonClick = {
+                viewModel.login(uiState.email, uiState.password)
+                onLoginButtonClick() },
+            onCreateAccountClick = onCreateAccountClick
+        )
+    }
 }
 @Composable
 fun LoginScreenContent(
+    modifier: Modifier = Modifier,
     uiState: LoginUiState,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,

@@ -4,37 +4,50 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.google.firebase.auth.FirebaseAuth
 import com.snowtouch.groupmarket.MainRoutes
 import com.snowtouch.groupmarket.screens.create_account.CreateAccountScreen
 import com.snowtouch.groupmarket.screens.login.LoginScreen
-import org.koin.compose.koinInject
+import com.snowtouch.groupmarket.screens.login.LoginScreenViewModel
+import org.koin.androidx.compose.koinViewModel
 
-const val accountRoute = "account"
-const val loginRoute = "login"
-const val createAccountRoute = "create_account"
+const val auth = "auth"
+const val accountOptionsScreen = "account"
+const val loginScreen = "login"
+const val createAccountScreen = "create_account"
 
-fun NavGraphBuilder.accountGraph(
-    navController: NavController
+fun NavGraphBuilder.account(
+    navController: NavController,
+    isLoggedIn: Boolean
 ) {
-    navigation(startDestination = MainRoutes.Account.name, route = accountRoute) {
-        composable(MainRoutes.Account.name) {
-            val auth = koinInject<FirebaseAuth>()
+    val startDestination =
+        when (isLoggedIn) {
+            true -> accountOptionsScreen
+            false -> loginScreen
+        }
 
-            if (auth.currentUser!=null)
-                AccountScreen(
-                    onNavigateToOptionClick = { navController.navigate(it) },
-                    onSignOutNavigate = { navController.navigate(loginRoute)}
-                )
-            else
-                LoginScreen(onCreateAccountClick = { navController.navigate("create_account") })
+    navigation(startDestination = startDestination, route = MainRoutes.Account.name) {
+
+        composable(accountOptionsScreen) {
+            AccountScreen(
+                onNavigateToOptionClick = { navController.navigate(it) },
+                onSignOutNavigate = { navController.navigate(loginScreen) }
+            )
         }
-        composable(loginRoute) {
-            LoginScreen {
-                navController.navigate(route = createAccountRoute)
-            }
+
+        composable(loginScreen) {
+            val viewModel: LoginScreenViewModel = koinViewModel()
+            LoginScreen(
+                viewModel = viewModel,
+                onCreateAccountClick = { navController.navigate(route = createAccountScreen) },
+                onLoginButtonClick = {
+                    navController.navigate(route = MainRoutes.Home.name) {
+                        popUpTo(MainRoutes.Account.name) { inclusive = true }
+                    }
+                }
+            )
         }
-        composable(createAccountRoute) {
+
+        composable(createAccountScreen) {
             CreateAccountScreen()
         }
     }

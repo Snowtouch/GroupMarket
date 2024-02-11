@@ -11,9 +11,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -36,18 +34,20 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun GroupMarketApp(isScreenSizeCompact: Boolean) {
+fun GroupMarketApp(
+    isScreenSizeCompact: Boolean,
+    isLoggedIn: Boolean
+) {
     val snackbarGlobalDelegate = koinInject<SnackbarGlobalDelegate>()
     val navController = rememberNavController()
+
     GroupMarketTheme {
         KoinAndroidContext {
             Surface(color = MaterialTheme.colorScheme.background) {
                 Scaffold(
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarGlobalDelegate.snackbarHostState) {
-                            Snackbar(snackbarData = it)
-                        }
-                    },
+                            Snackbar(snackbarData = it) } },
                     bottomBar = {
                         if (isScreenSizeCompact) {
                             CompactScreenNavBar(navController)
@@ -56,11 +56,15 @@ fun GroupMarketApp(isScreenSizeCompact: Boolean) {
                         }
                     }
                 ) { paddingValues ->
-                    MainNavigation(Modifier.padding(paddingValues), navController)
+                    MainNavigation(
+                        modifier = Modifier.padding(paddingValues),
+                        navController = navController,
+                        isLoggedIn = isLoggedIn
+                    )
                 }
-            }
         }
     }
+}
 }
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -82,6 +86,8 @@ fun GroupMarketPreview(){
         modules(snackbarModule, firebaseModule, serviceModule, viewModelModule) }
     ) {
         val navController = rememberNavController()
-        MainNavigation(navController = navController)
+        MainNavigation(
+            navController = navController,
+            isLoggedIn = false)
     }
 }

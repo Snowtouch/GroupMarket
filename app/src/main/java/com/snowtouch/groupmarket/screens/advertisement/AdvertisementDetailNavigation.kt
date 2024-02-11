@@ -21,7 +21,3 @@ fun NavGraphBuilder.advertisementDetailScreen(onNavigateBack: () -> Unit) {
 fun NavController.navigateToAdvertisement(advertisementId: String) {
     this.navigate("advertisement/$advertisementId")
 }
-internal class AdvertisementArgs(advertisementId: String) {
-    constructor(savedStateHandle: SavedStateHandle) :
-            this(checkNotNull(savedStateHandle[advertisementIdArg]) as String)
-}

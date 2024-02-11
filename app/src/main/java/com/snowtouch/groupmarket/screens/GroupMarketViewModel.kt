@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-open class GroupMarketViewModel : ViewModel(), KoinComponent {
+open class GroupMarketViewModel() : ViewModel(), KoinComponent {
 
     private val snackbarGlobalDelegate : SnackbarGlobalDelegate by inject()
 

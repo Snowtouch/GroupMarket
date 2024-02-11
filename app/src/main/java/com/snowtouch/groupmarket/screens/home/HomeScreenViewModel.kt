@@ -8,8 +8,10 @@ import com.snowtouch.groupmarket.screens.GroupMarketViewModel
 import kotlinx.coroutines.flow.StateFlow
 
 class HomeScreenViewModel(private val databaseService: DatabaseService) : GroupMarketViewModel() {
+
     private val _userData: StateFlow<User?> = databaseService.userData
     val userData: StateFlow<User?> = _userData
+
 
     var uiState = mutableStateOf(HomeScreenUiState())
         private set

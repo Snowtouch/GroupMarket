@@ -13,7 +13,7 @@ import com.snowtouch.groupmarket.screens.new_group.CreateNewGroupScreen
 const val groupsRoute = "groups"
 const val groupAdsRoute = "groupDetailsScreen/{groupId}"
 const val newGroupRoute = "new_group"
-fun NavGraphBuilder.groupsGraph(
+fun NavGraphBuilder.groups(
     navController: NavController
 ) {
     navigation(startDestination = MainRoutes.Groups.name, route = "groupDetailsGraph") {
