@@ -1,23 +1,32 @@
 package com.snowtouch.groupmarket.screens.advertisement
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import org.koin.androidx.compose.koinViewModel
+import androidx.navigation.navArgument
 import org.koin.androidx.compose.navigation.koinNavViewModel
 
-private const val advertisementIdArg = "advertisementId"
-
 fun NavGraphBuilder.advertisementDetailScreen(onNavigateBack: () -> Unit) {
-    composable("advertisement/{$advertisementIdArg}") {
+
+    composable(
+        route = "advertisement/{advertisementId}",
+        arguments = listOf(
+            navArgument("advertisementId") {
+                type = NavType.StringType
+            }
+        )
+    ) {
+        val advertisementId = it.arguments?.getString("advertisementId") ?: ""
         val viewModel: AdvertisementDetailScreenViewModel = koinNavViewModel()
+
         AdvertisementDetailScreen(
-            viewModel,
-            onNavigateBack
+            advertisementId = advertisementId,
+            viewModel = viewModel,
+            onNavigateBack = onNavigateBack
         )
     }
 }
 fun NavController.navigateToAdvertisement(advertisementId: String) {
-    this.navigate("advertisement/$advertisementId")
+    this.navigate(route = "advertisement/$advertisementId")
 }

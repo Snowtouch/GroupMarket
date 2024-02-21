@@ -9,11 +9,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,34 +31,48 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.snowtouch.groupmarket.R
 import com.snowtouch.groupmarket.model.Advertisement
-import org.koin.androidx.compose.koinViewModel
 import kotlin.math.absoluteValue
 
 @Composable
 internal fun AdvertisementDetailScreen(
-    viewModel: AdvertisementDetailScreenViewModel = koinViewModel(),
+    advertisementId: String,
+    viewModel: AdvertisementDetailScreenViewModel,
     onNavigateBack: () -> Unit
 ) {
     AdvertisementDetailScreenContent(
-        Advertisement(),
-        modifier = Modifier)
+        advertisement = viewModel.getAdvertisementDetails(advertisementId),
+        modifier = Modifier,
+        onNavigateBack = onNavigateBack
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdvertisementDetailScreenContent(
-    ad: Advertisement,
-    modifier: Modifier = Modifier
+    advertisement: Advertisement,
+    modifier: Modifier = Modifier,
+    onNavigateBack: () -> Unit
 ) {
+    TopAppBar(
+        title = { },
+        navigationIcon = {
+            IconButton(
+                onClick = { onNavigateBack() }
+            ) {
+                Icons.Filled.ArrowBack
+        }}
+    )
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AdImageCarousel(
-            adImages = ad.images,
-            modifier = Modifier
+            adImages = advertisement.images,
         )
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AdImageCarousel(
     adImages: List<Uri>,

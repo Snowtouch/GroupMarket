@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.snowtouch.groupmarket.MainRoutes
+import com.snowtouch.groupmarket.model.AuthDataProvider
 import com.snowtouch.groupmarket.screens.create_account.CreateAccountScreen
 import com.snowtouch.groupmarket.screens.login.LoginScreen
 import com.snowtouch.groupmarket.screens.login.LoginScreenViewModel
@@ -28,20 +29,27 @@ fun NavGraphBuilder.account(
     navigation(startDestination = startDestination, route = MainRoutes.Account.name) {
 
         composable(accountOptionsScreen) {
+            val viewModel: AccountScreenViewModel = koinViewModel()
+
             AccountScreen(
+                viewModel = viewModel,
                 onNavigateToOptionClick = { navController.navigate(it) },
-                onSignOutNavigate = { navController.navigate(loginScreen) }
+                onSignOutNavigate = { navController.navigate(loginScreen) {
+                    popUpTo(loginScreen) { inclusive = true} } }
             )
         }
 
         composable(loginScreen) {
             val viewModel: LoginScreenViewModel = koinViewModel()
+
             LoginScreen(
                 viewModel = viewModel,
                 onCreateAccountClick = { navController.navigate(route = createAccountScreen) },
                 onLoginButtonClick = {
-                    navController.navigate(route = MainRoutes.Home.name) {
-                        popUpTo(MainRoutes.Account.name) { inclusive = true }
+                    if (isLoggedIn) {
+                        navController.navigate(route = MainRoutes.Home.name) {
+                            popUpTo(MainRoutes.Account.name) { inclusive = true }
+                        }
                     }
                 }
             )

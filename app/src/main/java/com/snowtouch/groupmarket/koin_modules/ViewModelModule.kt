@@ -1,5 +1,6 @@
 package com.snowtouch.groupmarket.koin_modules
 
+import com.snowtouch.groupmarket.AuthViewModel
 import com.snowtouch.groupmarket.screens.GroupMarketViewModel
 import com.snowtouch.groupmarket.screens.account.AccountScreenViewModel
 import com.snowtouch.groupmarket.screens.advertisement.AdvertisementDetailScreenViewModel
@@ -15,8 +16,9 @@ import org.koin.dsl.module
 
 val viewModelModule = module {
     viewModel { GroupMarketViewModel() }
+    viewModel { AuthViewModel(get(), get()) }
     viewModel { HomeScreenViewModel(get()) }
-    viewModel { GroupsScreenViewModel() }
+    viewModel { GroupsScreenViewModel(get()) }
     viewModel { CreateNewGroupScreenViewModel(get()) }
     viewModel { NewAdvertisementScreenViewModel(get(), get()) }
     viewModel { MessagesScreenViewModel() }

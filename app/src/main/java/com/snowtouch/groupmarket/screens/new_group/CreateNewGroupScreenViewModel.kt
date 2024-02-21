@@ -19,6 +19,16 @@ class CreateNewGroupScreenViewModel(
     }
 
     fun onPrivateGroupSwitchChange() {
-        uiState.value = uiState.value.copy(privateGroup = !uiState.value.privateGroup)
+        uiState.value = uiState.value.copy(isPrivate = !uiState.value.isPrivate)
+    }
+
+    fun createNewGroup() {
+        launchCatching {
+            databaseService.createNewGroup(
+                name = uiState.value.name,
+                description = uiState.value.description,
+                isPrivate = uiState.value.isPrivate
+            )
+        }
     }
 }

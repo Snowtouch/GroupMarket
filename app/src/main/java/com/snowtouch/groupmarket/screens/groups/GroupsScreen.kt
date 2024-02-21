@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.snowtouch.groupmarket.common.composable.VerticalDivider
 import com.snowtouch.groupmarket.common.ext.cardContentPadding
 import com.snowtouch.groupmarket.model.Group
@@ -45,8 +46,12 @@ fun GroupsScreen(
     navigateToGroupAdsScreen: (String) -> Unit,
     navigateToNewGroupScreen: () -> Unit
 ) {
+
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
+    val userGroupsData by viewModel.userGroupsData.collectAsStateWithLifecycle()
+
     GroupsScreenContent(
-        userGroupsList = emptyList(),
+        userGroupsList = userGroupsData,
         onGoToGroupAdsClick = navigateToGroupAdsScreen,
         onCreateNewGroupClick = navigateToNewGroupScreen
     )
@@ -55,24 +60,25 @@ fun GroupsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreenContent(
-    userGroupsList: List<Group>,
+    userGroupsList: List<Group?>,
     onGoToGroupAdsClick: (String) -> Unit,
     onCreateNewGroupClick: () -> Unit
 ) {
     Column {
         TopAppBar(
-            title = { },
+            title = {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text(text = "Your groups") } },
             actions = {
-                IconButton(
-                    onClick = onCreateNewGroupClick
-                ) {
+                IconButton(onClick = onCreateNewGroupClick) {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "Create new group")
-                }})
-        LazyColumn {
-            items(items = userGroupsList) { group ->
-                GroupCard(group = group, onGroupDetailsClick = onGoToGroupAdsClick)
+                        contentDescription = "Create new group") }})
+        if (!userGroupsList.contains(null)){
+            LazyColumn {
+                items(items = userGroupsList) { group ->
+                    GroupCard(group = group!!, onGroupDetailsClick = onGoToGroupAdsClick)
+                }
             }
         }
     }
@@ -116,7 +122,9 @@ fun GroupCard(
                 }
                 Box {
                     VerticalDivider()
-                    IconButton(onClick = { onGroupDetailsClick(group.uid) }) {
+                    IconButton(
+                        onClick = { onGroupDetailsClick(group.uid) }
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowRight,
                             contentDescription = "View details"
@@ -152,7 +160,7 @@ fun GroupsScreenContentPreview() {
         advertisements = null
     )
     val previewGroupList = listOf(previewGroup, previewGroup, previewGroup, previewGroup, previewGroup)
-    GroupsScreenContent(previewGroupList, {}, {})
+    GroupsScreenContent(previewGroupList, {}) {}
 }
 @Preview
 @Composable
@@ -182,6 +190,6 @@ fun GroupListPreview() {
     val previewGroupList = listOf(previewGroup, previewGroup, previewGroup, previewGroup, previewGroup)
     GroupsScreenContent(
         userGroupsList = previewGroupList,
-        onGoToGroupAdsClick = {},
-        onCreateNewGroupClick = {})
+        onGoToGroupAdsClick = {}
+    ) {}
 }

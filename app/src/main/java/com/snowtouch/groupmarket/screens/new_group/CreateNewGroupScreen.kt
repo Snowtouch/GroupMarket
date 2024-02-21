@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.snowtouch.groupmarket.common.composable.CardEmptyValidatedTextField
+import com.snowtouch.groupmarket.common.composable.CommonButton
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -30,7 +31,8 @@ fun CreateNewGroupScreen(
         uiState = uiState,
         onGroupNameChanged = viewModel::onNameChange,
         onGroupDescriptionChanged = viewModel::onDescriptionChange,
-        onPrivacySwitchChange = { viewModel.onPrivateGroupSwitchChange() }
+        onPrivacySwitchChange = { viewModel.onPrivateGroupSwitchChange() },
+        onCreateGroupClick = viewModel::createNewGroup
     )
 }
 
@@ -41,10 +43,14 @@ fun CreateNewGroupScreenContent(
     onGroupNameChanged: (String) -> Unit,
     onGroupDescriptionChanged: (String) -> Unit,
     onPrivacySwitchChange: () -> Unit,
+    onCreateGroupClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         CardEmptyValidatedTextField(
             value = uiState.name,
             onNewValue = onGroupNameChanged,
@@ -61,9 +67,9 @@ fun CreateNewGroupScreenContent(
         FilterChip(
             onClick = onPrivacySwitchChange,
             label = { Text("Private group") },
-            selected = uiState.privateGroup,
+            selected = uiState.isPrivate,
             leadingIcon =
-            if (uiState.privateGroup)
+            if (uiState.isPrivate)
             { {
                 Icon(
                     imageVector = Icons.Filled.Done,
@@ -71,6 +77,10 @@ fun CreateNewGroupScreenContent(
                     modifier = Modifier.size(FilterChipDefaults.IconSize)) }
             } else { null }
         )
+
+        CommonButton(
+            onClick = onCreateGroupClick,
+            text = "Create group")
     }
 }
 
@@ -81,5 +91,6 @@ fun ScreenPreview() {
         uiState = CreateNewGroupUiState(),
         onGroupNameChanged = {},
         onGroupDescriptionChanged = {},
-        onPrivacySwitchChange = {})
+        onPrivacySwitchChange = {},
+        onCreateGroupClick = {})
 }

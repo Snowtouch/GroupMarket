@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.snowtouch.groupmarket.R
@@ -53,9 +54,11 @@ import com.snowtouch.groupmarket.common.ext.cardContentPadding
 fun NewAdvertisementScreen(viewModel: NewAdvertisementScreenViewModel) {
 
     val uiState by viewModel.uiState
+    val userData by viewModel.userData.collectAsStateWithLifecycle()
 
     NewAdvertisementScreenContent(
         uiState = uiState,
+        userGroupsList = userData?.groups?: emptyList(),
         onAdImagesChanged = viewModel::onImagesUriChange,
         onAdTitleChanged = viewModel::onTitleChange,
         onAdDescriptionChanged = viewModel::onDescriptionChange,
@@ -67,6 +70,7 @@ fun NewAdvertisementScreen(viewModel: NewAdvertisementScreenViewModel) {
 @Composable
 fun NewAdvertisementScreenContent(
     uiState: NewAdvertisementUiState,
+    userGroupsList: List<String>,
     onAdImagesChanged: (List<Uri>) -> Unit,
     onAdTitleChanged: (String) -> Unit,
     onAdDescriptionChanged: (String) -> Unit,
@@ -94,13 +98,14 @@ fun NewAdvertisementScreenContent(
             price = uiState.price,
             onAdPriceChanged = onAdPriceChanged)
         AdCategoryDropdownMenu(
-            userGroupsList = uiState.userGroups,
+            userGroupsList = userGroupsList,
             onUserGroupSelected = onAdGroupSelected)
         CommonButton(
             onClick = onPostAdvertisementClick,
             text = "Post advertisement")
     }
 }
+
 @Composable
 fun AdPriceCard(
     modifier: Modifier = Modifier,
@@ -119,6 +124,7 @@ fun AdPriceCard(
             imeAction = ImeAction.Next)
     )
 }
+
 @Composable
 fun AdDescriptionCard(
     modifier: Modifier = Modifier,
@@ -133,6 +139,7 @@ fun AdDescriptionCard(
         placeholder = "Enter item description",
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Default))
 }
+
 @Composable
 fun AdTitleCard(
     modifier: Modifier = Modifier,
@@ -149,6 +156,7 @@ fun AdTitleCard(
         )
     }
 }
+
 @Composable
 fun AdImagePicker(
     onImagesSelected: (List<Uri>) -> Unit,
@@ -262,12 +270,13 @@ fun AdCategoryDropdownMenu(
 fun NewAdScreenPreview() {
     NewAdvertisementScreenContent(
         NewAdvertisementUiState(),
+        userGroupsList = emptyList(),
         onAdPriceChanged = {},
         onAdTitleChanged = {},
         onAdImagesChanged = {},
         onAdDescriptionChanged = {},
         onAdGroupSelected = {},
-        onPostAdvertisementClick = {}
+        onPostAdvertisementClick = {},
     )
 }
 @Preview

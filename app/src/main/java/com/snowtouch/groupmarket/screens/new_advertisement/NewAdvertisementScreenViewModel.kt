@@ -24,19 +24,23 @@ class NewAdvertisementScreenViewModel(
     fun onTitleChange(newValue: String) {
         uiState.value = uiState.value.copy(title = newValue)
     }
+
     fun onDescriptionChange(newValue: String) {
         uiState.value = uiState.value.copy(description = newValue)
     }
+
     fun onPriceChange(newValue: String) {
         uiState.value = uiState.value.copy(price = getValidatedPrice(newValue))
     }
     fun onImagesUriChange(newValue: List<Uri>) {
         uiState.value = uiState.value.copy(images = newValue)
     }
+
     fun onAdGroupSelected(newValue: String) {
         uiState.value = uiState.value.copy(group = newValue)
     }
-    private fun getUserGroupsNames(): List<String> {
+
+    fun getUserGroupsNames(): List<String> {
         var groupNames = emptyList<String>()
         launchCatching {
              groupNames = databaseService.getUserGroupsNames()

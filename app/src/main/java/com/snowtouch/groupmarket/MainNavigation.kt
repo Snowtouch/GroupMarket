@@ -6,7 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.snowtouch.groupmarket.screens.account.account
-import com.snowtouch.groupmarket.screens.groups.groups
+import com.snowtouch.groupmarket.screens.advertisement.advertisementDetailScreen
+import com.snowtouch.groupmarket.screens.advertisement.navigateToAdvertisement
+import com.snowtouch.groupmarket.screens.groups.userGroups
 import com.snowtouch.groupmarket.screens.home.HomeScreen
 import com.snowtouch.groupmarket.screens.home.HomeScreenViewModel
 import com.snowtouch.groupmarket.screens.messages.MessagesScreen
@@ -34,15 +36,17 @@ fun MainNavigation(
 
             val viewModel: HomeScreenViewModel = koinViewModel()
 
-            HomeScreen(viewModel = viewModel) {
-                navController.navigate("advertisement") {
-                    popUpToId
-                    launchSingleTop
+            HomeScreen(
+                viewModel = viewModel,
+                onNavigateToAdDetails = { advertisementId ->
+                    navController.navigateToAdvertisement(
+                        advertisementId = advertisementId
+                    )
                 }
-            }
+            )
         }
 
-        groups(navController = navController)
+        userGroups(navController = navController)
 
         composable(route = MainRoutes.NewAd.name) {
 
@@ -55,14 +59,19 @@ fun MainNavigation(
 
             val viewModel: MessagesScreenViewModel = koinViewModel()
 
-            MessagesScreen(viewModel = viewModel) {
-                navController.navigate("conversationId") {
-                    popUpToId
-                    launchSingleTop
-                }
-            }
+            MessagesScreen(
+                viewModel = viewModel,
+                onNavigateToConversation = { navController.navigate("conversationId") }
+            )
         }
 
-        account(navController, isLoggedIn)
+        account(
+            navController = navController,
+            isLoggedIn = isLoggedIn
+        )
+
+        advertisementDetailScreen(
+            onNavigateBack = { navController.popBackStack() }
+        )
     }
 }

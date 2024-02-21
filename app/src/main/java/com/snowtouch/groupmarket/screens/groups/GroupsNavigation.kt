@@ -13,7 +13,7 @@ import com.snowtouch.groupmarket.screens.new_group.CreateNewGroupScreen
 const val groupsRoute = "groups"
 const val groupAdsRoute = "groupDetailsScreen/{groupId}"
 const val newGroupRoute = "new_group"
-fun NavGraphBuilder.groups(
+fun NavGraphBuilder.userGroups(
     navController: NavController
 ) {
     navigation(startDestination = MainRoutes.Groups.name, route = "groupDetailsGraph") {
@@ -26,11 +26,15 @@ fun NavGraphBuilder.groups(
             )
         }
 
-        composable(groupAdsRoute ,arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+        composable(
+            route = groupAdsRoute,
+            arguments = listOf(navArgument("groupId") { type = NavType.StringType })
         ) {
-            backStackEntry ->
-            val groupId = backStackEntry.arguments?.getString("groupId")
-            GroupAdsScreen(groupId = groupId)
+
+            val groupId = it.arguments?.getString("groupId") ?: ""
+
+            GroupAdsScreen(
+                groupId = groupId)
         }
         
         composable(newGroupRoute) {

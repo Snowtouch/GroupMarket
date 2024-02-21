@@ -26,7 +26,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AccountScreen(
-    viewModel: AccountScreenViewModel = koinViewModel(),
+    viewModel: AccountScreenViewModel,
     onNavigateToOptionClick: (String) -> Unit,
     onSignOutNavigate: () -> Unit
 ){

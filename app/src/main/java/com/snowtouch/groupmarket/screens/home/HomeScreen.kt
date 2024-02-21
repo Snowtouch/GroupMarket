@@ -22,7 +22,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     viewModel: HomeScreenViewModel = koinViewModel(),
-    navigateToAdDetails: () -> Unit
+    onNavigateToAdDetails: (String) -> Unit
 ){
     val userData by viewModel.userData.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState
@@ -31,7 +31,7 @@ fun HomeScreen(
         newestAds = uiState.newestAds,
         favoritesAds = uiState.userFavoriteAds,
         recentlyWatchedAds = uiState.userRecentlyWatchedAds,
-        onAdvertisementClick = navigateToAdDetails,
+        onAdvertisementClick = onNavigateToAdDetails,
         onFavoriteButtonClick = { adId -> viewModel.favoriteAdToggle(adId) }
     )
 }
@@ -41,7 +41,7 @@ fun HomeScreenContent(
     newestAds: List<Advertisement>,
     favoritesAds: List<Advertisement>,
     recentlyWatchedAds: List<Advertisement>,
-    onAdvertisementClick: () -> Unit,
+    onAdvertisementClick: (String) -> Unit,
     onFavoriteButtonClick: (String) -> Unit
 ) {
     LazyColumn {
@@ -76,7 +76,7 @@ fun AdvertisementGridRow(
     modifier: Modifier = Modifier,
     gridTitle: String,
     advertisementList: List<Advertisement>,
-    onAdvertisementClick: () -> Unit,
+    onAdvertisementClick: (String) -> Unit,
     onFavoriteButtonClick: (String) -> Unit
 ) {
     Column(modifier.padding(10.dp)) {
@@ -90,7 +90,7 @@ fun AdvertisementGridRow(
                 items(advertisementList) { advertisement ->
                     AdvertisementCard(
                         advertisement = advertisement,
-                        onCardClick = onAdvertisementClick,
+                        onCardClick = { onAdvertisementClick(advertisement.uid) },
                         onFavoriteButtonClick = onFavoriteButtonClick
                     )
                     Spacer(modifier = Modifier.padding(end = 5.dp))

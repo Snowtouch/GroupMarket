@@ -5,34 +5,51 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import com.google.firebase.auth.FirebaseAuth
-import com.snowtouch.groupmarket.theme.GroupMarketTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.snowtouch.groupmarket.model.AuthDataProvider
 import org.koin.android.ext.android.inject
-import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 class GroupMarketActivity : ComponentActivity() {
 
+    private val authViewModel: AuthViewModel by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val auth: FirebaseAuth by inject()
-        val userLogged = auth.currentUser!=null
 
         setContent {
 
             val windowSizeClass = calculateWindowSizeClass(this)
             val isScreenSizeCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
+            val currentUser = authViewModel.currentUser.collectAsStateWithLifecycle().value
+
+            AuthDataProvider.updateAuthState(currentUser)
+
             GroupMarketApp(
                 isScreenSizeCompact =  isScreenSizeCompact,
-                isLoggedIn = userLogged
+                isLoggedIn = AuthDataProvider.isAuthenticated
             )
-            //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            //   RequestNotificationPermissionDialog()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+               RequestNotificationPermissionDialog()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (AuthDataProvider.isAuthenticated) {
+            authViewModel.enableUserDataListener()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        if (AuthDataProvider.isAuthenticated) {
+            authViewModel.disableUserDataListener()
         }
     }
 }

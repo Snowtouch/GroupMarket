@@ -6,6 +6,7 @@ import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
 data class Advertisement(
+    val uid: String = "",
     val ownerUid: String = "",
     val groupId: String = "",
     val title: String = "",
@@ -17,7 +18,8 @@ data class Advertisement(
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(
-            "uid" to ownerUid,
+            "uid" to uid,
+            "ownerUid" to ownerUid,
             "groupId" to groupId,
             "title" to title,
             "images" to images,
