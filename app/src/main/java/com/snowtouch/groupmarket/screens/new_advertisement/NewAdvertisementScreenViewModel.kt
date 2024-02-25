@@ -4,9 +4,13 @@ import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import com.snowtouch.groupmarket.common.snackbar.SnackbarState
 import com.snowtouch.groupmarket.model.Advertisement
+import com.snowtouch.groupmarket.model.Group
+import com.snowtouch.groupmarket.model.User
 import com.snowtouch.groupmarket.model.service.DatabaseService
 import com.snowtouch.groupmarket.model.service.StorageService
 import com.snowtouch.groupmarket.screens.GroupMarketViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
 
 class NewAdvertisementScreenViewModel(
@@ -14,11 +18,24 @@ class NewAdvertisementScreenViewModel(
     private val databaseService: DatabaseService
 ): GroupMarketViewModel() {
 
-    val userData = databaseService.userData
+    private val _userData: StateFlow<User?> = databaseService.userData
+
+    private val _userGroupsData: StateFlow<List<Group?>> = databaseService.userGroupsData
+
+    private val _groupsIdNamePairList = MutableStateFlow<List<Pair<String, String>>>(emptyList())
+    val groupsIdNamePairList: StateFlow<List<Pair<String, String>>> = _groupsIdNamePairList
+
     var uiState = mutableStateOf(NewAdvertisementUiState())
         private set
     init {
-        uiState.value = uiState.value.copy(userGroups = getUserGroupsNames())
+        launchCatching {
+            _userGroupsData.collect { groups ->
+                val pairs = groups.map { group ->
+                    Pair(group?.uid ?: "", group?.name ?: "")
+                }
+                _groupsIdNamePairList.value = pairs
+            }
+        }
     }
 
     fun onTitleChange(newValue: String) {
@@ -37,15 +54,7 @@ class NewAdvertisementScreenViewModel(
     }
 
     fun onAdGroupSelected(newValue: String) {
-        uiState.value = uiState.value.copy(group = newValue)
-    }
-
-    fun getUserGroupsNames(): List<String> {
-        var groupNames = emptyList<String>()
-        launchCatching {
-             groupNames = databaseService.getUserGroupsNames()
-        }
-        return groupNames
+        uiState.value = uiState.value.copy(groupId = newValue)
     }
 
     private fun getValidatedPrice(price: String): String {
@@ -73,11 +82,10 @@ class NewAdvertisementScreenViewModel(
                 val newAdRefKey = databaseService.getNewAdReferenceKey()!!
                 val adImagesUriList =
                     storageService.uploadAdImages(uiState.value.images, newAdRefKey)
-                val listIndex = uiState.value.userGroups.indexOf(uiState.value.group)
-                val groupId = userData.value?.groups?.getOrNull(listIndex) ?: ""
+
 
                 val adWithImages = Advertisement(
-                    groupId = groupId,
+                    groupId = uiState.value.groupId,
                     title = uiState.value.title,
                     images = adImagesUriList,
                     description = uiState.value.description,
@@ -95,7 +103,7 @@ class NewAdvertisementScreenViewModel(
 
     private fun validateNewAd(): Boolean {
         return uiState.value.images.isNotEmpty() &&
-                uiState.value.group.isNotBlank() &&
+                uiState.value.groupId.isNotBlank() &&
                 uiState.value.title.isNotBlank() &&
                 uiState.value.description.isNotEmpty() &&
                 uiState.value.price.isNotEmpty()

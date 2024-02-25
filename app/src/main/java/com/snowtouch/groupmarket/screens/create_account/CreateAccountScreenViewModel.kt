@@ -3,6 +3,7 @@ package com.snowtouch.groupmarket.screens.create_account
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import com.snowtouch.groupmarket.common.ext.isValidEmail
+import com.snowtouch.groupmarket.common.ext.isValidLength
 import com.snowtouch.groupmarket.common.ext.isValidPassword
 import com.snowtouch.groupmarket.common.ext.passwordMatches
 import com.snowtouch.groupmarket.common.snackbar.SnackbarGlobalDelegate
@@ -21,18 +22,34 @@ class CreateAccountScreenViewModel(
         private set
 
     fun onEmailChange(newValue: String) {
+        if (newValue.isValidLength())
+            return
+        else
         uiState.value = uiState.value.copy(email = newValue)
     }
 
+    fun onNameChange(newValue: String) {
+        if (newValue.isValidLength())
+            return
+        else
+        uiState.value = uiState.value.copy(name = newValue)
+    }
+
     fun onPasswordChange(newValue: String) {
+        if (newValue.isValidLength())
+            return
+        else
         uiState.value = uiState.value.copy(password = newValue)
     }
 
     fun onRepeatPasswordChange(newValue: String) {
+        if (newValue.isValidLength())
+            return
+        else
         uiState.value = uiState.value.copy(repeatPassword = newValue)
     }
 
-    fun createAccount(email: String, password: String) {
+    fun createAccount(email: String, name: String, password: String) {
         if (!email.isValidEmail()) {
             showSnackbar(SnackbarState.ERROR, "Please enter a valid e-mail address")
             return
@@ -49,7 +66,8 @@ class CreateAccountScreenViewModel(
         Log.d("Account creation", "passed")
         launchCatching {
             accountService.createAccount(email, password)
-            databaseService.createNewUserData(User(email = email))
+            databaseService.createNewUserData(
+                User(email = email, name = name))
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.snowtouch.groupmarket.model.service.impl
 
+import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -11,8 +12,10 @@ import com.snowtouch.groupmarket.model.User
 import com.snowtouch.groupmarket.model.service.AccountService
 import com.snowtouch.groupmarket.model.service.DatabaseService
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -48,15 +51,18 @@ class DatabaseServiceImpl(
 
     private val userGroupDataListener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
-            val newData = snapshot.getValue<Group>()
+            val newGroupData = snapshot.getValue<Group>()
 
-            val tempGroup = _userGroupsData.value.toMutableList()
-            val indexOfUpdatedGroup = tempGroup.indexOfFirst { group ->
-                group?.uid == newData?.uid }
-            if (indexOfUpdatedGroup != -1) {
-                tempGroup[indexOfUpdatedGroup] = newData
-                _userGroupsData.value = tempGroup.toList()
+            val tempGroups = _userGroupsData.value.toMutableList()
+            val existingGroupIndex = tempGroups.indexOfFirst { group ->
+                group?.uid == newGroupData?.uid
             }
+            if (existingGroupIndex != -1) {
+                tempGroups[existingGroupIndex] = newGroupData
+            } else {
+                tempGroups.add(newGroupData)
+            }
+            _userGroupsData.value = tempGroups.toList()
         }
 
         override fun onCancelled(error: DatabaseError) {
@@ -64,26 +70,57 @@ class DatabaseServiceImpl(
         }
     }
 
+    override suspend fun getInitialUserData() {
+        withContext(dispatcher) {
+            val currentDataSnapshot = currentUserReference
+                .get()
+                .await()
+            val currentUserData = currentDataSnapshot.getValue<User?>()
+            _userData.value = currentUserData
+        }
+    }
+
+    override suspend fun getInitialUserGroupsData() {
+        withContext(dispatcher) {
+            val groupsIdList = _userData.value?.groups?: emptyList()
+            val groupsSnapshot = groupsReference
+                .orderByKey()
+                .startAt(groupsIdList.first())
+                .endAt(groupsIdList.last())
+                .get()
+                .await()
+
+                _userGroupsData.value = groupsSnapshot.children.mapNotNull { groupSnapshot ->
+                    groupSnapshot.getValue(Group::class.java)
+                }
+        }
+    }
+
     override suspend fun enableUserGroupsDataListeners() {
         val userHaveGroups = userData.value?.groups?.isNotEmpty() == true && userData.value?.groups != null
         withContext(dispatcher) {
             if (userHaveGroups) {
-                for (groupId in userData.value?.groups!!)
+                val userGroupsList = userData.value?.groups?: emptyList()
+                for (groupId in userGroupsList)
                     groupsReference
                         .child(groupId)
                         .addValueEventListener(userGroupDataListener)
+                Log.e("UserGroupsListener", "enabled")
             }
         }
+
     }
 
     override suspend fun disableUserGroupsDataListeners() {
         val userHaveGroups = userData.value?.groups?.isNotEmpty() == true && userData.value?.groups != null
         withContext(dispatcher) {
             if (userHaveGroups) {
-                for (groupId in userData.value?.groups!!)
+                val userGroupsList = userData.value?.groups?: emptyList()
+                for (groupId in userGroupsList)
                     groupsReference
                         .child(groupId)
                         .removeEventListener(userGroupDataListener)
+                Log.e("UserGroupsListener", "disabled")
             }
         }
     }
@@ -92,6 +129,7 @@ class DatabaseServiceImpl(
         withContext(dispatcher) {
             currentUserReference
                 .addValueEventListener(userDataListener)
+            Log.e("UserDataListener", "enabled")
         }
     }
 
@@ -99,6 +137,7 @@ class DatabaseServiceImpl(
         withContext(dispatcher) {
             currentUserReference
                 .removeEventListener(userDataListener)
+            Log.e("UserDataListener", "disabled")
         }
     }
 
@@ -113,15 +152,17 @@ class DatabaseServiceImpl(
     override suspend fun createNewGroup(name: String, description: String, isPrivate: Boolean) {
         withContext(dispatcher) {
 
+            val membersList = listOf("${_userData.value?.uid}")
             val newKey = adsReference.push().key ?: ""
+
             val newGroup = Group(
                 uid = newKey,
                 ownerId = auth.currentUserId,
+                members = membersList,
                 ownerName = userData.value?.name ?: "",
                 name = name,
                 description = description
             )
-
             groupsReference.child(newKey).setValue(newGroup)
 
             val currentGroupsList = mutableListOf<String>()
@@ -133,7 +174,9 @@ class DatabaseServiceImpl(
 
             for (groupUidSnapshot in groupsSnapshot.children) {
                 val groupUid = groupUidSnapshot.getValue<String>()
-                currentGroupsList.add(groupUid ?: "")
+                groupUid?.let {
+                    currentGroupsList.add(it)
+                }
             }
 
             currentGroupsList.add(newKey)
@@ -141,6 +184,7 @@ class DatabaseServiceImpl(
             usersReference.child(auth.currentUserId)
                 .child("groups")
                 .setValue(currentGroupsList)
+                .await()
         }
     }
 
@@ -150,19 +194,36 @@ class DatabaseServiceImpl(
         }
     }
 
-    override suspend fun getUserGroupsNames(): List<String> {
-        val groupUidList = _userData.value?.groups.orEmpty()
+    override suspend fun getGroupAdvertisementsList(groupId: String): List<Advertisement> = withContext(dispatcher) {
+        val groupAdsIdListSnapshot = groupsReference
+            .child(groupId)
+            .get()
+            .await()
 
-        return if (groupUidList.isNotEmpty()) {
-            withContext(dispatcher) {
-                groupUidList.map { groupUid ->
-                    groupsReference.child(groupUid).child("name").get().await().value as String
-                }
+        val groupAdsIdList = mutableListOf<String>()
+
+        groupAdsIdListSnapshot.children.forEach { childSnapshot ->
+            val adId = childSnapshot.getValue(String::class.java)
+            adId?.let {
+                groupAdsIdList.add(it)
             }
-        } else {
-            emptyList()
         }
+        if (groupAdsIdList.isNotEmpty()) {
+            val groupAdsSnapshot = adsReference
+                .orderByKey()
+                .startAt(groupAdsIdList.first())
+                .endAt(groupAdsIdList.last())
+                .get()
+                .await()
+
+            return@withContext groupAdsSnapshot.children.mapNotNull { adsSnapshot ->
+                adsSnapshot.getValue(Advertisement::class.java)
+            }
+        }
+
+        return@withContext emptyList()
     }
+
     override suspend fun createAdvertisement(advertisement: Advertisement, ref: String) {
         withContext(dispatcher){
             val adWithNewKey = advertisement.copy(ownerUid = auth.currentUserId)
@@ -177,7 +238,7 @@ class DatabaseServiceImpl(
         }
     }
 
-    override suspend fun addOrRemoveFavoriteAd(adId: String) {
+    override suspend fun toggleFavoriteAd(adId: String) {
         withContext(dispatcher) {
 
             val favoritesListReference = currentUserReference.child("favoritesList")

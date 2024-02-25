@@ -20,12 +20,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -46,43 +46,47 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.snowtouch.groupmarket.R
-import com.snowtouch.groupmarket.common.composable.CommonButton
 import com.snowtouch.groupmarket.common.composable.CardEmptyValidatedTextField
+import com.snowtouch.groupmarket.common.composable.CommonButton
 import com.snowtouch.groupmarket.common.ext.cardContentPadding
 
 @Composable
-fun NewAdvertisementScreen(viewModel: NewAdvertisementScreenViewModel) {
+fun NewAdvertisementScreen(
+    modifier: Modifier = Modifier,
+    viewModel: NewAdvertisementScreenViewModel
+) {
 
     val uiState by viewModel.uiState
-    val userData by viewModel.userData.collectAsStateWithLifecycle()
+    val groupsIdNamePairList by viewModel.groupsIdNamePairList.collectAsStateWithLifecycle()
 
     NewAdvertisementScreenContent(
+        modifier = modifier,
         uiState = uiState,
-        userGroupsList = userData?.groups?: emptyList(),
+        userGroupsList = groupsIdNamePairList,
         onAdImagesChanged = viewModel::onImagesUriChange,
         onAdTitleChanged = viewModel::onTitleChange,
         onAdDescriptionChanged = viewModel::onDescriptionChange,
         onAdPriceChanged = viewModel::onPriceChange,
-        onAdGroupSelected = viewModel::onAdGroupSelected,
+        onUserGroupSelected = viewModel::onAdGroupSelected,
         onPostAdvertisementClick = viewModel::postNewAdvertisement
     )
 }
 @Composable
 fun NewAdvertisementScreenContent(
+    modifier: Modifier = Modifier,
     uiState: NewAdvertisementUiState,
-    userGroupsList: List<String>,
+    userGroupsList: List<Pair<String, String>>,
     onAdImagesChanged: (List<Uri>) -> Unit,
     onAdTitleChanged: (String) -> Unit,
     onAdDescriptionChanged: (String) -> Unit,
     onAdPriceChanged: (String) -> Unit,
-    onAdGroupSelected: (String) -> Unit,
+    onUserGroupSelected: (String) -> Unit,
     onPostAdvertisementClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
     Column(
-        modifier = Modifier
-            .padding(top = 16.dp)
+        modifier = modifier
             .wrapContentSize()
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -97,9 +101,9 @@ fun NewAdvertisementScreenContent(
         AdPriceCard(
             price = uiState.price,
             onAdPriceChanged = onAdPriceChanged)
-        AdCategoryDropdownMenu(
-            userGroupsList = userGroupsList,
-            onUserGroupSelected = onAdGroupSelected)
+        SelectGroupDropdownMenu(
+            userGroupsIdNamePairList = userGroupsList,
+            onUserGroupSelected = onUserGroupSelected)
         CommonButton(
             onClick = onPostAdvertisementClick,
             text = "Post advertisement")
@@ -197,7 +201,7 @@ fun AdImagePicker(
                     },
                 placeholder = painterResource(R.drawable.placeholder_image)
             )
-            Divider()
+            HorizontalDivider()
             LazyRow(
                 modifier
                     .wrapContentSize()
@@ -214,10 +218,10 @@ fun AdImagePicker(
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AdCategoryDropdownMenu(
-    userGroupsList: List<String> = emptyList(),
+fun SelectGroupDropdownMenu(
+    modifier: Modifier = Modifier,
+    userGroupsIdNamePairList: List<Pair<String, String>>,
     onUserGroupSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var groupName by remember { mutableStateOf("") }
@@ -252,12 +256,12 @@ fun AdCategoryDropdownMenu(
             onDismissRequest = { isExpanded = false },
             modifier = modifier.fillMaxWidth()
         ) {
-            userGroupsList.forEach {
+            userGroupsIdNamePairList.forEach {
                 DropdownMenuItem(
-                    text = { Text(text = it) },
+                    text = { Text(text = it.second) },
                     onClick = {
-                        groupName = it
-                        onUserGroupSelected(it)
+                        groupName = it.second
+                        onUserGroupSelected(it.first)
                     },
                     modifier = modifier.fillMaxWidth()
                 )
@@ -269,13 +273,13 @@ fun AdCategoryDropdownMenu(
 @Composable
 fun NewAdScreenPreview() {
     NewAdvertisementScreenContent(
-        NewAdvertisementUiState(),
+        uiState = NewAdvertisementUiState(),
         userGroupsList = emptyList(),
         onAdPriceChanged = {},
         onAdTitleChanged = {},
         onAdImagesChanged = {},
         onAdDescriptionChanged = {},
-        onAdGroupSelected = {},
+        onUserGroupSelected = {},
         onPostAdvertisementClick = {},
     )
 }

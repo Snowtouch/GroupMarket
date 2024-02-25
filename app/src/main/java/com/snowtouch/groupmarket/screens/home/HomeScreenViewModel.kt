@@ -22,7 +22,7 @@ class HomeScreenViewModel(private val databaseService: DatabaseService) : GroupM
     }
     fun favoriteAdToggle(adId: String) {
         launchCatching{
-            databaseService.addOrRemoveFavoriteAd(adId)
+            databaseService.toggleFavoriteAd(adId)
         }
     }
     private fun fetchUserFavoriteAdvertisements() {

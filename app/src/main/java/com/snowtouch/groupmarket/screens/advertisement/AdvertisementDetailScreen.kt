@@ -14,8 +14,10 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.lerp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.snowtouch.groupmarket.R
@@ -59,8 +62,12 @@ fun AdvertisementDetailScreenContent(
             IconButton(
                 onClick = { onNavigateBack() }
             ) {
-                Icons.Filled.ArrowBack
-        }}
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null
+                )
+            }
+        }
     )
     Column(
         modifier = modifier,
@@ -135,3 +142,18 @@ fun Modifier.carouselTransition(page: Int, pagerState: PagerState) =
         alpha = transformation.scaleX
         scaleY = transformation.scaleY
     }
+
+@Preview
+@Composable
+fun AdDetailScreenContentPreview() {
+    AdvertisementDetailScreenContent(
+        advertisement = Advertisement(
+            uid = "12",
+            ownerUid = "432",
+            groupId = "334",
+            title = "Shoes",
+            description = "Description Description Description Description Description Description",
+            price = "333.33",
+            postDate = "21-10-2091"
+        ), onNavigateBack = {})
+}

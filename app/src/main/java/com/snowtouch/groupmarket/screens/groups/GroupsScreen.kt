@@ -9,15 +9,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,28 +34,54 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.snowtouch.groupmarket.common.composable.VerticalDivider
 import com.snowtouch.groupmarket.common.ext.cardContentPadding
 import com.snowtouch.groupmarket.model.Group
-import org.koin.androidx.compose.koinViewModel
+import com.snowtouch.groupmarket.screens.group_ads.GroupAdsScreenContent
+import com.snowtouch.groupmarket.theme.GroupMarketTheme
 
 @Composable
 fun GroupsScreen(
-    viewModel: GroupsScreenViewModel = koinViewModel(),
+    viewModel: GroupsScreenViewModel,
+    isScreenSizeCompact: Boolean = true,
     navigateToGroupAdsScreen: (String) -> Unit,
-    navigateToNewGroupScreen: () -> Unit
+    navigateToNewGroupScreen: () -> Unit,
+    navigateToAdDetailsScreen: (String) -> Unit
 ) {
 
     val userData by viewModel.userData.collectAsStateWithLifecycle()
     val userGroupsData by viewModel.userGroupsData.collectAsStateWithLifecycle()
+    val groupAdsData by viewModel.advertisementsFlow.collectAsStateWithLifecycle()
 
-    GroupsScreenContent(
-        userGroupsList = userGroupsData,
-        onGoToGroupAdsClick = navigateToGroupAdsScreen,
-        onCreateNewGroupClick = navigateToNewGroupScreen
-    )
+    var selectedGroupId by remember {
+        mutableStateOf("")
+    }
+
+    Row {
+        GroupsScreenContent(
+            userGroupsList = userGroupsData,
+            onGoToGroupAdsClick = { groupId ->
+                if (isScreenSizeCompact) {
+                    navigateToGroupAdsScreen(groupId)
+                }
+                else {
+                    selectedGroupId = groupId
+                    viewModel.fetchGroupAdvertisements(selectedGroupId)
+                }
+            },
+            onCreateNewGroupClick = navigateToNewGroupScreen
+        )
+        AnimatedVisibility(visible = !isScreenSizeCompact && selectedGroupId.isNotEmpty()) {
+            GroupAdsScreenContent(
+                groupId = selectedGroupId,
+                groupAdList = groupAdsData,
+                onAdCardClick = navigateToAdDetailsScreen
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +91,12 @@ fun GroupsScreenContent(
     onGoToGroupAdsClick: (String) -> Unit,
     onCreateNewGroupClick: () -> Unit
 ) {
-    Column {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .sizeIn(minWidth = 200.dp, maxWidth = 600.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         TopAppBar(
             title = {
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
@@ -84,7 +116,6 @@ fun GroupsScreenContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupCard(
     modifier: Modifier = Modifier,
@@ -126,7 +157,7 @@ fun GroupCard(
                         onClick = { onGroupDetailsClick(group.uid) }
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.KeyboardArrowRight,
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = "View details"
                         )
                     }
@@ -137,7 +168,7 @@ fun GroupCard(
                     Text(text = group.description)
                 }
             }
-            Divider()
+            HorizontalDivider()
             Icon(
                 imageVector = Icons.Filled.ArrowDropDown,
                 contentDescription = null,
@@ -147,49 +178,22 @@ fun GroupCard(
     }
 }
 
-@Preview
+@Preview(showSystemUi = true)
+@PreviewScreenSizes
 @Composable
 fun GroupsScreenContentPreview() {
-    val previewGroup = Group(
-        uid = "s34s4x2rf356",
-        ownerId = "kiOoB6StvIc8I9vjP8DSTfMNB2D9",
-        ownerName = "Max",
-        members = emptyList(),
-        name = "Default group",
-        description = "Description text",
-        advertisements = null
-    )
-    val previewGroupList = listOf(previewGroup, previewGroup, previewGroup, previewGroup, previewGroup)
-    GroupsScreenContent(previewGroupList, {}) {}
-}
-@Preview
-@Composable
-fun GroupCardPreview() {
-    GroupCard(group = Group(
-        uid = "s34s4x2rf356",
-        ownerId = "kiOoB6StvIc8I9vjP8DSTfMNB2D9",
-        ownerName = "Max",
-        members = emptyList(),
-        name = "Default group",
-        description = "Description text",
-        advertisements = null
-    ), onGroupDetailsClick = {})
-}
-@Preview
-@Composable
-fun GroupListPreview() {
-    val previewGroup = Group(
-        uid = "s34s4x2rf356",
-        ownerId = "kiOoB6StvIc8I9vjP8DSTfMNB2D9",
-        ownerName = "Max",
-        members = emptyList(),
-        name = "Default group",
-        description = "Description text",
-        advertisements = null
-    )
-    val previewGroupList = listOf(previewGroup, previewGroup, previewGroup, previewGroup, previewGroup)
-    GroupsScreenContent(
-        userGroupsList = previewGroupList,
-        onGoToGroupAdsClick = {}
-    ) {}
+    GroupMarketTheme(dynamicColor = false) {
+        val previewGroup = Group(
+            uid = "s34s4x2rf356",
+            ownerId = "kiOoB6StvIc8I9vj",
+            ownerName = "Max",
+            members = emptyList(),
+            name = "Default group",
+            description = "Description text",
+            advertisements = null
+        )
+        val previewGroupList =
+            listOf(previewGroup, previewGroup, previewGroup, previewGroup, previewGroup)
+        GroupsScreenContent(previewGroupList, {}, {})
+    }
 }

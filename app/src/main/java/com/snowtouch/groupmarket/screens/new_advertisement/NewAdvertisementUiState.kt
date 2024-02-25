@@ -7,7 +7,6 @@ data class NewAdvertisementUiState(
     val title: String = "",
     val description: String = "",
     val price: String = "",
-    val group: String = "",
-    val userGroups: List<String> = emptyList(),
+    val groupId: String = "",
     val images: List<Uri> = emptyList()
 )

@@ -5,6 +5,7 @@ import com.snowtouch.groupmarket.screens.GroupMarketViewModel
 import com.snowtouch.groupmarket.screens.account.AccountScreenViewModel
 import com.snowtouch.groupmarket.screens.advertisement.AdvertisementDetailScreenViewModel
 import com.snowtouch.groupmarket.screens.create_account.CreateAccountScreenViewModel
+import com.snowtouch.groupmarket.screens.group_ads.GroupAdsScreenViewModel
 import com.snowtouch.groupmarket.screens.groups.GroupsScreenViewModel
 import com.snowtouch.groupmarket.screens.home.HomeScreenViewModel
 import com.snowtouch.groupmarket.screens.login.LoginScreenViewModel
@@ -19,6 +20,7 @@ val viewModelModule = module {
     viewModel { AuthViewModel(get(), get()) }
     viewModel { HomeScreenViewModel(get()) }
     viewModel { GroupsScreenViewModel(get()) }
+    viewModel { GroupAdsScreenViewModel(get()) }
     viewModel { CreateNewGroupScreenViewModel(get()) }
     viewModel { NewAdvertisementScreenViewModel(get(), get()) }
     viewModel { MessagesScreenViewModel() }

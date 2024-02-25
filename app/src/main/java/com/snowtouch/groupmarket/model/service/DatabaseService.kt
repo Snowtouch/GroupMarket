@@ -10,6 +10,10 @@ interface DatabaseService {
     val userData: StateFlow<User?>
     val userGroupsData: StateFlow<List<Group?>>
 
+    suspend fun getInitialUserGroupsData()
+
+    suspend fun getInitialUserData()
+
     suspend fun enableUserDataListener()
 
     suspend fun disableUserDataListener()
@@ -24,9 +28,9 @@ interface DatabaseService {
 
     suspend fun getLatestAdvertisementsList(): List<Advertisement>
 
-    suspend fun getUserFavoriteAdvertisementsList(): List<Advertisement>
+    suspend fun getGroupAdvertisementsList(groupId: String): List<Advertisement>
 
-    suspend fun getUserGroupsNames(): List<String>
+    suspend fun getUserFavoriteAdvertisementsList(): List<Advertisement>
 
     suspend fun createNewUserData(user: User)
 
@@ -34,5 +38,5 @@ interface DatabaseService {
 
     suspend fun createNewGroup(name: String, description: String, isPrivate: Boolean)
 
-    suspend fun addOrRemoveFavoriteAd(adId: String)
+    suspend fun toggleFavoriteAd(adId: String)
 }

@@ -28,6 +28,7 @@ enum class MainRoutes(val value: String) {
 fun MainNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    isScreenSizeCompact: Boolean,
     isLoggedIn: Boolean
 ) {
     NavHost(navController = navController, startDestination = MainRoutes.Home.name) {
@@ -46,13 +47,18 @@ fun MainNavigation(
             )
         }
 
-        userGroups(navController = navController)
+        userGroups(
+            navController = navController,
+            isScreenSizeCompact = isScreenSizeCompact)
 
         composable(route = MainRoutes.NewAd.name) {
 
             val viewModel: NewAdvertisementScreenViewModel = koinViewModel()
 
-            NewAdvertisementScreen(viewModel = viewModel)
+            NewAdvertisementScreen(
+                modifier = modifier,
+                viewModel = viewModel
+            )
         }
 
         composable(route = MainRoutes.Messages.name) {

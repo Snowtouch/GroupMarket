@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -18,11 +17,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.snowtouch.groupmarket.common.composable.CardEmptyValidatedTextField
 import com.snowtouch.groupmarket.common.composable.CommonButton
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CreateNewGroupScreen(
-    viewModel: CreateNewGroupScreenViewModel = koinViewModel()
+    viewModel: CreateNewGroupScreenViewModel,
+    onCreateGroupClick: () -> Unit
 ) {
 
     val uiState by viewModel.uiState
@@ -32,11 +31,12 @@ fun CreateNewGroupScreen(
         onGroupNameChanged = viewModel::onNameChange,
         onGroupDescriptionChanged = viewModel::onDescriptionChange,
         onPrivacySwitchChange = { viewModel.onPrivateGroupSwitchChange() },
-        onCreateGroupClick = viewModel::createNewGroup
+        onCreateGroupClick = {
+            viewModel.createNewGroup()
+            onCreateGroupClick() }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNewGroupScreenContent(
     uiState: CreateNewGroupUiState,

@@ -59,6 +59,7 @@ fun GroupMarketApp(
                     MainNavigation(
                         modifier = Modifier.padding(paddingValues),
                         navController = navController,
+                        isScreenSizeCompact = isScreenSizeCompact,
                         isLoggedIn = isLoggedIn
                     )
                 }
@@ -88,6 +89,7 @@ fun GroupMarketPreview(){
         val navController = rememberNavController()
         MainNavigation(
             navController = navController,
+            isScreenSizeCompact = true,
             isLoggedIn = false)
     }
 }

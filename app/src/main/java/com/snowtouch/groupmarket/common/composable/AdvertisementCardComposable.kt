@@ -60,7 +60,12 @@ fun AdvertisementCard(
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(advertisement.images.first())
+                        .data(
+                            if (advertisement.images.isEmpty()) {
+                                R.drawable.placeholder_image
+                            } else {
+                                advertisement.images.first() }
+                        )
                         .crossfade(true)
                         .build(),
                     placeholder = painterResource(R.drawable.placeholder_image),

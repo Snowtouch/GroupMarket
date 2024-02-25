@@ -1,5 +1,6 @@
 package com.snowtouch.groupmarket.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.snowtouch.groupmarket.common.snackbar.SnackbarGlobalDelegate
@@ -10,7 +11,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-open class GroupMarketViewModel() : ViewModel(), KoinComponent {
+open class GroupMarketViewModel : ViewModel(), KoinComponent {
 
     private val snackbarGlobalDelegate : SnackbarGlobalDelegate by inject()
 
@@ -25,8 +26,10 @@ open class GroupMarketViewModel() : ViewModel(), KoinComponent {
     fun launchCatching(snackbar: Boolean = true, block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch(
             CoroutineExceptionHandler { _, throwable ->
-                if (snackbar)
-                    showSnackbar(SnackbarState.ERROR, throwable.message?: "Something went wrong")
+                if (snackbar) {
+                    Log.e("Error", throwable.message ?: "Error")
+                    showSnackbar(SnackbarState.ERROR, throwable.message ?: "Something went wrong")
+                }
             }, block = block
         )
     }

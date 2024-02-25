@@ -15,3 +15,7 @@ fun String.isValidPassword(): Boolean {
 fun String.passwordMatches(repeated: String): Boolean {
     return this == repeated
 }
+
+fun String.isValidLength(): Boolean {
+    return this.length < 32
+}
