@@ -32,14 +32,14 @@ class GroupMarketActivity : ComponentActivity() {
 
             AuthDataProvider.updateAuthState(currentUser)
 
-            if (AuthDataProvider.isAuthenticated) {
+            /*if (AuthDataProvider.isAuthenticated) {
                 LaunchedEffect(Unit) {
                     databaseService.getInitialUserData()
                     databaseService.getInitialUserGroupsData()
                     databaseService.enableUserDataListener()
                     databaseService.enableUserGroupsDataListeners()
                 }
-            }
+            }*/
 
             GroupMarketApp(
                 isScreenSizeCompact =  isScreenSizeCompact,

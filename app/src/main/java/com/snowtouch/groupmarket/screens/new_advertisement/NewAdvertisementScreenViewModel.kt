@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.snowtouch.groupmarket.common.snackbar.SnackbarState
 import com.snowtouch.groupmarket.model.Advertisement
 import com.snowtouch.groupmarket.model.Group
-import com.snowtouch.groupmarket.model.User
+import com.snowtouch.groupmarket.model.StorageUploadState
 import com.snowtouch.groupmarket.model.service.DatabaseService
 import com.snowtouch.groupmarket.model.service.StorageService
 import com.snowtouch.groupmarket.screens.GroupMarketViewModel
@@ -18,15 +18,23 @@ class NewAdvertisementScreenViewModel(
     private val databaseService: DatabaseService
 ): GroupMarketViewModel() {
 
-    private val _userData: StateFlow<User?> = databaseService.userData
-
     private val _userGroupsData: StateFlow<List<Group?>> = databaseService.userGroupsData
 
     private val _groupsIdNamePairList = MutableStateFlow<List<Pair<String, String>>>(emptyList())
     val groupsIdNamePairList: StateFlow<List<Pair<String, String>>> = _groupsIdNamePairList
 
+    private val _uploadState = MutableStateFlow<StorageUploadState>(
+        StorageUploadState.UploadInProgress(
+            progress = 0.0,
+            currentImageIndex = 0,
+            totalImagesCount = 0)
+    )
+    val uploadState: StateFlow<StorageUploadState> = _uploadState
+
     var uiState = mutableStateOf(NewAdvertisementUiState())
         private set
+
+
     init {
         launchCatching {
             _userGroupsData.collect { groups ->
@@ -76,23 +84,48 @@ class NewAdvertisementScreenViewModel(
         }
     }
 
+    private fun uploadAdImages(adUid: String) {
+        launchCatching {
+            val images = uiState.value.images
+
+            images.forEachIndexed { index, image ->
+                val result = storageService.uploadAdImage(image, adUid, index + 1, images.size)
+                _uploadState.value = result
+
+                if (result is StorageUploadState.UploadError) {
+                    showSnackbar(SnackbarState.ERROR, result.errorMessage)
+                    return@launchCatching
+                }
+            }
+        }
+    }
+
+    private fun getAdImagesUrls(adUid: String) : List<String> {
+        var uriList = mutableListOf<String>()
+        launchCatching {
+             uriList = storageService.getAllImageUrls(adUid).toMutableList()
+        }
+    return uriList
+    }
+
     fun postNewAdvertisement() {
         launchCatching {
             if (validateNewAd()) {
-                val newAdRefKey = databaseService.getNewAdReferenceKey()!!
-                val adImagesUriList =
-                    storageService.uploadAdImages(uiState.value.images, newAdRefKey)
+                val newAdUid = databaseService.getNewAdReferenceKey() ?: ""
+                uploadAdImages(newAdUid)
+                val adImagesStorageRef = getAdImagesUrls(newAdUid)
 
 
                 val adWithImages = Advertisement(
+                    uid = newAdUid,
                     groupId = uiState.value.groupId,
                     title = uiState.value.title,
-                    images = adImagesUriList,
+                    images = adImagesStorageRef,
                     description = uiState.value.description,
                     price = uiState.value.price,
                     postDate = LocalDateTime.now().toString()
                 )
-                databaseService.createAdvertisement(adWithImages, newAdRefKey)
+                databaseService.createAdvertisement(adWithImages, newAdUid)
             }
             else {
                 showSnackbar(SnackbarState.ERROR, "Please fill in all fields.")

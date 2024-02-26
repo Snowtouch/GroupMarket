@@ -136,7 +136,7 @@ fun SetFavoriteButton(
 @Preview
 @Composable
 fun CardPreview(){
-    val list: List<Uri> = emptyList()
+    val list: List<String> = emptyList()
     val userFavorites = listOf("2")
     AdvertisementCard(
         Advertisement(

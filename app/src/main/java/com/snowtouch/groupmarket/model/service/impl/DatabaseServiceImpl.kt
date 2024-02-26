@@ -12,10 +12,8 @@ import com.snowtouch.groupmarket.model.User
 import com.snowtouch.groupmarket.model.service.AccountService
 import com.snowtouch.groupmarket.model.service.DatabaseService
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -227,14 +225,29 @@ class DatabaseServiceImpl(
     override suspend fun createAdvertisement(advertisement: Advertisement, ref: String) {
         withContext(dispatcher){
             val adWithNewKey = advertisement.copy(ownerUid = auth.currentUserId)
-            val advertisementValues = adWithNewKey.toMap()
 
-            val childUpdates = hashMapOf<String, Any>(
-                "/ads/$ref" to advertisementValues,
-                "/users/${auth.currentUserId}/advertisements/$ref" to advertisementValues,
-                "/groups/${advertisement.groupId}/$ref" to advertisementValues
-            )
-            firebaseDatabase.reference.updateChildren(childUpdates).await()
+            adsReference
+                .child(advertisement.uid)
+                .setValue(advertisement)
+                .await()
+
+            val currentUserAdsListSnapshot = currentUserReference
+                .child("advertisements")
+                .get()
+                .await()
+
+            val userAdsIdList = mutableListOf<String>()
+            currentUserAdsListSnapshot.children.forEach { childSnapshot ->
+                val adId = childSnapshot.getValue(String::class.java)
+                adId?.let {
+                    userAdsIdList.add(it)
+                }
+            }
+            userAdsIdList.add(adWithNewKey.uid)
+
+            currentUserReference
+                .child("advertisements")
+                .setValue(userAdsIdList)
         }
     }
 

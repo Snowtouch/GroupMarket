@@ -1,9 +1,9 @@
 package com.snowtouch.groupmarket.model.service
 
 import com.snowtouch.groupmarket.model.AuthStateResponse
-import com.snowtouch.groupmarket.model.User
+import com.snowtouch.groupmarket.model.FirebaseSignInResponse
+import com.snowtouch.groupmarket.model.SignOutResponse
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 
 interface AccountService {
     val userLogged: Boolean

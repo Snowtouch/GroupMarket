@@ -57,6 +57,7 @@ fun NewAdvertisementScreen(
 ) {
 
     val uiState by viewModel.uiState
+    val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
     val groupsIdNamePairList by viewModel.groupsIdNamePairList.collectAsStateWithLifecycle()
 
     NewAdvertisementScreenContent(

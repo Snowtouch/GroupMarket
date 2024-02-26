@@ -82,7 +82,7 @@ fun AdvertisementDetailScreenContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AdImageCarousel(
-    adImages: List<Uri>,
+    adImages: List<String>,
     modifier: Modifier = Modifier
 ) {
 

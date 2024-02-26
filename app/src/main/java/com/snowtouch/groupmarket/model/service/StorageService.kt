@@ -1,9 +1,11 @@
 package com.snowtouch.groupmarket.model.service
 
 import android.net.Uri
-import com.google.firebase.storage.StorageReference
+import com.snowtouch.groupmarket.model.StorageUploadState
 
 interface StorageService {
-    suspend fun uploadAdImages(images: List<Uri>, adDbReferenceKey: String): List<Uri>
-    suspend fun getImageDownloadLink(dbRef: StorageReference): Uri
+
+    suspend fun uploadAdImage(image: Uri, newAdUid: String, currentImageIndex: Int, totalImagesCount: Int) : StorageUploadState
+
+    suspend fun getAllImageUrls(adUid: String): List<String>
 }

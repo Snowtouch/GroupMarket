@@ -103,7 +103,7 @@ fun AdvertisementGridRow(
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    val list: List<Uri> = emptyList()
+    val list: List<String> = emptyList()
     val sampleAd1 = Advertisement(
         ownerUid = "1",
         groupId = "2",

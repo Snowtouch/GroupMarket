@@ -25,28 +25,28 @@ class CreateAccountScreenViewModel(
         if (newValue.isValidLength())
             return
         else
-        uiState.value = uiState.value.copy(email = newValue)
+            uiState.value = uiState.value.copy(email = newValue)
     }
 
     fun onNameChange(newValue: String) {
         if (newValue.isValidLength())
             return
         else
-        uiState.value = uiState.value.copy(name = newValue)
+            uiState.value = uiState.value.copy(name = newValue)
     }
 
     fun onPasswordChange(newValue: String) {
         if (newValue.isValidLength())
             return
         else
-        uiState.value = uiState.value.copy(password = newValue)
+            uiState.value = uiState.value.copy(password = newValue)
     }
 
     fun onRepeatPasswordChange(newValue: String) {
         if (newValue.isValidLength())
             return
         else
-        uiState.value = uiState.value.copy(repeatPassword = newValue)
+            uiState.value = uiState.value.copy(repeatPassword = newValue)
     }
 
     fun createAccount(email: String, name: String, password: String) {

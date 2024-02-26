@@ -1,58 +1,62 @@
 package com.snowtouch.groupmarket.model.service.impl
 
 import android.net.Uri
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
+import com.snowtouch.groupmarket.model.StorageUploadState
 import com.snowtouch.groupmarket.model.service.StorageService
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 
 class StorageServiceImpl(
-    private val firebaseStorage: FirebaseStorage,
-    private val dispatcher: CoroutineDispatcher
+    firebaseStorage: FirebaseStorage,
+    private val dispatcher: CoroutineDispatcher,
 ) : StorageService {
 
     private val adImageRef = firebaseStorage.reference.child("ads")
 
-    override suspend fun uploadAdImages(images: List<Uri>, adDbReferenceKey: String): List<Uri> {
+    override suspend fun uploadAdImage(
+        image: Uri,
+        newAdUid: String,
+        currentImageIndex: Int,
+        totalImagesCount: Int
+    ): StorageUploadState {
         return withContext(dispatcher) {
-            val imagesDownloadRef = mutableListOf<Uri>()
 
-            val tasks = mutableListOf<Task<Uri>>()
+            val imageRef = adImageRef.child("${newAdUid}/${image.lastPathSegment}")
+            val uploadTask = imageRef.putFile(image)
 
-            images.forEach { image ->
-                val imageRef = adImageRef
-                    .child("${adDbReferenceKey}/${image.lastPathSegment}")
-
-                val uploadTask = imageRef.putFile(image)
-
-                tasks.add(uploadTask.continueWithTask { task ->
-                    if (!task.isSuccessful) {
-                        task.exception?.let { throw it }
+            return@withContext suspendCancellableCoroutine { continuation ->
+                uploadTask
+                    .addOnProgressListener {
+                        val progress = (100.0 * it.bytesTransferred) / it.totalByteCount
+                        continuation.resume(StorageUploadState.UploadInProgress(progress, currentImageIndex, totalImagesCount))
                     }
-                    imageRef.downloadUrl
-                })
+
+                    .addOnSuccessListener {
+                        continuation.resume(StorageUploadState.UploadSuccess)
+                    }
+
+                    .addOnFailureListener { exception ->
+                        continuation.resume(StorageUploadState.UploadError(exception.message ?: "Unknown error"))
+                    }
             }
-            // Waiting for all tasks to complete
-            Tasks.whenAllComplete(tasks)
-                .addOnCompleteListener {
-                    // When all complete, get results
-                    if (it.isSuccessful) {
-                        tasks.forEach { task ->
-                            if (task.isSuccessful) {
-                                imagesDownloadRef.add(task.result)
-                            }
-                        }
-                    }
-                }
-                .await()
-            return@withContext imagesDownloadRef
         }
     }
-    override suspend fun getImageDownloadLink(dbRef: StorageReference): Uri {
-        TODO("Not yet implemented")
+
+    override suspend fun getAllImageUrls(adUid: String): List<String> {
+        return withContext(dispatcher) {
+            val imagesRef = adImageRef.child(adUid)
+            val result = mutableListOf<String>()
+            val items = imagesRef.listAll().await()
+
+            items.items.forEach { imageRef ->
+                val url = imageRef.downloadUrl.await().toString()
+                result.add(url)
+            }
+            return@withContext result
+        }
     }
 }
