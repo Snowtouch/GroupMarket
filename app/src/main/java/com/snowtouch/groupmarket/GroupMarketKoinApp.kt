@@ -1,6 +1,7 @@
 package com.snowtouch.groupmarket
 
 import android.app.Application
+import com.snowtouch.groupmarket.auth.di.authModule
 import com.snowtouch.groupmarket.koin_modules.firebaseModule
 import com.snowtouch.groupmarket.koin_modules.serviceModule
 import com.snowtouch.groupmarket.koin_modules.snackbarModule
@@ -16,6 +17,7 @@ class GroupMarketKoinApp : Application() {
             androidLogger()
             androidContext(this@GroupMarketKoinApp)
             modules(
+                authModule,
                 firebaseModule,
                 snackbarModule,
                 serviceModule,

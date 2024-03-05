@@ -1,76 +1,89 @@
 package com.snowtouch.groupmarket
 
+import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import com.snowtouch.groupmarket.model.AuthDataProvider
-import com.snowtouch.groupmarket.model.service.DatabaseService
-import kotlinx.coroutines.launch
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
+import com.snowtouch.groupmarket.core.presentation.components.DisplaySize
+import com.snowtouch.groupmarket.core.presentation.components.PermissionDialog
+import com.snowtouch.groupmarket.core.presentation.components.RationaleDialog
+import com.snowtouch.groupmarket.navigation.MainNavigation
+import com.snowtouch.groupmarket.core.presentation.components.theme.GroupMarketTheme
 import org.koin.android.ext.android.inject
+import org.koin.androidx.compose.KoinAndroidContext
+import org.koin.core.annotation.KoinExperimentalAPI
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, KoinExperimentalAPI::class)
 class GroupMarketActivity : ComponentActivity() {
 
-    private val authViewModel: AuthViewModel by inject()
-    val databaseService: DatabaseService by inject()
+    private val viewModel : MainViewModel by inject()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState : Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
 
-            val windowSizeClass = calculateWindowSizeClass(this)
-            val isScreenSizeCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
-            val currentUser = authViewModel.currentUser.collectAsStateWithLifecycle().value
+            val navController = rememberNavController()
+            val widthSizeClass = calculateWindowSizeClass(this)
+            val isUserLoggedIn = !viewModel.getAuthState().collectAsState().value
 
-            AuthDataProvider.updateAuthState(currentUser)
+            val displaySizeClass = calculateWindowSize(widthSizeClass)
 
-            /*if (AuthDataProvider.isAuthenticated) {
-                LaunchedEffect(Unit) {
-                    databaseService.getInitialUserData()
-                    databaseService.getInitialUserGroupsData()
-                    databaseService.enableUserDataListener()
-                    databaseService.enableUserGroupsDataListeners()
+            GroupMarketTheme {
+
+                KoinAndroidContext {
+
+                    Surface(color = MaterialTheme.colorScheme.background) {
+
+                        MainNavigation(
+                            navController = navController,
+                            displaySize = displaySizeClass,
+                            isLoggedIn = isUserLoggedIn
+                        )
+                    }
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                        RequestNotificationPermissionDialog()
                 }
-            }*/
-
-            GroupMarketApp(
-                isScreenSizeCompact =  isScreenSizeCompact,
-                isLoggedIn = AuthDataProvider.isAuthenticated
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-               RequestNotificationPermissionDialog()
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        if (AuthDataProvider.isAuthenticated) {
-            lifecycleScope.launch {
-                databaseService.getInitialUserData()
-                databaseService.getInitialUserGroupsData()
-                databaseService.enableUserDataListener()
-                databaseService.enableUserGroupsDataListeners()
             }
         }
-
     }
 
-    override fun onStop() {
-        super.onStop()
-
-        lifecycleScope.launch {
-            databaseService.disableUserDataListener()
-            databaseService.disableUserGroupsDataListeners()
+    private fun calculateWindowSize(windowSizeClass : WindowSizeClass) : DisplaySize {
+        return when (windowSizeClass.widthSizeClass) {
+            WindowWidthSizeClass.Compact -> DisplaySize.Compact
+            WindowWidthSizeClass.Expanded -> DisplaySize.Extended
+            WindowWidthSizeClass.Medium -> DisplaySize.Extended
+            else -> { DisplaySize.Compact }
         }
-
     }
 }
+
+@OptIn(ExperimentalPermissionsApi::class)
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@Composable
+fun RequestNotificationPermissionDialog() {
+    val permissionState = rememberPermissionState(
+        permission = Manifest.permission.POST_NOTIFICATIONS)
+
+    if (!permissionState.status.isGranted) {
+        if (permissionState.status.shouldShowRationale) RationaleDialog()
+        else PermissionDialog { permissionState.launchPermissionRequest() }
+    }
+}
+
