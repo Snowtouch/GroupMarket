@@ -19,8 +19,10 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.snowtouch.groupmarket.core.domain.model.Group
+import com.snowtouch.groupmarket.core.domain.model.Response
 import com.snowtouch.groupmarket.core.presentation.components.BottomNavigationBar
 import com.snowtouch.groupmarket.core.presentation.components.DisplaySize
+import com.snowtouch.groupmarket.core.presentation.components.Loading
 import com.snowtouch.groupmarket.core.presentation.components.NavigationRail
 import com.snowtouch.groupmarket.core.presentation.components.ScaffoldTemplate
 import com.snowtouch.groupmarket.groups.presentation.group_ads.GroupAdsScreenContent
@@ -37,8 +39,7 @@ fun GroupsScreen(
     navigateToNewGroupScreen: () -> Unit,
     navigateToAdDetailsScreen: (String) -> Unit
 ) {
-    val userGroupsData by viewModel.userGroupsData.collectAsStateWithLifecycle()
-    val groupAdsData by viewModel.advertisementsFlow.collectAsStateWithLifecycle()
+    val groupsDataResponse by viewModel.initialDataResponse.collectAsStateWithLifecycle()
 
     var selectedGroupId by remember { mutableStateOf("") }
 
@@ -50,27 +51,36 @@ fun GroupsScreen(
                 DisplaySize.Extended -> NavigationRail(onNavItemClick = onBottomBarIconClick) }
         }
     ) {
-        Row {
-            GroupsScreenContent(
-                userGroupsList = userGroupsData,
-                onGoToGroupAdsClick = { groupId ->
-                    when (displaySize) {
-                        DisplaySize.Compact -> navigateToGroupAdsScreen(groupId)
-                        DisplaySize.Extended -> {
-                            selectedGroupId = groupId
-                            viewModel.fetchGroupAdvertisements(selectedGroupId)
+        when (val response = groupsDataResponse) {
+            is Response.Loading -> Loading()
+            is Response.Success -> {
+
+                val groupsData = response.data
+
+                Row {
+                    GroupsScreenContent(
+                        userGroupsList = groupsData.orEmpty(),
+                        onGoToGroupAdsClick = { groupId ->
+                            when (displaySize) {
+                                DisplaySize.Compact -> navigateToGroupAdsScreen(groupId)
+                                DisplaySize.Extended -> {
+                                    selectedGroupId = groupId
+                                }
+                            }
                         }
+                    )
+                    AnimatedVisibility(visible = displaySize == DisplaySize.Extended && selectedGroupId.isNotEmpty()) {
+                        GroupAdsScreenContent(
+                            groupId = selectedGroupId,
+                            groupAdList = emptyList(),
+                            onAdCardClick = navigateToAdDetailsScreen
+                        )
                     }
                 }
-            )
-            AnimatedVisibility(visible = displaySize == DisplaySize.Extended && selectedGroupId.isNotEmpty()) {
-                GroupAdsScreenContent(
-                    groupId = selectedGroupId,
-                    groupAdList = groupAdsData,
-                    onAdCardClick = navigateToAdDetailsScreen
-                )
             }
+            is Response.Failure -> {}
         }
+
     }
 }
 
@@ -110,13 +120,13 @@ fun GroupsScreenContentPreview() {
             uid = "s34s4x2rf356",
             ownerId = "kiOoB6StvIc8I9vj",
             ownerName = "Max",
-            members = emptyMap(),
+            members = emptyList(),
             name = "Default group",
             description = "Description text",
             advertisements = null
         )
         val previewGroupList =
             listOf(previewGroup, previewGroup, previewGroup, previewGroup, previewGroup)
-        GroupsScreenContent(previewGroupList, {}, {})
+        GroupsScreenContent(previewGroupList) {}
     }
 }

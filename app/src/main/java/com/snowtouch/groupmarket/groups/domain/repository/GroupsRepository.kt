@@ -6,7 +6,7 @@ import com.snowtouch.groupmarket.core.domain.model.Response
 
 interface GroupsRepository {
 
-    suspend fun getUserGroups(userId: String) : Response<List<Group>>
+    suspend fun getUserGroups() : Response<List<Group>>
 
     suspend fun getGroupUsersCount(groupId: String) : Response<Int>
 

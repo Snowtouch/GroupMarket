@@ -16,9 +16,6 @@ class LoginScreenViewModel(private val authRepository: AuthRepository): GroupMar
     private val _loginResponse = MutableStateFlow<Response<Boolean>>(Success(false))
     val loginResponse: StateFlow<Response<Boolean>> = _loginResponse
 
-    //var loginResponse by mutableStateOf<Response<Boolean>>(Success(false))
-    //    private set
-
     var uiState = mutableStateOf(LoginUiState())
         private set
 
@@ -40,7 +37,7 @@ class LoginScreenViewModel(private val authRepository: AuthRepository): GroupMar
         }
         launchCatching {
             _loginResponse.value = Loading
-            authRepository.loginWithEmailAndPassword(email, password)
+            _loginResponse.value = authRepository.loginWithEmailAndPassword(email, password)
             showSnackbar(SnackbarState.DEFAULT,"Logged in successfully")
         }
     }

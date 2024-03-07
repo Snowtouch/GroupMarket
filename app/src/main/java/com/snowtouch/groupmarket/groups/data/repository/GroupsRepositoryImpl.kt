@@ -28,7 +28,7 @@ class GroupsRepositoryImpl(
 
     private val advertisementsRef = db.getReference("ads_preview")
 
-    override suspend fun getUserGroups(userId : String) : Response<List<Group>> {
+    override suspend fun getUserGroups() : Response<List<Group>> {
         return withContext(dispatcher) {
             try {
                 val userGroupsIdsListSnapshot = userGroupsReference
@@ -50,7 +50,7 @@ class GroupsRepositoryImpl(
                         .get()
                         .await()
 
-                    userGroupsSnapshot.children.mapNotNull {  group ->
+                    userGroupsSnapshot.children.forEach {  group ->
                         userGroupsList.add(group.getValue(Group::class.java) ?: Group())
                     }
                 }
