@@ -3,6 +3,7 @@ package com.snowtouch.groupmarket.auth.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.snowtouch.groupmarket.auth.domain.repository.AuthRepository
 import com.snowtouch.groupmarket.core.domain.model.Response
@@ -32,11 +33,20 @@ class AuthRepositoryImpl(
 
     override suspend fun createAccountWithEmailAndPassword(
         email: String,
-        password: String
+        password: String,
+        name : String
     ): Response<Boolean> {
         return withContext(dispatcher) {
             try {
                 auth.createUserWithEmailAndPassword(email, password).await()
+
+                val currentUser = auth.currentUser
+                currentUser.let { user ->
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(name)
+                        .build()
+                    user?.updateProfile(profileUpdates)?.await()
+                }
                 Success(true)
             } catch (e: Exception) {
                 Failure(e)
@@ -51,10 +61,10 @@ class AuthRepositoryImpl(
                 uid = auth.currentUser?.uid,
                 email = email,
                 name = name,
-                groups = emptyList(),
-                advertisements = emptyList(),
-                favoritesList = emptyList(),
-                recentlyWatched = emptyList()
+                groups = null,
+                advertisements = null,
+                favoritesList = null,
+                recentlyWatched = null
             )
                 usersReference
                     .child(currentUser?.uid!!)

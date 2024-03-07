@@ -4,7 +4,7 @@ data class Group(
     val uid: String? = null,
     val ownerId: String? = null,
     val ownerName: String? = null,
-    val members: Map<String, Boolean>? = null,
+    val members: List<String>? = null,
     val name: String? = null,
     val description: String? = null,
     val advertisements: List<Advertisement>? = null

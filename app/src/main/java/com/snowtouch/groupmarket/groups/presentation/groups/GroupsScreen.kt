@@ -40,9 +40,7 @@ fun GroupsScreen(
     val userGroupsData by viewModel.userGroupsData.collectAsStateWithLifecycle()
     val groupAdsData by viewModel.advertisementsFlow.collectAsStateWithLifecycle()
 
-    var selectedGroupId by remember {
-        mutableStateOf("")
-    }
+    var selectedGroupId by remember { mutableStateOf("") }
 
     ScaffoldTemplate(
         topBar = { GroupsTopAppBar(onAddGroupClick = navigateToNewGroupScreen) },
@@ -56,17 +54,16 @@ fun GroupsScreen(
             GroupsScreenContent(
                 userGroupsList = userGroupsData,
                 onGoToGroupAdsClick = { groupId ->
-                    if (isScreenSizeCompact) {
-                        navigateToGroupAdsScreen(groupId)
+                    when (displaySize) {
+                        DisplaySize.Compact -> navigateToGroupAdsScreen(groupId)
+                        DisplaySize.Extended -> {
+                            selectedGroupId = groupId
+                            viewModel.fetchGroupAdvertisements(selectedGroupId)
+                        }
                     }
-                    else {
-                        selectedGroupId = groupId
-                        viewModel.fetchGroupAdvertisements(selectedGroupId)
-                    }
-                },
-                onCreateNewGroupClick = navigateToNewGroupScreen
+                }
             )
-            AnimatedVisibility(visible = !isScreenSizeCompact && selectedGroupId.isNotEmpty()) {
+            AnimatedVisibility(visible = displaySize == DisplaySize.Extended && selectedGroupId.isNotEmpty()) {
                 GroupAdsScreenContent(
                     groupId = selectedGroupId,
                     groupAdList = groupAdsData,

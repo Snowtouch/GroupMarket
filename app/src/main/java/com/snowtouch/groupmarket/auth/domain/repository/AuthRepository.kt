@@ -9,7 +9,11 @@ interface AuthRepository {
     val currentUser: FirebaseUser?
 
 
-    suspend fun createAccountWithEmailAndPassword(email: String, password: String): Response<Boolean>
+    suspend fun createAccountWithEmailAndPassword(
+        email: String,
+        password: String,
+        name : String
+    ): Response<Boolean>
 
     suspend fun createNewUserData(email: String, name: String): Response<Boolean>
 
