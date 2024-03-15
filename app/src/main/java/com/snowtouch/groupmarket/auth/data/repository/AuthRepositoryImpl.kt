@@ -137,8 +137,6 @@ class AuthRepositoryImpl(
         }
     }
 
-    override fun signOut() = auth.signOut()
-
     override fun getAuthState(viewModelScope: CoroutineScope) = callbackFlow {
         val authStateListener = AuthStateListener { auth ->
             trySend(auth.currentUser == null)

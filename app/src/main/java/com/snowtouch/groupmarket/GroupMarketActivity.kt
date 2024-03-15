@@ -19,11 +19,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.snowtouch.groupmarket.core.presentation.components.DisplaySize
 import com.snowtouch.groupmarket.core.presentation.components.PermissionDialog
 import com.snowtouch.groupmarket.core.presentation.components.RationaleDialog
-import com.snowtouch.groupmarket.navigation.MainNavigation
 import com.snowtouch.groupmarket.core.presentation.components.theme.GroupMarketTheme
+import com.snowtouch.groupmarket.core.presentation.util.DisplaySize
+import com.snowtouch.groupmarket.navigation.MainNavigation
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI

@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.snowtouch.groupmarket.advertisement_details.navigation.navigateToAdvertisement
 import com.snowtouch.groupmarket.home.presentation.HomeScreen
-import com.snowtouch.groupmarket.home.presentation.HomeScreenViewModel
+import com.snowtouch.groupmarket.home.presentation.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 sealed class HomeRoute(val route: String) {
@@ -19,7 +19,7 @@ fun NavGraphBuilder.homeFeature(
     navigation(startDestination = HomeRoute.Home.route, route = "home") {
         composable(route = HomeRoute.Home.route) {
 
-            val viewModel: HomeScreenViewModel = koinViewModel()
+            val viewModel: HomeViewModel = koinViewModel()
 
             HomeScreen(
                 viewModel = viewModel,

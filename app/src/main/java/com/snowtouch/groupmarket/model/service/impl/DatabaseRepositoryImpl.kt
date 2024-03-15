@@ -6,10 +6,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
+import com.snowtouch.groupmarket.auth.domain.repository.AuthRepository
 import com.snowtouch.groupmarket.core.domain.model.Advertisement
 import com.snowtouch.groupmarket.core.domain.model.Group
 import com.snowtouch.groupmarket.core.domain.model.User
-import com.snowtouch.groupmarket.auth.domain.repository.AuthRepository
 import com.snowtouch.groupmarket.core.domain.repository.DatabaseRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -168,13 +168,13 @@ class DatabaseRepositoryImpl(
     override suspend fun createNewGroup(name: String, description: String, isPrivate: Boolean) {
         try {
             withContext(dispatcher) {
-                val membersMap = mapOf(Pair(auth.currentUser?.uid?: "", true))
+                val membersList = listOf(auth.currentUser?.uid?: "")
                 val newKey = groupsReference.push().key ?: ""
 
                 val newGroup = Group(
                     uid = newKey,
                     ownerId = auth.currentUser?.uid?: "",
-                    members = membersMap,
+                    members = membersList,
                     ownerName = _userData.value?.name ?: "",
                     name = name,
                     description = description

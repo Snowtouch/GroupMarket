@@ -6,26 +6,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {
-    val currentUser: FirebaseUser?
 
+    val currentUser : FirebaseUser?
 
     suspend fun createAccountWithEmailAndPassword(
-        email: String,
-        password: String,
-        name : String
-    ): Response<Boolean>
+        email : String,
+        password : String,
+        name : String,
+    ) : Response<Boolean>
 
-    suspend fun createNewUserData(email: String, name: String): Response<Boolean>
+    suspend fun createNewUserData(email : String, name : String) : Response<Boolean>
 
-    suspend fun sendVerificationEmail(): Response<Boolean>
+    suspend fun sendVerificationEmail() : Response<Boolean>
 
-    suspend fun loginWithEmailAndPassword(email: String, password: String): Response<Boolean>
+    suspend fun loginWithEmailAndPassword(email : String, password : String) : Response<Boolean>
 
-    suspend fun deleteAccount(): Response<Boolean>
+    suspend fun deleteAccount() : Response<Boolean>
 
-    suspend fun checkIfUserNameExists(name: String): Response<Boolean>
+    suspend fun checkIfUserNameExists(name : String) : Response<Boolean>
 
-    fun signOut()
-
-    fun getAuthState(viewModelScope: CoroutineScope): StateFlow<Boolean>
+    fun getAuthState(viewModelScope : CoroutineScope) : StateFlow<Boolean>
 }

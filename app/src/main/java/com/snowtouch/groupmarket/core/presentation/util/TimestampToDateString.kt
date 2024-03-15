@@ -1,6 +1,5 @@
 package com.snowtouch.groupmarket.core.presentation.util
 
-import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

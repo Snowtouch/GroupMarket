@@ -2,8 +2,7 @@ package com.snowtouch.groupmarket.core.presentation.components.ext
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -13,4 +12,8 @@ fun Modifier.cardContentPadding(): Modifier {
 
 fun Modifier.textFieldPadding(): Modifier {
     return this.padding(4.dp)
+}
+
+fun Modifier.adaptiveColumnWidth(): Modifier {
+    return this.sizeIn(minWidth = 200.dp, maxWidth = 600.dp)
 }

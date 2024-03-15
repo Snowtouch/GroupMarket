@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.snowtouch.groupmarket.R
 import com.snowtouch.groupmarket.core.domain.model.Advertisement
+import java.util.Date
 import kotlin.math.absoluteValue
 
 @Composable
@@ -72,7 +73,7 @@ fun AdvertisementDetailScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AdImageCarousel(
-            adImages = advertisement.images,
+            adImages = advertisement.images ?: emptyList(),
         )
     }
 }
@@ -106,6 +107,7 @@ fun AdImageCarousel(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DotIndicators(
     pageCount: Int,
@@ -151,7 +153,7 @@ fun AdDetailScreenContentPreview() {
             groupId = "334",
             title = "Shoes",
             description = "Description Description Description Description Description Description",
-            price = "333.33",
-            postDate = "21-10-2091"
+            price = 333.0,
+            postDate = Date()
         ), onNavigateBack = {})
 }

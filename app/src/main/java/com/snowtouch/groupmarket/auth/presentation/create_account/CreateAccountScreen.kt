@@ -11,11 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.snowtouch.groupmarket.core.presentation.components.CommonButton
 import com.snowtouch.groupmarket.auth.presentation.components.EmailField
 import com.snowtouch.groupmarket.auth.presentation.components.NameField
 import com.snowtouch.groupmarket.auth.presentation.components.PasswordField
 import com.snowtouch.groupmarket.auth.presentation.components.RepeatPasswordField
+import com.snowtouch.groupmarket.core.presentation.components.CommonButton
 
 @Composable
 fun CreateAccountScreen(

@@ -2,8 +2,8 @@ package com.snowtouch.groupmarket.model.service.impl
 
 import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
-import com.snowtouch.groupmarket.model.StorageUploadState
 import com.snowtouch.groupmarket.core.domain.repository.StorageRepository
+import com.snowtouch.groupmarket.model.StorageUploadState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await

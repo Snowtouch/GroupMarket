@@ -2,16 +2,16 @@ package com.snowtouch.groupmarket.new_advertisement.presentation
 
 import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
-import com.snowtouch.groupmarket.core.presentation.util.SnackbarState
 import com.snowtouch.groupmarket.core.domain.model.Advertisement
 import com.snowtouch.groupmarket.core.domain.model.Group
-import com.snowtouch.groupmarket.model.StorageUploadState
 import com.snowtouch.groupmarket.core.domain.repository.DatabaseRepository
 import com.snowtouch.groupmarket.core.domain.repository.StorageRepository
 import com.snowtouch.groupmarket.core.presentation.GroupMarketViewModel
+import com.snowtouch.groupmarket.core.presentation.util.SnackbarState
+import com.snowtouch.groupmarket.model.StorageUploadState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.time.LocalDateTime
+import java.util.Date
 
 class NewAdvertisementScreenViewModel(
     private val storageRepository: StorageRepository,
@@ -122,8 +122,8 @@ class NewAdvertisementScreenViewModel(
                     title = uiState.value.title,
                     images = adImagesStorageRef,
                     description = uiState.value.description,
-                    price = uiState.value.price,
-                    postDate = LocalDateTime.now().toString()
+                    price = uiState.value.price.toDouble(),
+                    postDate = Date()//LocalDateTime.now()
                 )
                 databaseRepository.createAdvertisement(adWithImages, newAdUid)
             }

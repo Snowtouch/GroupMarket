@@ -7,14 +7,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.snowtouch.groupmarket.advertisement_details.navigation.navigateToAdvertisement
-import com.snowtouch.groupmarket.core.presentation.components.DisplaySize
+import com.snowtouch.groupmarket.core.presentation.util.DisplaySize
 import com.snowtouch.groupmarket.groups.presentation.group_ads.GroupAdsScreen
-import com.snowtouch.groupmarket.groups.presentation.group_ads.GroupAdsScreenViewModel
 import com.snowtouch.groupmarket.groups.presentation.groups.GroupsScreen
-import com.snowtouch.groupmarket.groups.presentation.groups.GroupsScreenViewModel
 import com.snowtouch.groupmarket.groups.presentation.new_group.CreateNewGroupScreen
-import com.snowtouch.groupmarket.groups.presentation.new_group.CreateNewGroupScreenViewModel
-import org.koin.androidx.compose.koinViewModel
 
 sealed class GroupsRoute(val route: String) {
     data object Groups: GroupsRoute("groups")
@@ -29,12 +25,9 @@ fun NavGraphBuilder.groupsFeature(
     navigation(startDestination = GroupsRoute.Groups.route, route = "groupsGraph") {
         composable(GroupsRoute.Groups.route) {
 
-            val viewModel: GroupsScreenViewModel = koinViewModel()
-
             GroupsScreen(
-                viewModel = viewModel,
                 displaySize = displaySize,
-                onBottomBarIconClick = { route ->
+                onNavBarIconClick = { route ->
                     navController.navigate(route) },
                 navigateToGroupAdsScreen = { groupId ->
                     navController.navigateToGroupAds(groupId) },
@@ -52,11 +45,11 @@ fun NavGraphBuilder.groupsFeature(
         ) {
 
             val groupId = it.arguments?.getString("groupId") ?: ""
-            val viewModel: GroupAdsScreenViewModel = koinViewModel()
 
             GroupAdsScreen(
-                viewModel = viewModel,
+                displaySize = displaySize,
                 groupId = groupId,
+                onNavigateBackClick = { navController.popBackStack() },
                 navigateToAdDetailsScreen = { adId ->
                     navController.navigateToAdvertisement(adId)
                 }
@@ -65,18 +58,11 @@ fun NavGraphBuilder.groupsFeature(
         
         composable(GroupsRoute.NewGroup.route) {
 
-            val viewModel: CreateNewGroupScreenViewModel = koinViewModel()
-
             CreateNewGroupScreen(
-                viewModel = viewModel,
-                onCreateGroupClick = { navController.popBackStack() }
+                onNavigateBackClick = { navController.popBackStack() }
             )
         }
     }
-}
-
-fun NavController.navigateToGroups() {
-    this.navigate(route = GroupsRoute.Groups.route)
 }
 
 fun NavController.navigateToGroupAds(groupId: String) {

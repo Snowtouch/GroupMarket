@@ -73,7 +73,7 @@ class CreateAccountScreenViewModel(
         launchCatching {
             signUpResponse = Loading
             signUpResponse = authRepository.checkIfUserNameExists(name)
-            signUpResponse = authRepository.createAccountWithEmailAndPassword(email, password)
+            signUpResponse = authRepository.createAccountWithEmailAndPassword(email, password, name)
             showSnackbar(SnackbarState.DEFAULT, "Account successfully created")
         }
     }

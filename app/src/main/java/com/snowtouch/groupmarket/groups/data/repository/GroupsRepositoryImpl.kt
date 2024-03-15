@@ -3,7 +3,7 @@ package com.snowtouch.groupmarket.groups.data.repository
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
 import com.snowtouch.groupmarket.auth.domain.repository.AuthRepository
-import com.snowtouch.groupmarket.core.domain.model.Advertisement
+import com.snowtouch.groupmarket.core.domain.model.AdvertisementPreview
 import com.snowtouch.groupmarket.core.domain.model.Group
 import com.snowtouch.groupmarket.core.domain.model.Response
 import com.snowtouch.groupmarket.groups.domain.repository.GroupsRepository
@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 
 class GroupsRepositoryImpl(
     private val auth: AuthRepository,
-    private val db: FirebaseDatabase,
+    db: FirebaseDatabase,
     private val dispatcher: CoroutineDispatcher
 ) : GroupsRepository {
 
@@ -26,9 +26,9 @@ class GroupsRepositoryImpl(
 
     private val userGroupsReference = db.getReference("user_groups")
 
-    private val advertisementsRef = db.getReference("ads_preview")
+    private val advertisementsPreviewRef = db.getReference("ads_preview")
 
-    override suspend fun getUserGroups() : Response<List<Group>> {
+    override suspend fun getUserGroupsPreviewData() : Response<List<Group>> {
         return withContext(dispatcher) {
             try {
                 val userGroupsIdsListSnapshot = userGroupsReference
@@ -37,7 +37,7 @@ class GroupsRepositoryImpl(
                     .await()
 
                 val groupsIdList = userGroupsIdsListSnapshot.children.mapNotNull { groupId ->
-                    groupId.getValue(String::class.java)
+                    groupId.getValue<String>()
                 }
 
                 val userGroupsList = mutableListOf<Group>()
@@ -51,7 +51,7 @@ class GroupsRepositoryImpl(
                         .await()
 
                     userGroupsSnapshot.children.forEach {  group ->
-                        userGroupsList.add(group.getValue(Group::class.java) ?: Group())
+                        userGroupsList.add(group.getValue<Group>() ?: Group())
                     }
                 }
                 Response.Success(userGroupsList)
@@ -155,10 +155,10 @@ class GroupsRepositoryImpl(
         }
     }
 
-    override suspend fun getGroupAdvertisements(groupId : String) : Response<List<Advertisement>> {
+    override suspend fun getGroupAdvertisements(groupId : String) : Response<List<AdvertisementPreview>> {
         return withContext(dispatcher) {
             try {
-                val groupAdsPreviewList = mutableListOf<Advertisement>()
+                val groupAdsPreviewList = mutableListOf<AdvertisementPreview>()
                 val groupAdsIdSnap = groupsAdvertisementsList
                     .child(groupId)
                     .get()
@@ -169,7 +169,7 @@ class GroupsRepositoryImpl(
                 }
 
                 if (groupsAdsId.isNotEmpty()) {
-                    val groupAdsPreviewSnap = advertisementsRef
+                    val groupAdsPreviewSnap = advertisementsPreviewRef
                         .orderByKey()
                         .startAt(groupsAdsId.first())
                         .endAt(groupsAdsId.last())
@@ -178,7 +178,7 @@ class GroupsRepositoryImpl(
 
                     groupAdsPreviewSnap.children.map { ad ->
                         groupAdsPreviewList
-                            .add(ad.getValue(Advertisement::class.java)!!)
+                            .add(ad.getValue<AdvertisementPreview>()!!)
                     }
                 }
                 Response.Success(groupAdsPreviewList)

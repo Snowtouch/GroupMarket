@@ -18,7 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.snowtouch.groupmarket.R
-import com.snowtouch.groupmarket.common.ext.alertDialog
 
 fun Modifier.alertDialog() : Modifier {
     return this.wrapContentWidth().wrapContentHeight()

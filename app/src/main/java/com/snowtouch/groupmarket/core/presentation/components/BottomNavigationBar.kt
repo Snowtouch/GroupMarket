@@ -10,36 +10,57 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
-import com.snowtouch.groupmarket.R
 import com.snowtouch.groupmarket.account.navigation.AccountRoutes
 import com.snowtouch.groupmarket.groups.navigation.GroupsRoute
 import com.snowtouch.groupmarket.home.navigation.HomeRoute
 import com.snowtouch.groupmarket.messages.navigation.MessagesRoutes
 import com.snowtouch.groupmarket.new_advertisement.navigation.NewAdRoute
+import com.snowtouch.groupmarket.R.drawable as drawable1
 
-data class NavBarItem(val icon: Int, val title: String, val route: String)
+data class NavBarItem(val icon : Int,val title : String,val route : String)
 
 val navMenu = listOf(
-    NavBarItem(R.drawable.baseline_home_24, "Home", HomeRoute.Home.route),
-    NavBarItem(R.drawable.baseline_group_24, "Groups", GroupsRoute.Groups.route),
-    NavBarItem(R.drawable.baseline_add_circle_24, "New ad", NewAdRoute.NewAd.route),
-    NavBarItem(R.drawable.baseline_email_24, "Messages", MessagesRoutes.Messages.route),
-    NavBarItem(R.drawable.baseline_account_circle_24, "Account", AccountRoutes.Account.route)
+    NavBarItem(
+        icon = drawable1.baseline_home_24,
+        title = "Home",
+        route = HomeRoute.Home.route
+    ),
+    NavBarItem(
+        icon = drawable1.baseline_group_24,
+        title = "Groups",
+        route = GroupsRoute.Groups.route
+    ),
+    NavBarItem(
+        icon = drawable1.baseline_add_circle_24,
+        title = "New ad",
+        route = NewAdRoute.NewAd.route
+    ),
+    NavBarItem(
+        icon = drawable1.baseline_email_24,
+        title = "Messages",
+        route = MessagesRoutes.Messages.route
+    ),
+    NavBarItem(
+        icon = drawable1.baseline_account_circle_24,
+        title = "Account",
+        route = AccountRoutes.Account.route
+    )
 )
 
 @Composable
 fun BottomNavigationBar(
-    onNavItemClick: (String) -> Unit
-){
+    onNavItemClick : (String) -> Unit
+) {
     var currentRouteIndex by rememberSaveable { mutableIntStateOf(0) }
 
     NavigationBar {
-        navMenu.forEachIndexed { index, navBarItem ->
+        navMenu.forEachIndexed { index,navBarItem ->
             NavigationBarItem(
                 selected = currentRouteIndex == index,
                 onClick = {
                     currentRouteIndex = index
-                    onNavItemClick(navBarItem.route) },
+                    onNavItemClick(navBarItem.route)
+                },
                 icon = {
                     Icon(
                         painterResource(id = navBarItem.icon),

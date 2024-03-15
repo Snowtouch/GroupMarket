@@ -32,12 +32,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.snowtouch.groupmarket.R
-import com.snowtouch.groupmarket.core.domain.model.Advertisement
+import com.snowtouch.groupmarket.core.domain.model.AdvertisementPreview
 import java.util.Date
 
 @Composable
 fun AdvertisementCard(
-    advertisement: Advertisement,
+    advertisement: AdvertisementPreview,
     favoritesList: List<String> = emptyList(),
     onCardClick: () -> Unit,
     onFavoriteButtonClick: (String) -> Unit
@@ -58,10 +58,10 @@ fun AdvertisementCard(
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(
-                            if (advertisement.images?.isEmpty() == true) {
+                            if (advertisement.image?.isEmpty() == true) {
                                 R.drawable.placeholder_image
                             } else {
-                                advertisement.images?.first() }
+                                advertisement.image }
                         )
                         .crossfade(true)
                         .build(),
@@ -135,13 +135,11 @@ fun CardPreview(){
     val list: List<String> = emptyList()
     val userFavorites = listOf("2")
     AdvertisementCard(
-        Advertisement(
-            ownerUid = "1",
+        AdvertisementPreview(
             groupId = "2",
             title = "aaaaaaaaa",
-            images = list,
-            description = "askooocood",
-            price = 3223,
+            image = "",
+            price = 3223.0,
             postDate = Date()
         ),
         userFavorites,

@@ -9,6 +9,6 @@ data class Advertisement(
     val title: String? = null,
     val images: List<String>? = null,
     val description: String? = null,
-    val price: Int? = null,
+    val price: Double? = null,
     val postDate: Date? = null
 )

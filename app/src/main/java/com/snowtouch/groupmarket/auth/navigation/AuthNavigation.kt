@@ -8,8 +8,7 @@ import androidx.navigation.navigation
 import com.snowtouch.groupmarket.auth.presentation.create_account.CreateAccountScreen
 import com.snowtouch.groupmarket.auth.presentation.create_account.CreateAccountScreenViewModel
 import com.snowtouch.groupmarket.auth.presentation.login.LoginScreen
-import com.snowtouch.groupmarket.auth.presentation.login.LoginScreenViewModel
-import com.snowtouch.groupmarket.home.navigation.HomeRoute
+import com.snowtouch.groupmarket.core.presentation.util.DisplaySize
 import org.koin.androidx.compose.koinViewModel
 
 sealed class AuthRoutes(val route: String) {
@@ -18,17 +17,17 @@ sealed class AuthRoutes(val route: String) {
 }
 
 fun NavGraphBuilder.authFeature(
-    navController: NavHostController
+    navController: NavHostController,
+    displaySize : DisplaySize,
 ) {
     navigation(startDestination = AuthRoutes.Login.route, route = "auth") {
         composable(route = AuthRoutes.Login.route) {
 
-            val viewModel: LoginScreenViewModel = koinViewModel()
-
             LoginScreen(
-                viewModel = viewModel,
-                onCreateAccountClick = { navController.navigate(AuthRoutes.CreateAccount.route) },
-                onLoginButtonClick = { navController.navigate(HomeRoute.Home.route) }
+                displaySize = displaySize,
+                onBottomBarIconClick = { route -> navController.navigate(route) },
+                navigateToCreateAccount = { navController.navigateToCreateAccount() },
+                navigateToLoginScreen = { navController.navigateToLogin() }
             )
         }
 
