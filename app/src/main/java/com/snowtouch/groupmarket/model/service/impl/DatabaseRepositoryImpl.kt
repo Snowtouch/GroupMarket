@@ -6,11 +6,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
-import com.snowtouch.groupmarket.auth.domain.repository.AuthRepository
-import com.snowtouch.groupmarket.core.domain.model.Advertisement
-import com.snowtouch.groupmarket.core.domain.model.Group
-import com.snowtouch.groupmarket.core.domain.model.User
-import com.snowtouch.groupmarket.core.domain.repository.DatabaseRepository
+import com.snowtouch.auth_feature.domain.repository.AuthRepository
+import com.snowtouch.core.domain.model.Advertisement
+import com.snowtouch.core.domain.model.Group
+import com.snowtouch.core.domain.model.User
+import com.snowtouch.core.domain.repository.DatabaseRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,27 +18,27 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class DatabaseRepositoryImpl(
-    private val auth: AuthRepository,
+    private val auth: com.snowtouch.auth_feature.domain.repository.AuthRepository,
     private val firebaseDatabase: FirebaseDatabase,
     private val dispatcher: CoroutineDispatcher
-) : DatabaseRepository {
+) : com.snowtouch.core.domain.repository.DatabaseRepository {
 
     private val currentUserReference = firebaseDatabase.getReference("users").child(auth.currentUser?.uid?: "")
     private val usersReference = firebaseDatabase.getReference("users")
     private val adsReference = firebaseDatabase.getReference("ads")
     private val groupsReference = firebaseDatabase.getReference("groups")
 
-    private val _userData = MutableStateFlow<User?>(null)
-    override val userData: StateFlow<User?>
+    private val _userData = MutableStateFlow<com.snowtouch.core.domain.model.User?>(null)
+    override val userData: StateFlow<com.snowtouch.core.domain.model.User?>
         get() = _userData
 
-    private val _userGroupsData = MutableStateFlow<List<Group?>>(emptyList())
-    override val userGroupsData: StateFlow<List<Group?>>
+    private val _userGroupsData = MutableStateFlow<List<com.snowtouch.core.domain.model.Group?>>(emptyList())
+    override val userGroupsData: StateFlow<List<com.snowtouch.core.domain.model.Group?>>
         get() = _userGroupsData
 
     private val userDataListener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
-            val newData = snapshot.getValue<User?>()
+            val newData = snapshot.getValue<com.snowtouch.core.domain.model.User?>()
             _userData.value = newData
         }
 
@@ -49,7 +49,7 @@ class DatabaseRepositoryImpl(
 
     private val userGroupDataListener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
-            val newGroupData = snapshot.getValue<Group>()
+            val newGroupData = snapshot.getValue<com.snowtouch.core.domain.model.Group>()
 
             val tempGroups = _userGroupsData.value.toMutableList()
             val existingGroupIndex = tempGroups.indexOfFirst { group ->
@@ -73,7 +73,7 @@ class DatabaseRepositoryImpl(
             val currentDataSnapshot = currentUserReference
                 .get()
                 .await()
-            val currentUserData = currentDataSnapshot.getValue<User?>()
+            val currentUserData = currentDataSnapshot.getValue<com.snowtouch.core.domain.model.User?>()
             _userData.value = currentUserData
             Log.e("InitialUserData", "data recieved")
         }
@@ -92,7 +92,7 @@ class DatabaseRepositoryImpl(
                     .await()
 
                 _userGroupsData.value = groupsSnapshot.children.mapNotNull { groupSnapshot ->
-                    groupSnapshot.getValue(Group::class.java)
+                    groupSnapshot.getValue(com.snowtouch.core.domain.model.Group::class.java)
                 }
                 Log.e("InitialUserGroupsData", "populated list")
             } else {
@@ -150,8 +150,8 @@ class DatabaseRepositoryImpl(
 
     override suspend fun createNewUserData(email: String, name: String) {
         withContext(dispatcher) {
-            val newUser = User(
-                uid = auth.currentUser?.uid?: "",
+            val newUser = com.snowtouch.core.domain.model.User(
+                uid = auth.currentUser?.uid ?: "",
                 email = email,
                 name = name,
                 groups = emptyList(),
@@ -171,9 +171,9 @@ class DatabaseRepositoryImpl(
                 val membersList = listOf(auth.currentUser?.uid?: "")
                 val newKey = groupsReference.push().key ?: ""
 
-                val newGroup = Group(
+                val newGroup = com.snowtouch.core.domain.model.Group(
                     uid = newKey,
-                    ownerId = auth.currentUser?.uid?: "",
+                    ownerId = auth.currentUser?.uid ?: "",
                     members = membersList,
                     ownerName = _userData.value?.name ?: "",
                     name = name,
@@ -211,7 +211,7 @@ class DatabaseRepositoryImpl(
         }
     }
 
-    override suspend fun getGroupAdvertisementsList(groupId: String): List<Advertisement> = withContext(dispatcher) {
+    override suspend fun getGroupAdvertisementsList(groupId: String): List<com.snowtouch.core.domain.model.Advertisement> = withContext(dispatcher) {
         val groupAdsIdListSnapshot = groupsReference
             .child(groupId)
             .get()
@@ -234,14 +234,14 @@ class DatabaseRepositoryImpl(
                 .await()
 
             return@withContext groupAdsSnapshot.children.mapNotNull { adsSnapshot ->
-                adsSnapshot.getValue(Advertisement::class.java)
+                adsSnapshot.getValue(com.snowtouch.core.domain.model.Advertisement::class.java)
             }
         }
 
         return@withContext emptyList()
     }
 
-    override suspend fun createAdvertisement(advertisement: Advertisement, ref: String) {
+    override suspend fun createAdvertisement(advertisement: com.snowtouch.core.domain.model.Advertisement, ref: String) {
         withContext(dispatcher){
             val adWithNewKey = advertisement.copy(ownerUid = auth.currentUser?.uid?: "")
 
@@ -288,9 +288,9 @@ class DatabaseRepositoryImpl(
     }
 
 
-    override suspend fun getLatestAdvertisementsList(): List<Advertisement> = withContext(dispatcher) {
+    override suspend fun getLatestAdvertisementsList(): List<com.snowtouch.core.domain.model.Advertisement> = withContext(dispatcher) {
 
-        val advertisementsList = mutableListOf<Advertisement>()
+        val advertisementsList = mutableListOf<com.snowtouch.core.domain.model.Advertisement>()
 
         val newestAds = adsReference
             .limitToFirst(10)
@@ -298,7 +298,7 @@ class DatabaseRepositoryImpl(
             .await()
 
         for (adSnapshot in newestAds.children) {
-            val advertisement = adSnapshot.getValue(Advertisement::class.java)
+            val advertisement = adSnapshot.getValue(com.snowtouch.core.domain.model.Advertisement::class.java)
             advertisement?.let {
                 advertisementsList.add(it)
             }
@@ -306,7 +306,7 @@ class DatabaseRepositoryImpl(
         return@withContext advertisementsList
     }
 
-    override suspend fun getUserFavoriteAdvertisementsList(): List<Advertisement> = withContext(dispatcher) {
+    override suspend fun getUserFavoriteAdvertisementsList(): List<com.snowtouch.core.domain.model.Advertisement> = withContext(dispatcher) {
 
         val favoritesList = _userData.value?.favoritesList.orEmpty()
 
@@ -319,7 +319,7 @@ class DatabaseRepositoryImpl(
                 .await()
 
             return@withContext favoriteAdsSnapshot.children.mapNotNull { adSnapshot ->
-                adSnapshot.getValue(Advertisement::class.java)
+                adSnapshot.getValue(com.snowtouch.core.domain.model.Advertisement::class.java)
             }
         }
         return@withContext emptyList()
@@ -327,14 +327,15 @@ class DatabaseRepositoryImpl(
 
     override suspend fun getAdvertisementDetails(
         advertisementUid: String
-    ): Advertisement = withContext(dispatcher) {
+    ): com.snowtouch.core.domain.model.Advertisement = withContext(dispatcher) {
 
         val adDetailsSnapshot = adsReference
             .child(advertisementUid)
             .get()
             .await()
 
-        return@withContext adDetailsSnapshot.getValue<Advertisement?>(Advertisement::class.java)
-            ?: Advertisement()
+        return@withContext adDetailsSnapshot.getValue<com.snowtouch.core.domain.model.Advertisement?>(
+            com.snowtouch.core.domain.model.Advertisement::class.java)
+            ?: com.snowtouch.core.domain.model.Advertisement()
     }
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="firebaseDatabaseLocalPhone" translatable="false">http://192.168.0.11:9399?ns=groupmarket-ad8f8</string>
+    <string name="firebaseDatabaseLocalEmu" translatable="false">http://10.0.2.2:9399?ns=groupmarket-ad8f8</string>
+    <string name="firebaseDatabaseRemote" translatable="false">https://groupmarket-ad8f8-default-rtdb.europe-west1.firebasedatabase.app/</string>
+    <string name="firebaseStorageLocalPhone" translatable="false">gs://192.168.0.11:9199?ns=groupmarket-ad8f8</string>
+    <string name="firebaseStorageLocalEmu" translatable="false">gs://10.0.2.2:9199?ns=groupmarket-ad8f8</string>
+</resources>

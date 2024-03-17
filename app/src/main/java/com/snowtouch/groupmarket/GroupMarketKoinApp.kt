@@ -1,11 +1,10 @@
 package com.snowtouch.groupmarket
 
 import android.app.Application
-import com.snowtouch.groupmarket.account.di.accountModule
-import com.snowtouch.groupmarket.auth.di.authModule
-import com.snowtouch.groupmarket.groups.di.groupsModule
-import com.snowtouch.groupmarket.home.di.homeModule
-import com.snowtouch.groupmarket.koin_modules.firebaseModule
+import com.snowtouch.account_feature.di.accountModule
+import com.snowtouch.auth_feature.di.authModule
+import com.snowtouch.feature_groups.di.groupsModule
+import com.snowtouch.core.di.firebaseModule
 import com.snowtouch.groupmarket.koin_modules.serviceModule
 import com.snowtouch.groupmarket.koin_modules.snackbarModule
 import com.snowtouch.groupmarket.koin_modules.viewModelModule
@@ -21,10 +20,10 @@ class GroupMarketKoinApp : Application() {
             androidContext(this@GroupMarketKoinApp)
             modules(
                 firebaseModule,
-                authModule,
-                accountModule,
-                homeModule,
-                groupsModule,
+                com.snowtouch.auth_feature.di.authModule,
+                com.snowtouch.account_feature.di.accountModule,
+                com.snowtouch.home_feature.di.homeModule,
+                com.snowtouch.feature_groups.di.groupsModule,
                 snackbarModule,
                 serviceModule,
                 viewModelModule

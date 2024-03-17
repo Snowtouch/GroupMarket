@@ -14,14 +14,14 @@ import com.snowtouch.groupmarket.messages.presentation.messages.MessagesScreenVi
 import org.koin.androidx.compose.koinViewModel
 
 sealed class MessagesRoutes(val route: String) {
-    data object Messages: MessagesRoutes("messages")
+    data object Messages: MessagesRoutes("Messages")
     data object Conversation: MessagesRoutes("conversation")
 }
 
 fun NavGraphBuilder.messagesFeature(
     navController : NavHostController
 ) {
-    navigation(startDestination = MessagesRoutes.Messages.route, route = "messages_screen") {
+    navigation(startDestination = MessagesRoutes.Messages.route, route = "messages_feature") {
         composable(route = MessagesRoutes.Messages.route) {
 
             val viewModel: MessagesScreenViewModel = koinViewModel()

@@ -53,6 +53,15 @@ android {
 
 dependencies {
 
+    implementation(project(":core"))
+    implementation(project(":feature_auth"))
+    implementation(project(":feature_home"))
+    implementation(project(":feature_groups"))
+    implementation(project(":feature_account"))
+    implementation(project(":feature_new_advertisement"))
+    implementation(project(":feature_advertisement_details"))
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -71,9 +80,8 @@ dependencies {
 
     implementation(libs.coil.compose)
 
-    implementation (libs.koin.android)
+    implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-    implementation(libs.koin.androidx.compose.navigation)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)

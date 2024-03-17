@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="repeat_password_field_text">Repeat password</string>
+    <string name="password_field_text">Password</string>
+    <string name="email_field_text">Email</string>
+    <string name="enter_name_field">Name</string>
+</resources>

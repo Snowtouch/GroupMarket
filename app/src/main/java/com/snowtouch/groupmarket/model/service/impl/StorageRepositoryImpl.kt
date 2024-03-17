@@ -2,8 +2,7 @@ package com.snowtouch.groupmarket.model.service.impl
 
 import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
-import com.snowtouch.groupmarket.core.domain.repository.StorageRepository
-import com.snowtouch.groupmarket.model.StorageUploadState
+import com.snowtouch.feature_new_advertisement.domain.model.StorageUploadState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
@@ -13,7 +12,7 @@ import kotlin.coroutines.resume
 class StorageRepositoryImpl(
     firebaseStorage: FirebaseStorage,
     private val dispatcher: CoroutineDispatcher,
-) : StorageRepository {
+) : com.snowtouch.core.domain.repository.StorageRepository {
 
     private val adImageRef = firebaseStorage.reference.child("ads")
 
@@ -32,15 +31,15 @@ class StorageRepositoryImpl(
                 uploadTask
                     .addOnProgressListener {
                         val progress = (100.0 * it.bytesTransferred) / it.totalByteCount
-                        continuation.resume(StorageUploadState.UploadInProgress(progress, currentImageIndex, totalImagesCount))
+                        continuation.resume(StorageUploadState.InProgress(progress, currentImageIndex, totalImagesCount))
                     }
 
                     .addOnSuccessListener {
-                        continuation.resume(StorageUploadState.UploadSuccess)
+                        continuation.resume(StorageUploadState.Success)
                     }
 
                     .addOnFailureListener { exception ->
-                        continuation.resume(StorageUploadState.UploadError(exception.message ?: "Unknown error"))
+                        continuation.resume(StorageUploadState.Error(exception.message ?: "Unknown error"))
                     }
             }
         }

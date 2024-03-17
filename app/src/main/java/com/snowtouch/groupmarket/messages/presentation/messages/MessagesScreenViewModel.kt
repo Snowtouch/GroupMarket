@@ -1,5 +1,5 @@
 package com.snowtouch.groupmarket.messages.presentation.messages
 
-import com.snowtouch.groupmarket.core.presentation.GroupMarketViewModel
+import com.snowtouch.core.presentation.GroupMarketViewModel
 
-class MessagesScreenViewModel : GroupMarketViewModel()
+class MessagesScreenViewModel : com.snowtouch.core.presentation.GroupMarketViewModel()

@@ -1,12 +1,12 @@
 package com.snowtouch.groupmarket
 
 import androidx.lifecycle.viewModelScope
-import com.snowtouch.groupmarket.auth.domain.repository.AuthRepository
-import com.snowtouch.groupmarket.core.presentation.GroupMarketViewModel
+import com.snowtouch.auth_feature.domain.repository.AuthRepository
+import com.snowtouch.core.presentation.GroupMarketViewModel
 
 class MainViewModel(
-    private val authRepository: AuthRepository
-): GroupMarketViewModel() {
+    private val authRepository : AuthRepository,
+) : GroupMarketViewModel() {
 
     init {
         getAuthState()
