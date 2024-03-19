@@ -1,12 +1,9 @@
 package com.snowtouch.groupmarket
 
 import android.app.Application
-import com.snowtouch.account_feature.di.accountModule
-import com.snowtouch.auth_feature.di.authModule
-import com.snowtouch.feature_groups.di.groupsModule
 import com.snowtouch.core.di.firebaseModule
 import com.snowtouch.groupmarket.koin_modules.serviceModule
-import com.snowtouch.groupmarket.koin_modules.snackbarModule
+import com.snowtouch.core.di.snackbarModule
 import com.snowtouch.groupmarket.koin_modules.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger

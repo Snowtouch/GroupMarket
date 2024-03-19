@@ -6,8 +6,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.snowtouch.feature_advertisement_details.presentation.AdvertisementDetailScreen
-import com.snowtouch.feature_advertisement_details.presentation.AdvertisementDetailViewModel
-import org.koin.androidx.compose.navigation.koinNavViewModel
 
 sealed class AdvertisementRoute(val route: String) {
     data object Advertisement: AdvertisementRoute("advertisement")
@@ -16,7 +14,7 @@ sealed class AdvertisementRoute(val route: String) {
 fun NavGraphBuilder.advertisementDetailFeature(onNavigateBack: () -> Unit) {
 
     composable(
-        route = com.snowtouch.feature_advertisement_details.navigation.AdvertisementRoute.Advertisement.route + "/{advertisementId}",
+        route = AdvertisementRoute.Advertisement.route + "/{advertisementId}",
         arguments = listOf(
             navArgument(name = "advertisementId") {
                 type = NavType.StringType
@@ -24,12 +22,10 @@ fun NavGraphBuilder.advertisementDetailFeature(onNavigateBack: () -> Unit) {
         )
     ) {
         val advertisementId = it.arguments?.getString("advertisementId") ?: ""
-        val viewModel: AdvertisementDetailViewModel = koinNavViewModel()
 
         AdvertisementDetailScreen(
             advertisementId = advertisementId,
-            viewModel = viewModel,
-            onNavigateBack = onNavigateBack
+            navigateBack = onNavigateBack
         )
     }
 }

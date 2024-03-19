@@ -1,5 +1,6 @@
 package com.snowtouch.core.presentation.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
@@ -10,8 +11,11 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.snowtouch.core.di.snackbarModule
 import com.snowtouch.core.presentation.util.SnackbarGlobalDelegate
+import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
 
 @Composable
@@ -40,5 +44,28 @@ fun ScaffoldTemplate(
         }
     ) {
         content(it)
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun ScaffoldTemplate() {
+    KoinApplication(
+        application = {
+            modules(snackbarModule)
+        }
+    ) {
+        ScaffoldTemplate(
+            topBar = {
+                CommonTopAppBar(
+                    title = "New advertisement",
+                    canNavigateBack = true,
+                    onNavigateBackClick = {})
+            }
+        ) {
+            Column {
+
+            }
+        }
     }
 }

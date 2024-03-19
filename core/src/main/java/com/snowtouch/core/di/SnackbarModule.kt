@@ -1,7 +1,7 @@
-package com.snowtouch.groupmarket.koin_modules
+package com.snowtouch.core.di
 
 import androidx.compose.material3.SnackbarHostState
-import com.snowtouch.groupmarket.core.presentation.util.SnackbarGlobalDelegate
+import com.snowtouch.core.presentation.util.SnackbarGlobalDelegate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

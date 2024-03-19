@@ -1,14 +1,15 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.snowtouch.feature_advertisement_details.presentation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.snowtouch.core.di.snackbarModule
 import com.snowtouch.core.presentation.components.CommonTopAppBar
 import com.snowtouch.core.presentation.components.ScaffoldTemplate
+import com.snowtouch.feature_advertisement_details.di.adDetailsModule
 import com.snowtouch.feature_advertisement_details.presentation.components.AdvertisementDetail
+import org.koin.compose.KoinApplication
 
 @Composable
 internal fun AdvertisementDetailScreen(
@@ -25,22 +26,24 @@ internal fun AdvertisementDetailScreen(
     ) { innerPadding ->
         AdvertisementDetail(
             advertisementId = advertisementId,
+            navigateBack = navigateBack,
             modifier = Modifier.padding(innerPadding)
         )
     }
 }
-
-/*@Preview
+@Preview(showSystemUi = true)
 @Composable
-fun AdDetailScreenContentPreview() {
-    AdvertisementDetailContent(
-        advertisement = com.snowtouch.core.domain.model.Advertisement(
-            uid = "12",
-            ownerUid = "432",
-            groupId = "334",
-            title = "Shoes",
-            description = "Description Description Description Description Description Description",
-            price = 333.0,
-            postDate = Date()
-        ), onNavigateBack = {})
-}*/
+fun AdDetailTopBar() {
+    KoinApplication(
+        application = {
+            modules(adDetailsModule, snackbarModule)
+        }
+    ) {
+        ScaffoldTemplate {
+            CommonTopAppBar(
+                title = "New advertisement",
+                canNavigateBack = true,
+                onNavigateBackClick = {})
+        }
+    }
+}

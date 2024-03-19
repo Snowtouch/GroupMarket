@@ -3,6 +3,9 @@ package com.snowtouch.feature_groups.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
+import com.snowtouch.core.domain.model.AdvertisementPreview
+import com.snowtouch.core.domain.model.Group
+import com.snowtouch.core.domain.model.Response
 import com.snowtouch.feature_groups.domain.repository.GroupsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
@@ -19,13 +22,13 @@ class GroupsRepositoryImpl(
     private val groupsAdsCounterRef = db.getReference("groups_ads_counter")
     private val groupsUserListRef = db.getReference("groups_userId_list")
     private val groupsUserNamesRef = db.getReference("groups_userNames_list")
-    private val groupsAdvertisementsList = db.getReference("groups_adsId_list")
+    private val groupsAdsIdList = db.getReference("groups_adsId_list")
 
     private val userGroupsReference = db.getReference("user_groups")
 
     private val advertisementsPreviewRef = db.getReference("ads_preview")
 
-    override suspend fun getUserGroupsPreviewData() : com.snowtouch.core.domain.model.Response<List<com.snowtouch.core.domain.model.Group>> {
+    override suspend fun getUserGroupsPreviewData() : Response<List<Group>> {
         return withContext(dispatcher) {
             try {
                 val userGroupsIdsListSnapshot = userGroupsReference
@@ -37,7 +40,7 @@ class GroupsRepositoryImpl(
                     groupId.getValue<String>()
                 }
 
-                val userGroupsList = mutableListOf<com.snowtouch.core.domain.model.Group>()
+                val userGroupsList = mutableListOf<Group>()
 
                 if (groupsIdList.isNotEmpty()) {
                     val userGroupsSnapshot = groupsRef
@@ -49,19 +52,19 @@ class GroupsRepositoryImpl(
 
                     userGroupsSnapshot.children.forEach { group ->
                         userGroupsList.add(
-                            group.getValue<com.snowtouch.core.domain.model.Group>()
-                                ?: com.snowtouch.core.domain.model.Group()
+                            group.getValue<Group>()
+                                ?: Group()
                         )
                     }
                 }
-                com.snowtouch.core.domain.model.Response.Success(userGroupsList)
+                Response.Success(userGroupsList)
             } catch (e : Exception) {
-                com.snowtouch.core.domain.model.Response.Failure(e)
+                Response.Failure(e)
             }
         }
     }
 
-    override suspend fun getGroupUsersCount(groupId : String) : com.snowtouch.core.domain.model.Response<Int> {
+    override suspend fun getGroupUsersCount(groupId : String) : Response<Int> {
         return withContext(dispatcher) {
             try {
                 val membersCountSnap = groupsUsersCounterRef
@@ -71,14 +74,14 @@ class GroupsRepositoryImpl(
 
                 val membersCount = membersCountSnap.getValue<Int>()
 
-                com.snowtouch.core.domain.model.Response.Success(membersCount)
+                Response.Success(membersCount)
             } catch (e : Exception) {
-                com.snowtouch.core.domain.model.Response.Failure(e)
+                Response.Failure(e)
             }
         }
     }
 
-    override suspend fun getGroupAdsCount(groupId : String) : com.snowtouch.core.domain.model.Response<Int> {
+    override suspend fun getGroupAdsCount(groupId : String) : Response<Int> {
         return withContext(dispatcher) {
             try {
                 val adsCountSnap = groupsAdsCounterRef
@@ -88,9 +91,9 @@ class GroupsRepositoryImpl(
 
                 val adsCount = adsCountSnap.getValue<Int>()
 
-                com.snowtouch.core.domain.model.Response.Success(adsCount)
+                Response.Success(adsCount)
             } catch (e : Exception) {
-                com.snowtouch.core.domain.model.Response.Failure(e)
+                Response.Failure(e)
             }
         }
     }
@@ -98,14 +101,14 @@ class GroupsRepositoryImpl(
     override suspend fun createNewGroup(
         name : String,
         description : String,
-    ) : com.snowtouch.core.domain.model.Response<Boolean> {
+    ) : Response<Boolean> {
         return withContext(dispatcher) {
             try {
                 val newGroupKey = groupsRef
                     .push()
                     .key
 
-                val newGroup = com.snowtouch.core.domain.model.Group(
+                val newGroup = Group(
                     uid = newGroupKey,
                     ownerId = auth.currentUser?.uid,
                     ownerName = auth.currentUser?.displayName,
@@ -148,22 +151,22 @@ class GroupsRepositoryImpl(
                         .setValue(newGroupKey)
                         .await()
 
-                    com.snowtouch.core.domain.model.Response.Success(true)
+                    Response.Success(true)
                 } else {
-                    com.snowtouch.core.domain.model.Response.Failure(Exception("Unknown error"))
+                    Response.Failure(Exception("Unknown error"))
                 }
             } catch (e : Exception) {
-                com.snowtouch.core.domain.model.Response.Failure(e)
+                Response.Failure(e)
             }
         }
     }
 
-    override suspend fun getGroupAdvertisements(groupId : String) : com.snowtouch.core.domain.model.Response<List<com.snowtouch.core.domain.model.AdvertisementPreview>> {
+    override suspend fun getGroupAdvertisements(groupId : String) : Response<List<AdvertisementPreview>> {
         return withContext(dispatcher) {
             try {
                 val groupAdsPreviewList =
-                    mutableListOf<com.snowtouch.core.domain.model.AdvertisementPreview>()
-                val groupAdsIdSnap = groupsAdvertisementsList
+                    mutableListOf<AdvertisementPreview>()
+                val groupAdsIdSnap = groupsAdsIdList
                     .child(groupId)
                     .get()
                     .await()
@@ -182,12 +185,12 @@ class GroupsRepositoryImpl(
 
                     groupAdsPreviewSnap.children.map { ad ->
                         groupAdsPreviewList
-                            .add(ad.getValue<com.snowtouch.core.domain.model.AdvertisementPreview>()!!)
+                            .add(ad.getValue<AdvertisementPreview>()!!)
                     }
                 }
-                com.snowtouch.core.domain.model.Response.Success(groupAdsPreviewList)
+                Response.Success(groupAdsPreviewList)
             } catch (e : Exception) {
-                com.snowtouch.core.domain.model.Response.Failure(e)
+                Response.Failure(e)
             }
         }
     }
