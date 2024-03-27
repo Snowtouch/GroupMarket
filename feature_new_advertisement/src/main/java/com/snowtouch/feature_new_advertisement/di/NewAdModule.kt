@@ -7,13 +7,15 @@ import com.snowtouch.feature_new_advertisement.domain.repository.NewAdRemoteRepo
 import com.snowtouch.feature_new_advertisement.presentation.NewAdvertisementViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val newAdModule = module {
-    single<NewAdLocalRepository> { NewAdLocalRepositoryImpl() }
-    single<NewAdRemoteRepository> { NewAdRemoteRepositoryImpl(get(), get(), get(), get()) }
+    singleOf(::NewAdRemoteRepositoryImpl) { bind<NewAdRemoteRepository>() }
+    singleOf(::NewAdLocalRepositoryImpl) { bind<NewAdLocalRepository>() }
     single<CoroutineDispatcher> { Dispatchers.IO }
 
-    viewModel { NewAdvertisementViewModel(get(), get()) }
+    viewModelOf(::NewAdvertisementViewModel)
 }

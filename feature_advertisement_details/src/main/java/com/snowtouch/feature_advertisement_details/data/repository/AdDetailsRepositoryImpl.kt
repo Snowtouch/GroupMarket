@@ -1,15 +1,15 @@
 package com.snowtouch.feature_advertisement_details.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.snowtouch.core.domain.model.Advertisement
 import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import com.snowtouch.feature_advertisement_details.domain.repository.AdDetailsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 
 class AdDetailsRepositoryImpl(
     private val auth : FirebaseAuth,
-    private val db : FirebaseDatabase,
+    private val dbReferences : DatabaseReferenceManager,
     private val dispatcher : CoroutineDispatcher,
 ) : AdDetailsRepository {
 

@@ -5,9 +5,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.snowtouch.account_feature.presentation.account.AccountScreen
+import com.snowtouch.core.navigation.NavBarItem
 import com.snowtouch.core.presentation.util.DisplaySize
 
 sealed class AccountRoutes(val route : String) {
+    data object AccountFeature : AccountRoutes("account_feature")
     data object Account : AccountRoutes("Account")
     data object ActiveAds : AccountRoutes("active_ads")
     data object DraftAds : AccountRoutes("draft_ads")
@@ -22,24 +24,20 @@ sealed class AccountSettingsRoutes(val route : String) {
 }
 
 fun NavGraphBuilder.accountFeature(
+    currentScreen : NavBarItem,
     displaySize : DisplaySize,
     navController : NavController,
     isLoggedIn : Boolean,
-    notSignedInDestination : String,
     navigateToLoginScreen : () -> Unit,
     navigateToAdDetails : (String) -> Unit,
 ) {
-    val startDestination =
-        when (isLoggedIn) {
-            true -> AccountRoutes.Account.route
-            false -> notSignedInDestination
-        }
 
-    navigation(startDestination = startDestination, route = "account_feature") {
+    navigation(startDestination = AccountRoutes.Account.route, route = AccountRoutes.AccountFeature.route) {
 
         composable(AccountRoutes.Account.route) {
-
+            if (!isLoggedIn) navigateToLoginScreen()
             AccountScreen(
+                currentScreen = currentScreen,
                 displaySize = displaySize,
                 navigateBack = { navController.popBackStack() },
                 navigateToLogin = navigateToLoginScreen,
@@ -47,12 +45,11 @@ fun NavGraphBuilder.accountFeature(
                     navController.navigate(optionRoute)
                 },
                 navigateToAdDetails = navigateToAdDetails,
-                onNavBarIconClick = { route ->
-                    navController.navigate(route) {
-                        popUpToRoute
-                    }
-                },
-            )
+            ) { route ->
+                navController.navigate(route) {
+                    popUpToRoute
+                }
+            }
         }
 
         composable(AccountRoutes.ActiveAds.route) {

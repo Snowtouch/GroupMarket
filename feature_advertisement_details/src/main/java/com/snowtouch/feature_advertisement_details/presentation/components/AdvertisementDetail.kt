@@ -33,7 +33,8 @@ internal fun AdvertisementDetail(
             onNavigateBack = navigateBack
         )
         is Response.Failure -> LoadingFailed(
-            onRefreshClick = { viewModel.getAdvertisementDetails(advertisementId) },
+            canRefresh = true,
+            onErrorIconClick = { viewModel.getAdvertisementDetails(advertisementId) },
             modifier = modifier,
             errorMessage = adDetail.e.localizedMessage
         )

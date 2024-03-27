@@ -35,7 +35,8 @@ fun Groups(
             )
 
         is Response.Failure -> LoadingFailed(
-            onRefreshClick = viewModel::getUserGroupsData,
+            canRefresh = true,
+            onErrorIconClick = viewModel::getUserGroupsData,
             modifier = modifier,
             errorMessage = groupsResponse.e.localizedMessage
         )

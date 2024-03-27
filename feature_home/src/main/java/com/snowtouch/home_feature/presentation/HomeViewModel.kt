@@ -12,40 +12,40 @@ class HomeViewModel(
 ) : GroupMarketViewModel() {
 
     private val _newAdsDataResponse = MutableStateFlow<Response<List<AdvertisementPreview>>>(
-        Response.Loading
+        Response.Loading(null)
     )
     val newAdsDataResponse : StateFlow<Response<List<AdvertisementPreview>>> = _newAdsDataResponse
 
     private val _favoriteAdsDataResponse = MutableStateFlow<Response<List<AdvertisementPreview>>>(
-        Response.Loading
+        Response.Loading(null)
     )
     val favoriteAdsDataResponse : StateFlow<Response<List<AdvertisementPreview>>> =
         _favoriteAdsDataResponse
 
     private val _recentlyViewedAdsDataResponse =
         MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading
+            Response.Loading(null)
         )
     val recentlyViewedAdsDataResponse : StateFlow<Response<List<AdvertisementPreview>>> =
         _recentlyViewedAdsDataResponse
 
     fun getUserFavoriteAdvertisements() {
         launchCatching {
-            _favoriteAdsDataResponse.value = Response.Loading
+            _favoriteAdsDataResponse.value = Response.Loading(null)
             _favoriteAdsDataResponse.value = homeRepository.getUserFavoriteAdsPreview()
         }
     }
 
     fun getLatestAdvertisements() {
         launchCatching {
-            _newAdsDataResponse.value = Response.Loading
+            _newAdsDataResponse.value = Response.Loading(null)
             _newAdsDataResponse.value = homeRepository.getLatestAdsPreview()
         }
     }
 
     fun getUserRecentlyViewedAds() {
         launchCatching {
-            _recentlyViewedAdsDataResponse.value = Response.Loading
+            _recentlyViewedAdsDataResponse.value = Response.Loading(null)
             _recentlyViewedAdsDataResponse.value = homeRepository.getRecentlyViewedAdsPreview()
         }
     }

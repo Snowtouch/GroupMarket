@@ -11,12 +11,12 @@ internal class AdvertisementDetailViewModel(
     private val  adDetailsRepository : AdDetailsRepository
 ) : GroupMarketViewModel() {
 
-    private val _adDetailsResponse = MutableStateFlow<Response<Advertisement>>(Response.Loading)
+    private val _adDetailsResponse = MutableStateFlow<Response<Advertisement>>(Response.Loading(null))
     val adDetailsResponse : StateFlow<Response<Advertisement>> = _adDetailsResponse
 
     fun getAdvertisementDetails(adId: String) {
         launchCatching {
-            _adDetailsResponse.value = Response.Loading
+            _adDetailsResponse.value = Response.Loading(null)
             _adDetailsResponse.value = adDetailsRepository.getAdDetails(adId)
         }
     }

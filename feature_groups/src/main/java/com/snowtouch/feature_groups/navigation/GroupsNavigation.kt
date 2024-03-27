@@ -6,26 +6,30 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.snowtouch.core.navigation.NavBarItem
 import com.snowtouch.core.presentation.util.DisplaySize
 import com.snowtouch.feature_groups.presentation.group_ads.GroupAdsScreen
 import com.snowtouch.feature_groups.presentation.groups.GroupsScreen
 import com.snowtouch.feature_groups.presentation.new_group.CreateNewGroupScreen
 
 sealed class GroupsRoute(val route : String) {
+    data object GroupsFeature : GroupsRoute("groups_feature")
     data object Groups : GroupsRoute("Groups")
     data object GroupAds : GroupsRoute("groupAdsScreen")
     data object NewGroup : GroupsRoute("new_group")
 }
 
 fun NavGraphBuilder.groupsFeature(
+    currentScreen : NavBarItem,
     displaySize : DisplaySize,
     navController : NavController,
     navigateToAdDetails : (String) -> Unit,
 ) {
-    navigation(startDestination = GroupsRoute.Groups.route, route = "groups_feature") {
+    navigation(startDestination = GroupsRoute.Groups.route, route = GroupsRoute.GroupsFeature.route) {
         composable(GroupsRoute.Groups.route) {
 
             GroupsScreen(
+                currentScreen = currentScreen,
                 displaySize = displaySize,
                 onNavBarIconClick = { route ->
                     navController.navigate(route)

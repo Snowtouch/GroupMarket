@@ -39,7 +39,8 @@ fun GroupAds(
             modifier = modifier
         )
         is Response.Failure -> LoadingFailed(
-            onRefreshClick = { viewModel.getGroupAdvertisements(groupId) },
+            canRefresh = true,
+            onErrorIconClick = { viewModel.getGroupAdvertisements(groupId) },
             modifier = modifier,
             errorMessage = adsResponse.e.localizedMessage
         )

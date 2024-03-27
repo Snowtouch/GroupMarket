@@ -4,12 +4,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.database.FirebaseDatabase
 import com.snowtouch.auth_feature.domain.repository.AuthRepository
 import com.snowtouch.core.domain.model.Response
 import com.snowtouch.core.domain.model.Response.Failure
 import com.snowtouch.core.domain.model.Response.Success
 import com.snowtouch.core.domain.model.User
+import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
@@ -21,12 +21,9 @@ import kotlinx.coroutines.withContext
 
 class AuthRepositoryImpl(
     private val auth: FirebaseAuth,
-    db: FirebaseDatabase,
+    private val dbReferences : DatabaseReferenceManager,
     private val dispatcher: CoroutineDispatcher
 ) : AuthRepository {
-
-    private val usersReference = db.getReference("users")
-    private val userNamesReference = db.getReference("user_names")
 
     override val currentUser: FirebaseUser?
         get() = auth.currentUser
@@ -66,12 +63,12 @@ class AuthRepositoryImpl(
                     favoritesList = null,
                     recentlyWatched = null
                 )
-                usersReference
+                dbReferences.users
                     .child(currentUser?.uid!!)
                     .setValue(newUser)
                     .await()
 
-                userNamesReference
+                dbReferences.userNamesList
                     .push()
                     .setValue(name)
                     .await()
@@ -122,14 +119,14 @@ class AuthRepositoryImpl(
     override suspend fun checkIfUserNameExists(name: String): Response<Boolean> {
         return withContext(dispatcher) {
             try {
-                val isName = userNamesReference
+                val isName = dbReferences.userNamesList
                     .equalTo(name)
                     .get()
                     .await()
                 if (isName.exists()) {
-                    Success(true)
-                } else {
                     Failure(Exception("User name is taken"))
+                } else {
+                    Success(true)
                 }
             } catch (e: Exception) {
                 Failure(e)

@@ -33,14 +33,14 @@ fun LoginContent(
     ) {
         ElevatedCard {
             Column(
-                modifier.padding(24.dp),
+                modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 EmailField(
                     value = uiState.email,
                     onNewValue = onEmailChange
                 )
-                Spacer(modifier = modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 PasswordField(
                     value = uiState.password,
                     onNewValue = onPasswordChange

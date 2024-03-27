@@ -12,9 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.snowtouch.account_feature.navigation.AccountRoutes
 import com.snowtouch.account_feature.presentation.AccountCategoryOption
 import com.snowtouch.account_feature.presentation.AccountScreenCategory
 import com.snowtouch.account_feature.presentation.account.components.Account
+import com.snowtouch.core.navigation.NavBarItem
 import com.snowtouch.core.presentation.components.BottomNavigationBar
 import com.snowtouch.core.presentation.components.NavigationRail
 import com.snowtouch.core.presentation.components.ScaffoldTemplate
@@ -22,6 +24,7 @@ import com.snowtouch.core.presentation.util.DisplaySize
 
 @Composable
 internal fun AccountScreen(
+    currentScreen : NavBarItem,
     displaySize : DisplaySize,
     navigateBack : () -> Unit,
     navigateToLogin : () -> Unit,
@@ -33,7 +36,10 @@ internal fun AccountScreen(
     ScaffoldTemplate(
         bottomBar = {
             when (displaySize) {
-                DisplaySize.Compact -> BottomNavigationBar(onNavItemClick = onNavBarIconClick)
+                DisplaySize.Compact -> BottomNavigationBar(
+                    currentScreen = currentScreen,
+                    onNavItemClick = onNavBarIconClick
+                )
                 DisplaySize.Extended -> NavigationRail(onNavItemClick = onNavBarIconClick)
             }
         }

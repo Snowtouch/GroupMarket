@@ -33,7 +33,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.snowtouch.core.R
 import com.snowtouch.core.domain.model.AdvertisementPreview
-import java.util.Date
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Composable
 fun AdvertisementCard(
@@ -105,7 +106,7 @@ fun AdvertisementCard(
                         onFavoriteButtonClick = onFavoriteButtonClick
                     )
                     Text(
-                        text = advertisement.postDate.toString(),
+                        text = advertisement.postDateTimestamp.toString(),
                     )
                 }
             }
@@ -137,12 +138,15 @@ fun CardPreview() {
     val list : List<String> = emptyList()
     val userFavorites = listOf("2")
     AdvertisementCard(
-        com.snowtouch.core.domain.model.AdvertisementPreview(
+        AdvertisementPreview(
             groupId = "2",
             title = "aaaaaaaaa",
             image = "",
-            price = 3223.0,
-            postDate = Date()
+            price = "3223.0",
+            postDateTimestamp = LocalDateTime
+                .now()
+                .toInstant(ZoneOffset.UTC)
+                .toEpochMilli()
         ),
         userFavorites,
         {}

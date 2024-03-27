@@ -58,6 +58,7 @@ dependencies {
     implementation(project(":feature_home"))
     implementation(project(":feature_groups"))
     implementation(project(":feature_account"))
+    implementation(project(":feature_messages"))
     implementation(project(":feature_new_advertisement"))
     implementation(project(":feature_advertisement_details"))
 
@@ -76,6 +77,7 @@ dependencies {
     implementation(libs.androidx.compose.material3.window.size)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.material.icons.extended.android)
     implementation(libs.accompanist.permissions)
 
     implementation(libs.coil.compose)

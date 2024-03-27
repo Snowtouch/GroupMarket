@@ -41,11 +41,13 @@ fun Home(
                 favoriteAdsDataResponse is Response.Failure ||
                 recentlyWatchedAdsDataResponse is Response.Failure -> {
             LoadingFailed(
-                onRefreshClick = {
+                canRefresh = true,
+                onErrorIconClick = {
                     viewModel.getLatestAdvertisements()
                     viewModel.getUserFavoriteAdvertisements()
                     viewModel.getUserRecentlyViewedAds()
                 },
+                modifier = modifier,
                 errorMessage = "Error loading data"
             )
         }

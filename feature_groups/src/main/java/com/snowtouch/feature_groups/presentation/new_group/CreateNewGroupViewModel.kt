@@ -31,7 +31,7 @@ class CreateNewGroupViewModel(
 
     fun createNewGroup(name: String, description: String) {
         launchCatching {
-            _createGroupResponse.value = com.snowtouch.core.domain.model.Response.Loading
+            _createGroupResponse.value = Response.Loading(null)
             _createGroupResponse.value = groupsRepository.createNewGroup(name, description)
             if (_createGroupResponse.value is Response.Success) {
                 uiState.value = uiState.value.copy(

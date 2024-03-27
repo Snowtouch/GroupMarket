@@ -9,8 +9,6 @@ import com.snowtouch.auth_feature.presentation.components.isValidLength
 import com.snowtouch.auth_feature.presentation.components.isValidPassword
 import com.snowtouch.auth_feature.presentation.components.passwordMatches
 import com.snowtouch.core.domain.model.Response
-import com.snowtouch.core.domain.model.Response.Loading
-import com.snowtouch.core.domain.model.Response.Success
 import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.core.presentation.util.SnackbarState
 
@@ -18,9 +16,9 @@ class CreateAccountViewModel(
     private val authRepository: AuthRepository
 ) : GroupMarketViewModel() {
 
-    var signUpResponse by mutableStateOf<Response<Boolean>>(Success(false))
+    var signUpResponse by mutableStateOf<Response<Boolean>>(Response.Success(false))
         private set
-    var sendEmailVerificationResponse by mutableStateOf<Response<Boolean>>(Success(false))
+    var sendEmailVerificationResponse by mutableStateOf<Response<Boolean>>(Response.Success(false))
         private set
     var uiState = mutableStateOf(CreateAccountUiState())
         private set
@@ -71,16 +69,21 @@ class CreateAccountViewModel(
             return
         }
         launchCatching {
-            signUpResponse = Loading
+            signUpResponse = Response.Loading(null)
             signUpResponse = authRepository.checkIfUserNameExists(name)
-            signUpResponse = authRepository.createAccountWithEmailAndPassword(email, password, name)
-            showSnackbar(SnackbarState.DEFAULT, "Account successfully created")
+            when (val response = signUpResponse) {
+                is Response.Success ->
+                    signUpResponse = authRepository.createAccountWithEmailAndPassword(email, password, name)
+                is Response.Failure ->
+                    showSnackbar(SnackbarState.ERROR, response.e.localizedMessage?: "Error")
+                is Response.Loading -> Unit
+            }
         }
     }
 
     fun sendVerificationEmail() {
         launchCatching{
-            sendEmailVerificationResponse = Loading
+            sendEmailVerificationResponse = Response.Loading(null)
             sendEmailVerificationResponse = authRepository.sendVerificationEmail()
             showSnackbar(SnackbarState.DEFAULT, "Verification e-mail sent.")
         }

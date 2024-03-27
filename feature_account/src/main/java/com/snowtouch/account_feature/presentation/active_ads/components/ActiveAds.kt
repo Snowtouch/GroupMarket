@@ -38,7 +38,8 @@ internal fun ActiveAds(
         )
 
         is Response.Failure -> LoadingFailed(
-            onRefreshClick = { viewModel.getUserActiveAds() },
+            canRefresh = true,
+            onErrorIconClick = { viewModel.getUserActiveAds() },
             modifier = modifier,
             errorMessage = activeAdsData.e.localizedMessage
         )

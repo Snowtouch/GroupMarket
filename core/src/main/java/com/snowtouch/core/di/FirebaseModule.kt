@@ -12,7 +12,7 @@ const val isFirebaseLocal = true
 val firebaseModule = module {
     single {
         val firebaseDatabaseLocalAddress =
-            get<Application>().getString(R.string.firebaseDatabaseLocalPhone)
+            get<Application>().getString(R.string.firebaseDatabaseLocalEmu)
         val firebaseDatabaseRemoteAddress =
             get<Application>().getString(R.string.firebaseDatabaseRemote)
 
@@ -25,14 +25,14 @@ val firebaseModule = module {
     single {
         val auth = FirebaseAuth.getInstance()
         if (isFirebaseLocal) {
-            //auth.useEmulator("10.0.2.2", 9099)
-            auth.useEmulator("192.168.0.11", 9099)
+            auth.useEmulator("10.0.2.2", 9099)
+            //auth.useEmulator("192.168.0.11", 9099)
         }
         auth
     }
     single {
         val firebaseStorageLocalAddress =
-            get<Application>().getString(R.string.firebaseStorageLocalPhone)
+            get<Application>().getString(R.string.firebaseStorageLocalEmu)
         if (isFirebaseLocal) {
             FirebaseStorage.getInstance(firebaseStorageLocalAddress)
         } else {

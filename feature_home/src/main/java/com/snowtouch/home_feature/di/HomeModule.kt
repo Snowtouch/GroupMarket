@@ -9,7 +9,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val homeModule = module {
-    single<HomeRepository> { HomeRepositoryImpl(get(), get(), get()) }
+    single<HomeRepository> { HomeRepositoryImpl(get(), get()) }
     single<CoroutineDispatcher> { Dispatchers.IO }
 
     viewModel { HomeViewModel(get()) }

@@ -8,6 +8,6 @@ data class Group(
     val membersCount: Int? = null,
     val name: String? = null,
     val description: String? = null,
-    val advertisements: List<com.snowtouch.core.domain.model.Advertisement>? = null,
+    val advertisements: List<Advertisement>? = null,
     val advertisementsCount: Int? = null
 )

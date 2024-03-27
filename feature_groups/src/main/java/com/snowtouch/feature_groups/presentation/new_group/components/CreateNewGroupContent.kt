@@ -14,9 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.snowtouch.auth_feature.presentation.components.ValidatedTextFieldOnCard
-import com.snowtouch.groupmarket.core.presentation.components.CommonButton
-import com.snowtouch.groupmarket.core.presentation.components.ext.adaptiveColumnWidth
+import com.snowtouch.core.presentation.components.CommonButton
+import com.snowtouch.core.presentation.components.ValidatedTextFieldOnCard
+import com.snowtouch.core.presentation.components.ext.adaptiveColumnWidth
 import com.snowtouch.feature_groups.presentation.new_group.CreateNewGroupUiState
 
 @Composable
@@ -32,7 +32,7 @@ fun CreateNewGroupContent(
         modifier = modifier.adaptiveColumnWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        com.snowtouch.auth_feature.presentation.components.ValidatedTextFieldOnCard(
+        ValidatedTextFieldOnCard(
             value = uiState.name,
             onNewValue = onGroupNameChanged,
             label = "Name",
@@ -40,7 +40,7 @@ fun CreateNewGroupContent(
             singleLine = true
         )
 
-        com.snowtouch.auth_feature.presentation.components.ValidatedTextFieldOnCard(
+        ValidatedTextFieldOnCard(
             modifier = Modifier.sizeIn(minHeight = 200.dp),
             value = uiState.description,
             onNewValue = onGroupDescriptionChanged,

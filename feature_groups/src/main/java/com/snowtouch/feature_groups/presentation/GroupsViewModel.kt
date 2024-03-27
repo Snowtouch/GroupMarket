@@ -1,5 +1,6 @@
 package com.snowtouch.feature_groups.presentation
 
+import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Group
 import com.snowtouch.core.domain.model.Response
 import com.snowtouch.core.presentation.GroupMarketViewModel
@@ -15,9 +16,9 @@ class GroupsViewModel(
         Response.Success(emptyList()))
     val groupsDataResponse: StateFlow<Response<List<Group>>> = _groupsDataResponse
 
-    private val _advertisementsResponse = MutableStateFlow<com.snowtouch.core.domain.model.Response<List<com.snowtouch.core.domain.model.AdvertisementPreview>>>(
-        Response.Loading)
-    val advertisementsResponse: StateFlow<com.snowtouch.core.domain.model.Response<List<com.snowtouch.core.domain.model.AdvertisementPreview>>> = _advertisementsResponse
+    private val _advertisementsResponse = MutableStateFlow<Response<List<AdvertisementPreview>>>(
+        Response.Loading(null))
+    val advertisementsResponse: StateFlow<Response<List<AdvertisementPreview>>> = _advertisementsResponse
 
     init {
         getUserGroupsData()
@@ -31,7 +32,7 @@ class GroupsViewModel(
 
     fun getUserGroupsData() {
         launchCatching {
-            _groupsDataResponse.value = Response.Loading
+            _groupsDataResponse.value = Response.Loading(null)
             val groupsResponse = groupsRepository.getUserGroupsPreviewData()
 
             if (groupsResponse is Response.Success) {

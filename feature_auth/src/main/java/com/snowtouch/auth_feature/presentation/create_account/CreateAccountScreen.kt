@@ -30,10 +30,7 @@ fun CreateAccountScreen(
         onNameChange = viewModel::onNameChange,
         onPasswordChange = viewModel::onPasswordChange,
         onRepeatPasswordChange = viewModel::onRepeatPasswordChange,
-        onSignUpClick = {
-            viewModel.createAccount(uiState.email, uiState.name, uiState.password)
-            viewModel.sendVerificationEmail()
-        }
+        onSignUpClick = { viewModel.createAccount(uiState.email, uiState.name, uiState.password) }
     )
 
 }

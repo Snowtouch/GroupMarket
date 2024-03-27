@@ -5,31 +5,28 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import com.snowtouch.core.navigation.NavBarItem
+import com.snowtouch.core.navigation.navMenuItems
 
 @Composable
 fun BottomNavigationBar(
+    currentScreen : NavBarItem,
     onNavItemClick : (String) -> Unit,
 ) {
-    var currentRouteIndex by rememberSaveable { mutableIntStateOf(0) }
 
     NavigationBar {
-        navMenu.forEachIndexed { index, navBarItem ->
+        navMenuItems.forEachIndexed { index, navBarItem ->
             NavigationBarItem(
-                selected = currentRouteIndex == index,
+                selected = currentScreen == navBarItem,
                 onClick = {
-                    currentRouteIndex = index
-                    onNavItemClick(navBarItem.title)
+                    onNavItemClick(navBarItem.featureRoute)
                 },
                 icon = {
                     Icon(
-                        imageVector = if (index == currentRouteIndex) {
+                        imageVector = if (currentScreen == navBarItem) {
                             navBarItem.selectedIcon
                         } else navBarItem.unselectedIcon,
-                        contentDescription = navBarItem.title
+                        contentDescription = navBarItem.featureRoute
                     )
                 },
                 label = { Text(text = navBarItem.title) }

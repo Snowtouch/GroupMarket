@@ -13,17 +13,17 @@ internal class AccountViewModel(
 
     private val _activeAdsResponse =
         MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading)
+            Response.Loading(null))
     val activeAdsResponse : StateFlow<Response<List<AdvertisementPreview>>> = _activeAdsResponse
 
     private val _finishedAdsResponse =
         MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading)
+            Response.Loading(null))
     val finishedAdsResponse : StateFlow<Response<List<AdvertisementPreview>>> = _finishedAdsResponse
 
     private val _draftsResponse =
         MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading)
+            Response.Loading(null))
     val draftsResponse : StateFlow<Response<List<AdvertisementPreview>>> = _draftsResponse
 
     fun signOut() {
@@ -32,21 +32,21 @@ internal class AccountViewModel(
 
     fun getUserActiveAds() {
         launchCatching {
-            _activeAdsResponse.value = Response.Loading
+            _activeAdsResponse.value = Response.Loading(null)
             _activeAdsResponse.value = accountRepository.getUserActiveAds()
         }
     }
 
     fun getUserFinishedAds() {
         launchCatching {
-            _finishedAdsResponse.value = Response.Loading
+            _finishedAdsResponse.value = Response.Loading(null)
             _finishedAdsResponse.value = accountRepository.getUserFinishedAds()
         }
     }
 
     fun getUserDrafts() {
         launchCatching {
-            _draftsResponse.value = Response.Loading
+            _draftsResponse.value = Response.Loading(null)
             _draftsResponse.value = accountRepository.getUserDraftAds()
         }
     }

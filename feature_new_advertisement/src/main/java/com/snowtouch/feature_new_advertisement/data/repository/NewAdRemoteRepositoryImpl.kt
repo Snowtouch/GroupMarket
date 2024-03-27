@@ -1,52 +1,97 @@
 package com.snowtouch.feature_new_advertisement.data.repository
 
+import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.component1
+import com.google.firebase.storage.component2
 import com.snowtouch.core.domain.model.Advertisement
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.repository.DatabaseReferenceManager
+import com.snowtouch.feature_new_advertisement.domain.model.UploadStatus
 import com.snowtouch.feature_new_advertisement.domain.repository.NewAdRemoteRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class NewAdRemoteRepositoryImpl(
-    auth : FirebaseAuth,
-    db : FirebaseDatabase,
-    private val storage : FirebaseStorage,
-    private val dispatcher : CoroutineDispatcher
+    private val auth : FirebaseAuth,
+    private val dbReferences : DatabaseReferenceManager,
+    storage : FirebaseStorage,
+    private val dispatcher : CoroutineDispatcher,
 ) : NewAdRemoteRepository {
 
-    private val advertisementsPreviewRef = db.getReference("ads_preview")
-    private val advertisementsRef = db.getReference("ads")
+    private val adImagesRef = storage.getReference("ad_images")
 
-    private val groupsAdsIdList = db.getReference("groups_adsId_list")
-    private val groupsAdsCounterRef = db.getReference("groups_ads_counter")
-
-    private val currentUserAdsRef = db.getReference("users").child(auth.currentUser?.uid!!)
+    override suspend fun getNewAdId() : String? {
+        return withContext(dispatcher) {
+            try {
+                val newAdKey = dbReferences.advertisements.push().key
+                newAdKey
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
 
     override suspend fun postNewAdvertisement(advertisement : Advertisement) : Response<Boolean> {
         return withContext(dispatcher) {
             try {
-                val newAdKey = advertisementsRef.push().key
-                if (newAdKey != null) {
-                    advertisementsRef.child(newAdKey).setValue(advertisement).await()
-                    advertisementsPreviewRef.child(newAdKey)
-                        .setValue(advertisement.toAdvertisementPreview()).await()
+                val newAdKey = advertisement.uid
+                val adWithOwnerUid = advertisement.copy(
+                    ownerUid = auth.currentUser?.uid,
+                    postDateTimestamp = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()
+                )
 
-                    groupsAdsIdList.child(advertisement.groupId!!).push().setValue(newAdKey).await()
-                    groupsAdsCounterRef.child(advertisement.groupId!!)
+                if (newAdKey != null) {
+                    dbReferences.advertisements.child(newAdKey).setValue(adWithOwnerUid).await()
+                    dbReferences.advertisementsPreview.child(newAdKey)
+                        .setValue(adWithOwnerUid.toAdvertisementPreview()).await()
+
+                    dbReferences.groupAdsIdList.child(adWithOwnerUid.groupId!!).push()
+                        .setValue(newAdKey).await()
+                    dbReferences.groupAdsCounter.child(adWithOwnerUid.groupId!!)
                         .setValue(ServerValue.increment(1))
 
-                    currentUserAdsRef.push().setValue(newAdKey).await()
-
+                    dbReferences.currentUserActiveAdsIds.push().setValue(newAdKey).await()
+                    Response.Success(true)
+                } else {
+                    Response.Failure(Exception("Unknown error"))
                 }
-                Response.Success(true)
-            } catch (e: Exception) {
+            } catch (e : Exception) {
                 Response.Failure(e)
             }
+        }
+    }
+
+    override fun uploadAdImages(adId : String, images : List<Uri>)
+    : Flow<UploadStatus> = callbackFlow {
+        withContext(dispatcher) {
+            images.forEach { image ->
+                var progress : Long
+
+                val downloadUrl = adImagesRef.child(adId)
+                    .putFile(image)
+                    .addOnProgressListener { (bytesTransferred, totalByteCount) ->
+                        progress = (100 * bytesTransferred / totalByteCount)
+                        trySend(UploadStatus.Progress(progress))
+                    }
+                    .addOnFailureListener {
+                        trySend(UploadStatus.Failure(it))
+                    }
+                    .await()
+                    .storage.downloadUrl.await()
+                trySend(UploadStatus.Success(downloadUrl))
+            }
+            awaitClose()
         }
     }
 }

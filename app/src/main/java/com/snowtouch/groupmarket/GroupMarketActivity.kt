@@ -13,14 +13,14 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.snowtouch.groupmarket.presentation.PermissionDialog
-import com.snowtouch.groupmarket.presentation.RationaleDialog
+import com.snowtouch.core.presentation.components.PermissionDialog
+import com.snowtouch.core.presentation.components.RationaleDialog
 import com.snowtouch.core.presentation.components.theme.GroupMarketTheme
 import com.snowtouch.core.presentation.util.DisplaySize
 import org.koin.android.ext.android.inject
@@ -39,7 +39,7 @@ class GroupMarketActivity : ComponentActivity() {
 
             val navController = rememberNavController()
             val widthSizeClass = calculateWindowSizeClass(this)
-            val isUserLoggedIn = !viewModel.getAuthState().collectAsState().value
+            val isUserLoggedIn = viewModel.getAuthState().collectAsStateWithLifecycle()
 
             val displaySizeClass = calculateWindowSize(widthSizeClass)
 
@@ -52,7 +52,7 @@ class GroupMarketActivity : ComponentActivity() {
                         MainNavigation(
                             navController = navController,
                             displaySize = displaySizeClass,
-                            isLoggedIn = isUserLoggedIn
+                            isLoggedIn = !isUserLoggedIn.value
                         )
                     }
 

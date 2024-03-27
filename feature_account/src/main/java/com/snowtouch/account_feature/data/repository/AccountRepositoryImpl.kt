@@ -3,17 +3,17 @@ package com.snowtouch.account_feature.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
 import com.snowtouch.account_feature.domain.repository.AccountRepository
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class AccountRepositoryImpl(
-    db : FirebaseDatabase,
+    private val dbReferences : DatabaseReferenceManager,
     private val auth : FirebaseAuth,
     private val dispatcher : CoroutineDispatcher,
 ) : AccountRepository {
@@ -21,18 +21,8 @@ class AccountRepositoryImpl(
     override val currentUser : FirebaseUser?
         get() = auth.currentUser
 
-    private val userActiveAdsRef = db.getReference("users")
-        .child(currentUser?.uid ?: "")
-        .child("active_ads_ids")
-
-    private val userFinishedAdsRef = db.getReference("users")
-        .child(currentUser?.uid ?: "")
-        .child("finished_ads_ids")
-
-    private val advertisementsPreviewRef = db.getReference("ads_preview")
-
     override suspend fun getUserActiveAds() : Response<List<AdvertisementPreview>> {
-        return getAdsPreview(userActiveAdsRef)
+        return getAdsPreview(dbReferences.currentUserActiveAdsIds)
     }
 
     override suspend fun getUserDraftAds() : Response<List<AdvertisementPreview>> {
@@ -40,7 +30,7 @@ class AccountRepositoryImpl(
     }
 
     override suspend fun getUserFinishedAds() : Response<List<AdvertisementPreview>> {
-        return getAdsPreview(userFinishedAdsRef)
+        return getAdsPreview(dbReferences.currentUserFinishedAdsIds)
     }
 
     override fun signOut() = auth.signOut()
@@ -52,7 +42,7 @@ class AccountRepositoryImpl(
                 val adsIds = adsIdsSnap.children.mapNotNull { adId ->
                     adId.getValue<String>()
                 }
-                val adsPreviewSnap = advertisementsPreviewRef
+                val adsPreviewSnap = dbReferences.advertisementsPreview
                     .startAt(adsIds.first())
                     .endAt(adsIds.last())
                     .get()

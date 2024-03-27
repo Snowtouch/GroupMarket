@@ -31,7 +31,8 @@ fun Login(
             onCreateAccountClick = onCreateAccountClick
         )
         is Response.Failure -> LoadingFailed(
-            onRefreshClick = onGoBackToLoginClick,
+            canRefresh = true,
+            onErrorIconClick = onGoBackToLoginClick,
             modifier = modifier,
             errorMessage = loginResponse.e.localizedMessage
         )

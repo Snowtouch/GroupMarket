@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.snowtouch.core.navigation.navMenuItems
 
 @Composable
 fun NavigationRail(
@@ -18,22 +19,22 @@ fun NavigationRail(
     var currentRouteIndex by rememberSaveable { mutableIntStateOf(0) }
 
     NavigationRail {
-        navMenu.forEachIndexed { index,navBarItem ->
+        navMenuItems.forEachIndexed { index, navBarItem ->
             NavigationRailItem(
                 selected = currentRouteIndex == index,
                 onClick = {
                     currentRouteIndex = index
-                    onNavItemClick(navBarItem.title)
+                    onNavItemClick(navBarItem.featureRoute)
                 },
                 icon = {
                     Icon(
                         imageVector = if (index == currentRouteIndex) {
                             navBarItem.selectedIcon
                         } else navBarItem.unselectedIcon,
-                        contentDescription = navBarItem.title
+                        contentDescription = navBarItem.featureRoute
                     )
                 },
-                label = { Text(text = navBarItem.title) }
+                label = { Text(text = navBarItem.featureRoute) }
             )
         }
     }

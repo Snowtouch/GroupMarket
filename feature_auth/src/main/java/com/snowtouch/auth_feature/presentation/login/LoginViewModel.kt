@@ -1,13 +1,13 @@
 package com.snowtouch.auth_feature.presentation.login
 
 import androidx.compose.runtime.mutableStateOf
+import com.snowtouch.auth_feature.domain.repository.AuthRepository
+import com.snowtouch.auth_feature.presentation.components.isValidEmail
 import com.snowtouch.core.domain.model.Response
 import com.snowtouch.core.domain.model.Response.Loading
 import com.snowtouch.core.domain.model.Response.Success
 import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.core.presentation.util.SnackbarState
-import com.snowtouch.auth_feature.domain.repository.AuthRepository
-import com.snowtouch.auth_feature.presentation.components.isValidEmail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -36,7 +36,7 @@ class LoginViewModel(private val authRepository: AuthRepository): GroupMarketVie
             return
         }
         launchCatching {
-            _loginResponse.value = Loading
+            _loginResponse.value = Loading(null)
             _loginResponse.value = authRepository.loginWithEmailAndPassword(email, password)
         }
     }

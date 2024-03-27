@@ -1,39 +1,36 @@
 package com.snowtouch.home_feature.data.repository
 
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.getValue
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import com.snowtouch.home_feature.domain.repository.HomeRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 class HomeRepositoryImpl(
-    db: FirebaseDatabase,
-    auth: FirebaseAuth,
-    private val dispatcher: CoroutineDispatcher
+    private val dbReferences : DatabaseReferenceManager,
+    private val dispatcher : CoroutineDispatcher
 ) : HomeRepository {
-
-    private val advertisementsPreviewRef = db.getReference("ads_preview")
-    private val userGroupsRef = db.getReference("user_groups").child(auth.currentUser?.uid!!)
-    private val userRecentAdsRef = db.getReference("user_recent").child(auth.currentUser?.uid!!)
-    private val userFavoriteAdsRef = db.getReference("user_favorite").child(auth.currentUser?.uid!!)
-    private val groupAdsListRef = db.getReference("groups_adsId_list")
 
     override suspend fun getLatestAdsPreview() : Response<List<AdvertisementPreview>> {
         return withContext(dispatcher) {
             try {
-                val userGroupsIdListSnap = userGroupsRef.get().await()
+                val userGroupsIdListSnap = dbReferences.currentUserGroupsIds.get().await()
                 val userGroupsIdList = userGroupsIdListSnap.children.mapNotNull { id ->
                     id.getValue<String>()
                 }
 
                 val latestAdsIds = mutableListOf<String>()
                 for (groupId in userGroupsIdList) {
-                    val groupAdsIdsSnap = groupAdsListRef.child(groupId).limitToLast(10).get().await()
+                    val groupAdsIdsSnap = dbReferences
+                        .groupAdsIdList.child(groupId)
+                        .limitToLast(10)
+                        .get()
+                        .await()
+
                     val groupAdsIdsList = groupAdsIdsSnap.children.mapNotNull { adSnap ->
                         adSnap.getValue<String>()
                     }
@@ -43,7 +40,7 @@ class HomeRepositoryImpl(
                     .sortedDescending()
                     .take(10)
 
-                val newestAdsPreviewSnap = advertisementsPreviewRef
+                val newestAdsPreviewSnap = dbReferences.advertisementsPreview
                     .startAt(tenNewAdsIds.first())
                     .endAt(tenNewAdsIds.last())
                     .get()
@@ -61,11 +58,11 @@ class HomeRepositoryImpl(
     }
 
     override suspend fun getRecentlyViewedAdsPreview() : Response<List<AdvertisementPreview>> {
-        return getAdsPreview(userRecentAdsRef)
+        return getAdsPreview(dbReferences.currentUserRecentAdsIds)
     }
 
     override suspend fun getUserFavoriteAdsPreview() : Response<List<AdvertisementPreview>> {
-        return getAdsPreview(userFavoriteAdsRef)
+        return getAdsPreview(dbReferences.currentUserFavoriteAdsIds)
     }
 
     private suspend fun getAdsPreview(adIdRef : DatabaseReference) : Response<List<AdvertisementPreview>> {
@@ -75,7 +72,7 @@ class HomeRepositoryImpl(
                 val adsIds = adsIdsSnap.children.mapNotNull { adId ->
                     adId.getValue<String>()
                 }
-                val adsPreviewSnap = advertisementsPreviewRef
+                val adsPreviewSnap = dbReferences.advertisementsPreview
                     .startAt(adsIds.first())
                     .endAt(adsIds.last())
                     .get()
