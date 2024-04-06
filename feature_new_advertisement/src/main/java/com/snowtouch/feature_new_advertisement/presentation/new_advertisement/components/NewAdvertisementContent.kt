@@ -2,53 +2,63 @@ package com.snowtouch.feature_new_advertisement.presentation.new_advertisement.c
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.snowtouch.core.presentation.components.CommonButton
-import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.NewAdvertisementUiState
+import com.snowtouch.core.presentation.components.ext.adaptiveColumnWidth
+import com.snowtouch.core.presentation.components.ext.cardContentPadding
+import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.NewAdUiState
 
 @Composable
-fun NewAdvertisementContent(
-    uiState: NewAdvertisementUiState,
-    userGroupsList: List<Pair<String, String>>,
-    onAdImagesChanged: (List<Uri>) -> Unit,
-    onAdTitleChanged: (String) -> Unit,
-    onAdDescriptionChanged: (String) -> Unit,
-    onAdPriceChanged: (String) -> Unit,
-    onUserGroupSelected: (String) -> Unit,
+internal fun NewAdvertisementContent(
+    uiState : NewAdUiState.EditingNewAd,
+    userGroupsList : List<Map<String, String>>,
+    onImagesChanged : (List<Uri>) -> Unit,
+    onTitleChanged : (String) -> Unit,
+    onDescriptionChanged : (String) -> Unit,
+    onPriceChanged : (String) -> Unit,
+    onGroupSelected : (String) -> Unit,
     onPostAdvertisementClick : () -> Unit,
     onSaveAsDraftClick : () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier : Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
 
     Column(
         modifier = modifier
-            .wrapContentSize()
+            .adaptiveColumnWidth()
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AdImagePicker(onImagesSelected = onAdImagesChanged)
+        AdImagePicker(onImagesSelected = onImagesChanged)
 
-        AdTitleCard(
-            title = uiState.title,
-            onNewValueTitle = onAdTitleChanged
-        )
-        AdDescriptionCard(
-            description = uiState.description,
-            onAdDescriptionChanged = onAdDescriptionChanged
-        )
-        AdPriceCard(
-            price = uiState.price,
-            onAdPriceChanged = onAdPriceChanged
-        )
+        ElevatedCard(
+            modifier = Modifier.cardContentPadding()
+        ) {
+            TitleTextField(
+                title = uiState.title,
+                onNewValueTitle = onTitleChanged,
+                isError = uiState.titleFieldError
+            )
+            DescriptionTextField(
+                description = uiState.description,
+                onDescriptionChanged = onDescriptionChanged,
+                isError = uiState.descriptionFiledError
+            )
+            PriceTextField(
+                price = uiState.price,
+                onPriceChanged = onPriceChanged,
+                isError = uiState.priceFieldError
+            )
+        }
         SelectGroupDropdownMenu(
-            userGroupsIdNamePairList = userGroupsList,
-            onUserGroupSelected = onUserGroupSelected
+            userGroupsIdNameMapList = userGroupsList,
+            onUserGroupSelected = onGroupSelected,
+            isError = uiState.groupFieldError
         )
         CommonButton(
             onClick = onPostAdvertisementClick,

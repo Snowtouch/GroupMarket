@@ -12,5 +12,5 @@ val adDetailsModule = module {
     single<AdDetailsRepository> { AdDetailsRepositoryImpl(get(), get(), get()) }
     single<CoroutineDispatcher> { Dispatchers.IO }
 
-    viewModel { AdvertisementDetailViewModel(get()) }
+    viewModel { AdvertisementDetailViewModel(get(), get()) }
 }

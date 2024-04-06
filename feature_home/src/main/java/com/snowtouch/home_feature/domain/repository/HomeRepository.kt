@@ -1,13 +1,14 @@
 package com.snowtouch.home_feature.domain.repository
 
 import com.snowtouch.core.domain.model.AdvertisementPreview
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
+import kotlinx.coroutines.flow.Flow
 
 interface HomeRepository {
 
-    suspend fun getLatestAdsPreview() : Response<List<AdvertisementPreview>>
+    fun getLatestAdsPreview() : Flow<Result<List<AdvertisementPreview>>>
 
-    suspend fun getRecentlyViewedAdsPreview() : Response<List<AdvertisementPreview>>
+    fun getRecentlyViewedAdsPreview() : Flow<Result<List<AdvertisementPreview>>>
 
-    suspend fun getUserFavoriteAdsPreview() : Response<List<AdvertisementPreview>>
+    fun getUserFavoriteAdsPreview() : Flow<Result<List<AdvertisementPreview>>>
 }

@@ -14,6 +14,8 @@ class DatabaseReferenceManagerImpl(
 
     override val groups : DatabaseReference = db.getReference("groups")
 
+    override val groupsPreview : DatabaseReference = db.getReference("groups_preview")
+
     override val users : DatabaseReference = db.getReference("users")
 
     override val userNamesList : DatabaseReference = db.getReference("user_names")

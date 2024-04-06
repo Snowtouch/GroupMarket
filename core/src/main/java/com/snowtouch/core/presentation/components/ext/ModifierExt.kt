@@ -11,7 +11,7 @@ fun Modifier.cardContentPadding(): Modifier {
 }
 
 fun Modifier.textFieldPadding(): Modifier {
-    return this.padding(4.dp)
+    return this.padding(8.dp)
 }
 
 fun Modifier.adaptiveColumnWidth(): Modifier {

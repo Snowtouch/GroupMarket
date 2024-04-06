@@ -4,6 +4,7 @@ data class Advertisement(
     val uid : String? = null,
     val ownerUid : String? = null,
     val groupId : String? = null,
+    val groupName : String? = null,
     val title : String? = null,
     val images : List<String>? = null,
     val description : String? = null,

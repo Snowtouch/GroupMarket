@@ -5,9 +5,9 @@ import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.snowtouch.auth_feature.domain.repository.AuthRepository
-import com.snowtouch.core.domain.model.Response
-import com.snowtouch.core.domain.model.Response.Failure
-import com.snowtouch.core.domain.model.Response.Success
+import com.snowtouch.core.domain.model.Result
+import com.snowtouch.core.domain.model.Result.Failure
+import com.snowtouch.core.domain.model.Result.Success
 import com.snowtouch.core.domain.model.User
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,11 +32,11 @@ class AuthRepositoryImpl(
         email: String,
         password: String,
         name : String
-    ): Response<Boolean> {
+    ): Result<Boolean> {
         return withContext(dispatcher) {
             try {
                 auth.createUserWithEmailAndPassword(email, password).await()
-
+                createNewUserData(email, name)
                 val currentUser = auth.currentUser
                 currentUser.let { user ->
                     val profileUpdates = UserProfileChangeRequest.Builder()
@@ -51,7 +51,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun createNewUserData(email: String, name: String): Response<Boolean> {
+    override suspend fun createNewUserData(email: String, name: String): Result<Boolean> {
         return withContext(dispatcher) {
             try {
                 val newUser = User(
@@ -80,7 +80,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun sendVerificationEmail(): Response<Boolean> {
+    override suspend fun sendVerificationEmail(): Result<Boolean> {
         return withContext(dispatcher) {
             try {
                 auth.currentUser?.sendEmailVerification()?.await()
@@ -94,7 +94,7 @@ class AuthRepositoryImpl(
     override suspend fun loginWithEmailAndPassword(
         email: String,
         password: String
-    ): Response<Boolean> {
+    ): Result<Boolean> {
         return withContext(dispatcher) {
             try {
                 auth.signInWithEmailAndPassword(email, password).await()
@@ -105,7 +105,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun deleteAccount(): Response<Boolean> {
+    override suspend fun deleteAccount(): Result<Boolean> {
         return withContext(dispatcher) {
             try {
                 auth.currentUser?.delete()?.await()
@@ -116,7 +116,7 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun checkIfUserNameExists(name: String): Response<Boolean> {
+    override suspend fun checkIfUserNameExists(name: String): Result<Boolean> {
         return withContext(dispatcher) {
             try {
                 val isName = dbReferences.userNamesList

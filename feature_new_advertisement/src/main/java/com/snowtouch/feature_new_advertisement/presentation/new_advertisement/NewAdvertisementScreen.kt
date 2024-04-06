@@ -10,7 +10,8 @@ import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.co
 @Composable
 fun NewAdvertisementScreen(
     navigateBack : () -> Unit,
-    navigateToPostResult : () -> Unit,
+    navigateToHome : () -> Unit,
+    navigateToAdvertisement : (String) -> Unit,
 ) {
     ScaffoldTemplate(
         topBar = {
@@ -22,7 +23,8 @@ fun NewAdvertisementScreen(
         }
     ) { innerPadding ->
         NewAdvertisement(
-            navigateToPostResult = navigateToPostResult,
+            navigateToHome = navigateToHome,
+            navigateToPostedAdvertisement = navigateToAdvertisement,
             modifier = Modifier.padding(innerPadding)
         )
     }

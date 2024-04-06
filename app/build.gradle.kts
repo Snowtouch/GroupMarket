@@ -62,7 +62,6 @@ dependencies {
     implementation(project(":feature_new_advertisement"))
     implementation(project(":feature_advertisement_details"))
 
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)

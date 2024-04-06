@@ -1,18 +1,15 @@
 package com.snowtouch.feature_groups.domain.repository
 
 import com.snowtouch.core.domain.model.AdvertisementPreview
-import com.snowtouch.core.domain.model.Group
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
+import com.snowtouch.feature_groups.domain.model.GroupPreview
+import kotlinx.coroutines.flow.Flow
 
 interface GroupsRepository {
 
-    suspend fun getUserGroupsPreviewData() : Response<List<Group>>
+    fun getUserGroupsPreviewData() : Flow<Result<List<GroupPreview>>>
 
-    suspend fun getGroupUsersCount(groupId: String) : Response<Int>
+    suspend fun createNewGroup(name: String, description: String) : Result<Boolean>
 
-    suspend fun getGroupAdsCount(groupId : String) : Response<Int>
-
-    suspend fun createNewGroup(name: String, description: String) : Response<Boolean>
-
-    suspend fun getGroupAdvertisements(groupId: String) : Response<List<AdvertisementPreview>>
+    fun getGroupAdvertisements(groupId: String) : Flow<Result<List<AdvertisementPreview>>>
 }

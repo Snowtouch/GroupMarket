@@ -6,11 +6,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.presentation.util.DisplaySize
 
 @Composable
 fun AdvertisementsList(
-    adsList : List<com.snowtouch.core.domain.model.AdvertisementPreview>?,
+    adsList : List<AdvertisementPreview>?,
+    favoritesList : List<String>,
     displaySize : DisplaySize,
     onAdvertisementCardClick : (String) -> Unit,
     onFavoriteButtonClick : (String) -> Unit,
@@ -30,6 +32,7 @@ fun AdvertisementsList(
                 items(adsList) { ad ->
                     AdvertisementCard(
                         advertisement = ad,
+                        favoritesList = favoritesList,
                         onCardClick = { onAdvertisementCardClick(ad.uid!!) },
                         onFavoriteButtonClick = { onFavoriteButtonClick(ad.uid!!) }
                     )

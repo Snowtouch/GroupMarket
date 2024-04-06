@@ -6,6 +6,7 @@ interface DatabaseReferenceManager {
     val currentUserId : String
 
     val groups : DatabaseReference
+    val groupsPreview : DatabaseReference
     val users : DatabaseReference
     val userNamesList : DatabaseReference
     val currentUserGroupsIds : DatabaseReference

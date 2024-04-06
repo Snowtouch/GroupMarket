@@ -34,5 +34,5 @@ fun NavGraphBuilder.homeFeature(
 }
 
 fun NavController.navigateToHome() {
-    this.navigate(route = HomeRoute.Home.route)
+    this.navigate(route = HomeRoute.HomeFeature.route)
 }

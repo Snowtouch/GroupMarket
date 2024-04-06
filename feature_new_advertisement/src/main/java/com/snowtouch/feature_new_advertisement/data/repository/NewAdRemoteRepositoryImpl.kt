@@ -1,14 +1,15 @@
 package com.snowtouch.feature_new_advertisement.data.repository
 
-import android.net.Uri
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ServerValue
+import com.google.firebase.database.getValue
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.component1
 import com.google.firebase.storage.component2
 import com.snowtouch.core.domain.model.Advertisement
 import com.snowtouch.core.domain.model.AdvertisementPreview
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import com.snowtouch.feature_new_advertisement.domain.model.UploadStatus
 import com.snowtouch.feature_new_advertisement.domain.repository.NewAdRemoteRepository
@@ -28,7 +29,23 @@ class NewAdRemoteRepositoryImpl(
     private val dispatcher : CoroutineDispatcher,
 ) : NewAdRemoteRepository {
 
-    private val adImagesRef = storage.getReference("ad_images")
+    private val storageReference = storage.reference
+
+    override suspend fun getUserGroupsIdNamePairs() : Result<List<Map<String, String>>> {
+        return withContext(dispatcher) {
+            try {
+                val userGroupsDataSnap = dbReferences.currentUserGroupsIdNamesPairs
+                    .get()
+                    .await()
+                val userGroupsData = userGroupsDataSnap.children.mapNotNull {
+                    it.getValue<Map<String, String>>()
+                }
+                Result.Success(userGroupsData)
+            } catch (e: Exception) {
+                Result.Failure(e)
+            }
+        }
+    }
 
     override suspend fun getNewAdId() : String? {
         return withContext(dispatcher) {
@@ -42,7 +59,7 @@ class NewAdRemoteRepositoryImpl(
         }
     }
 
-    override suspend fun postNewAdvertisement(advertisement : Advertisement) : Response<Boolean> {
+    override suspend fun postNewAdvertisement(advertisement : Advertisement) : Result<String> {
         return withContext(dispatcher) {
             try {
                 val newAdKey = advertisement.uid
@@ -52,47 +69,55 @@ class NewAdRemoteRepositoryImpl(
                 )
 
                 if (newAdKey != null) {
-                    dbReferences.advertisements.child(newAdKey).setValue(adWithOwnerUid).await()
+                    dbReferences.advertisements.child(newAdKey)
+                        .setValue(adWithOwnerUid).await()
                     dbReferences.advertisementsPreview.child(newAdKey)
                         .setValue(adWithOwnerUid.toAdvertisementPreview()).await()
-
                     dbReferences.groupAdsIdList.child(adWithOwnerUid.groupId!!).push()
                         .setValue(newAdKey).await()
                     dbReferences.groupAdsCounter.child(adWithOwnerUid.groupId!!)
                         .setValue(ServerValue.increment(1))
-
-                    dbReferences.currentUserActiveAdsIds.push().setValue(newAdKey).await()
-                    Response.Success(true)
+                    dbReferences.currentUserActiveAdsIds.push()
+                        .setValue(newAdKey).await()
+                    Result.Success(advertisement.uid)
                 } else {
-                    Response.Failure(Exception("Unknown error"))
+                    Result.Failure(Exception("Unknown error"))
                 }
             } catch (e : Exception) {
-                Response.Failure(e)
+                Result.Failure(e)
             }
         }
     }
 
-    override fun uploadAdImages(adId : String, images : List<Uri>)
+    override fun uploadAdImage(adId : String, imageName : String, imageBytes : ByteArray)
     : Flow<UploadStatus> = callbackFlow {
         withContext(dispatcher) {
-            images.forEach { image ->
-                var progress : Long
+            var progress : Long
+            val downloadUrl = storageReference.child("$adId/$imageName.jpg")
+                .putBytes(imageBytes)
 
-                val downloadUrl = adImagesRef.child(adId)
-                    .putFile(image)
-                    .addOnProgressListener { (bytesTransferred, totalByteCount) ->
-                        progress = (100 * bytesTransferred / totalByteCount)
-                        trySend(UploadStatus.Progress(progress))
+                .addOnProgressListener { (bytesTransferred, totalByteCount) ->
+                    progress = (100 * bytesTransferred / totalByteCount)
+                    Log.d("Storage upload progress: ", "$progress")
+                    trySend(UploadStatus.Progress(progress))
+                    close()
+                }
+                .addOnFailureListener {
+                    Log.d("Storage upload error: ", "$it")
+                    trySend(UploadStatus.Failure(it))
+                    close()
                     }
-                    .addOnFailureListener {
-                        trySend(UploadStatus.Failure(it))
-                    }
-                    .await()
-                    .storage.downloadUrl.await()
-                trySend(UploadStatus.Success(downloadUrl))
-            }
-            awaitClose()
+                .await()
+
+                .storage
+                .downloadUrl
+                .addOnSuccessListener { uri ->
+                    trySend(UploadStatus.Success(uri))
+                }
+                .await()
+            Log.d("Storage upload url: ", "$downloadUrl")
         }
+        awaitClose()
     }
 }
 

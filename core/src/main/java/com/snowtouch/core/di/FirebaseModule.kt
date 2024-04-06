@@ -33,10 +33,12 @@ val firebaseModule = module {
     single {
         val firebaseStorageLocalAddress =
             get<Application>().getString(R.string.firebaseStorageLocalEmu)
+        val storage = FirebaseStorage.getInstance()
         if (isFirebaseLocal) {
-            FirebaseStorage.getInstance(firebaseStorageLocalAddress)
-        } else {
-            FirebaseStorage.getInstance()
+            storage.useEmulator("10.0.2.2", 9199)
+
         }
+        storage
+
     }
 }

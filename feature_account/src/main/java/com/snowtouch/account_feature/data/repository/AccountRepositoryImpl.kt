@@ -6,7 +6,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.getValue
 import com.snowtouch.account_feature.domain.repository.AccountRepository
 import com.snowtouch.core.domain.model.AdvertisementPreview
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
@@ -21,21 +21,21 @@ class AccountRepositoryImpl(
     override val currentUser : FirebaseUser?
         get() = auth.currentUser
 
-    override suspend fun getUserActiveAds() : Response<List<AdvertisementPreview>> {
+    override suspend fun getUserActiveAds() : Result<List<AdvertisementPreview>> {
         return getAdsPreview(dbReferences.currentUserActiveAdsIds)
     }
 
-    override suspend fun getUserDraftAds() : Response<List<AdvertisementPreview>> {
+    override suspend fun getUserDraftAds() : Result<List<AdvertisementPreview>> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getUserFinishedAds() : Response<List<AdvertisementPreview>> {
+    override suspend fun getUserFinishedAds() : Result<List<AdvertisementPreview>> {
         return getAdsPreview(dbReferences.currentUserFinishedAdsIds)
     }
 
     override fun signOut() = auth.signOut()
 
-    private suspend fun getAdsPreview(adIdRef : DatabaseReference) : Response<List<AdvertisementPreview>> {
+    private suspend fun getAdsPreview(adIdRef : DatabaseReference) : Result<List<AdvertisementPreview>> {
         return withContext(dispatcher) {
             try {
                 val adsIdsSnap = adIdRef.get().await()
@@ -51,9 +51,9 @@ class AccountRepositoryImpl(
                 val adsPreview = adsPreviewSnap.children.mapNotNull { adPreview ->
                     adPreview.getValue<AdvertisementPreview>()
                 }
-                Response.Success(adsPreview)
+                Result.Success(adsPreview)
             } catch (e : Exception) {
-                Response.Failure(e)
+                Result.Failure(e)
             }
         }
     }

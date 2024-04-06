@@ -4,10 +4,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.getValue
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Group
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
+import com.snowtouch.core.domain.model.asResult
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
+import com.snowtouch.feature_groups.domain.model.GroupPreview
 import com.snowtouch.feature_groups.domain.repository.GroupsRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -17,79 +21,33 @@ class GroupsRepositoryImpl(
     private val dispatcher : CoroutineDispatcher,
 ) : GroupsRepository {
 
-    override suspend fun getUserGroupsPreviewData() : Response<List<Group>> {
-        return withContext(dispatcher) {
-            try {
-                val userGroupsIdsListSnapshot = dbReferences.currentUserGroupsIds
-                    .get()
-                    .await()
+    override fun getUserGroupsPreviewData(): Flow<Result<List<GroupPreview>>> {
+        return flow {
+            val userGroupsIdsList = getCurrentUserGroupsIds()
 
-                val groupsIdList = userGroupsIdsListSnapshot.children.mapNotNull { groupId ->
-                    groupId.getValue<String>()
-                }
-
-                val userGroupsList = mutableListOf<Group>()
-
-                if (groupsIdList.isNotEmpty()) {
-                    val userGroupsSnapshot = dbReferences.groups
+            val groupPreviewData = withContext(dispatcher) {
+                if (userGroupsIdsList.isNotEmpty()) {
+                    dbReferences.groupsPreview
                         .orderByKey()
-                        .startAt(groupsIdList.first())
-                        .endAt(groupsIdList.last())
+                        .startAt(userGroupsIdsList.first())
+                        .endAt(userGroupsIdsList.last())
                         .get()
                         .await()
-
-                    userGroupsSnapshot.children.forEach { group ->
-                        userGroupsList.add(
-                            group.getValue<Group>()
-                                ?: Group()
-                        )
-                    }
+                        .children.mapNotNull { group ->
+                            group.getValue(GroupPreview::class.java)
+                        }
+                } else {
+                    emptyList()
                 }
-                Response.Success(userGroupsList)
-            } catch (e : Exception) {
-                Response.Failure(e)
             }
-        }
-    }
-
-    override suspend fun getGroupUsersCount(groupId : String) : Response<Int> {
-        return withContext(dispatcher) {
-            try {
-                val membersCountSnap = dbReferences.groupUsersCounter
-                    .child(groupId)
-                    .get()
-                    .await()
-
-                val membersCount = membersCountSnap.getValue<Int>()
-
-                Response.Success(membersCount)
-            } catch (e : Exception) {
-                Response.Failure(e)
-            }
-        }
-    }
-
-    override suspend fun getGroupAdsCount(groupId : String) : Response<Int> {
-        return withContext(dispatcher) {
-            try {
-                val adsCountSnap = dbReferences.groupAdsCounter
-                    .child(groupId)
-                    .get()
-                    .await()
-
-                val adsCount = adsCountSnap.getValue<Int>()
-
-                Response.Success(adsCount)
-            } catch (e : Exception) {
-                Response.Failure(e)
-            }
-        }
+            emit(groupPreviewData)
+        }.asResult()
     }
 
     override suspend fun createNewGroup(
         name : String,
         description : String,
-    ) : Response<Boolean> {
+    ) : Result<Boolean> {
         return withContext(dispatcher) {
             try {
                 val newGroupKey = dbReferences.groups
@@ -101,9 +59,11 @@ class GroupsRepositoryImpl(
                     ownerId = auth.currentUser?.uid,
                     ownerName = auth.currentUser?.displayName,
                     members = null,
+                    membersCount = 1,
                     name = name,
                     description = description,
-                    advertisements = null
+                    advertisements = null,
+                    advertisementsCount = 0,
                 )
 
                 if (newGroupKey != null) {
@@ -112,73 +72,88 @@ class GroupsRepositoryImpl(
                         .setValue(newGroup)
                         .await()
 
+                    dbReferences.groupsPreview
+                        .child(newGroupKey)
+                        .setValue(newGroup.toGroupPreview())
+                        .await()
+
                     dbReferences.groupUserIdList
                         .child(newGroupKey)
                         .push()
                         .setValue(auth.currentUser?.uid)
                         .await()
 
-                    dbReferences.groupUsersCounter
-                        .child(newGroupKey)
-                        .setValue(1)
-                        .await()
-
-                    dbReferences.groupAdsCounter
-                        .child(newGroupKey)
-                        .setValue(0)
-                        .await()
-
                     dbReferences.groupUserNames
                         .child(newGroupKey)
                         .push()
                         .setValue(auth.currentUser?.displayName)
+                        .await()
 
                     dbReferences.currentUserGroupsIds
                         .push()
                         .setValue(newGroupKey)
                         .await()
 
-                    Response.Success(true)
-                } else {
-                    Response.Failure(Exception("Unknown error"))
-                }
-            } catch (e : Exception) {
-                Response.Failure(e)
-            }
-        }
-    }
-
-    override suspend fun getGroupAdvertisements(groupId : String) : Response<List<AdvertisementPreview>> {
-        return withContext(dispatcher) {
-            try {
-                val groupAdsPreviewList =
-                    mutableListOf<AdvertisementPreview>()
-                val groupAdsIdSnap = dbReferences.groupAdsIdList
-                    .child(groupId)
-                    .get()
-                    .await()
-
-                val groupsAdsId = groupAdsIdSnap.children.mapNotNull { groupAdId ->
-                    groupAdId.getValue<String>()
-                }
-
-                if (groupsAdsId.isNotEmpty()) {
-                    val groupAdsPreviewSnap = dbReferences.advertisementsPreview
-                        .orderByKey()
-                        .startAt(groupsAdsId.first())
-                        .endAt(groupsAdsId.last())
-                        .get()
+                    dbReferences.currentUserGroupsIdNamesPairs
+                        .push()
+                        .setValue(mapOf(Pair(newGroup.uid, newGroup.name)))
                         .await()
 
-                    groupAdsPreviewSnap.children.map { ad ->
-                        groupAdsPreviewList
-                            .add(ad.getValue<AdvertisementPreview>()!!)
-                    }
+                    Result.Success(true)
+                } else {
+                    Result.Failure(Exception("Unknown error"))
                 }
-                Response.Success(groupAdsPreviewList)
             } catch (e : Exception) {
-                Response.Failure(e)
+                Result.Failure(e)
             }
         }
     }
+
+    override fun getGroupAdvertisements(groupId : String) : Flow<Result<List<AdvertisementPreview>>> {
+        return flow {
+            val groupAdsId = dbReferences.groupAdsIdList
+                .child(groupId)
+                .get()
+                .await()
+                .children.mapNotNull { adId ->
+                    adId.getValue<String>()
+                }
+
+            if (groupAdsId.isNotEmpty()) {
+                val groupAdsPreview = dbReferences.advertisementsPreview
+                    .orderByKey()
+                    .startAt(groupAdsId.first())
+                    .endAt(groupAdsId.last())
+                    .get()
+                    .await()
+                    .children.mapNotNull {  ad ->
+                        ad.getValue<AdvertisementPreview>()
+                    }
+                emit(groupAdsPreview)
+            } else {
+                emit(emptyList())
+            }
+        }.asResult()
+    }
+
+    private suspend fun getCurrentUserGroupsIds() : List<String?> {
+        return withContext(dispatcher) {
+            dbReferences.currentUserGroupsIds
+                .get()
+                .await()
+                .children.map { it.getValue<String>() }
+        }
+    }
+}
+
+fun Group.toGroupPreview() : GroupPreview {
+    return GroupPreview(
+        uid = uid,
+        ownerId = ownerId,
+        ownerName = ownerName,
+        membersCount = membersCount,
+        name = name,
+        description = description,
+        advertisementsCount = advertisementsCount
+    )
 }

@@ -10,40 +10,41 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.snowtouch.core.domain.model.Group
 import com.snowtouch.core.presentation.components.ext.adaptiveColumnWidth
 import com.snowtouch.core.presentation.util.DisplaySize
+import com.snowtouch.feature_groups.domain.model.GroupPreview
 import com.snowtouch.feature_groups.presentation.components.GroupCard
 import com.snowtouch.feature_groups.presentation.group_ads.components.GroupAds
 
 @Composable
 fun GroupsContent(
-    userGroupsList: List<Group>,
+    userGroupsList : List<GroupPreview>,
     displaySize : DisplaySize,
-    onGoToGroupAdsClick: (String) -> Unit,
-    onAdvertisementCardClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onGoToGroupAdsClick : (String) -> Unit,
+    onAdvertisementCardClick : (String) -> Unit,
+    modifier : Modifier = Modifier
 ) {
     var selectedGroup by rememberSaveable { mutableStateOf("") }
 
     Row(modifier = modifier) {
         LazyColumn(
-            modifier = modifier.adaptiveColumnWidth()
+            modifier = Modifier.adaptiveColumnWidth()
         ) {
-            items(items = userGroupsList) { group ->
-                GroupCard(
-                    groupId = group.uid ?: "",
-                    groupName = group.name ?: "",
-                    groupOwner = group.ownerName ?: "",
-                    groupDescription = group.description ?: "",
-                    numberOfAdvertisements = group.advertisementsCount ?: 0,
-                    numberOfMembers = group.membersCount ?: 1,
-                    onGoToGroupAdsClick = {
-                        if (displaySize == DisplaySize.Compact) onGoToGroupAdsClick(group.uid!!)
-                        else selectedGroup = group.uid!!
-                    }
-                )
-            }
+            if (userGroupsList.isNotEmpty())
+                items(items = userGroupsList) { group ->
+                    GroupCard(
+                        groupId = group.uid ?: "",
+                        groupName = group.name ?: "",
+                        groupOwner = group.ownerName ?: "",
+                        groupDescription = group.description ?: "",
+                        numberOfAdvertisements = group.advertisementsCount ?: 0,
+                        numberOfMembers = group.membersCount ?: 1,
+                        onGoToGroupAdsClick = {
+                            if (displaySize == DisplaySize.Compact) onGoToGroupAdsClick(group.uid!!)
+                            else selectedGroup = group.uid!!
+                        }
+                    )
+                }
         }
         AnimatedVisibility(visible = displaySize == DisplaySize.Extended) {
             GroupAds(

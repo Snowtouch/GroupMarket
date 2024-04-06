@@ -2,7 +2,9 @@ package com.snowtouch.home_feature.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -29,14 +31,18 @@ fun AdHorizontalList(
         )
         LazyRow(
             content = {
-                if (!advertisementList.isNullOrEmpty())
+                if (!advertisementList.isNullOrEmpty()) {
                     items(advertisementList) { advertisement ->
                         AdvertisementCard(
                             advertisement = advertisement,
                             onCardClick = { onAdvertisementClick(advertisement.uid!!) },
                             onFavoriteButtonClick = onFavoriteButtonClick
                         )
-                        Spacer(modifier = Modifier.padding(end = 5.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
+                    }
+                } else {
+                    item { Spacer(modifier = Modifier.height(200.dp)) }
+
                 }
             }
         )

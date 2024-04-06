@@ -36,11 +36,12 @@ fun AdImagePicker(
     onImagesSelected : (List<Uri>) -> Unit,
     modifier : Modifier = Modifier,
 ) {
+    val selectedImagesPath = mutableListOf<String>()
     var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     val multiplePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 6)
-    ) {
-        selectedImageUris = it
+    ) { uris ->
+        selectedImageUris = uris
         onImagesSelected(selectedImageUris)
     }
 

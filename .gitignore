@@ -115,3 +115,5 @@ app/src/main/res/values/firebase_data.xml
 .idea/sonarlint/issuestore/d/b/db46b56b3ecd5f896250b6e15eacd446d0d7ea64
 .idea/sonarlint/securityhotspotstore/2/8/289c6088c3f56da93778052b8ec32061825b8fb2
 .idea/sonarlint/securityhotspotstore/2/f/2fa9a0a067eba21c0e368ae778909e2caf6ba5f0
+/.idea
+google-services.json

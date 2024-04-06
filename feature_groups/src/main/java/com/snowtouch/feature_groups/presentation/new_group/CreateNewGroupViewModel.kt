@@ -1,7 +1,7 @@
 package com.snowtouch.feature_groups.presentation.new_group
 
 import androidx.compose.runtime.mutableStateOf
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.core.presentation.util.SnackbarState
 import com.snowtouch.feature_groups.domain.repository.GroupsRepository
@@ -14,8 +14,8 @@ class CreateNewGroupViewModel(
 
     var uiState = mutableStateOf(CreateNewGroupUiState())
 
-    private val _createGroupResponse = MutableStateFlow<Response<Boolean>>(Response.Success(false))
-    val createGroupResponse: StateFlow<Response<Boolean>> = _createGroupResponse
+    private val _createGroupResult = MutableStateFlow<Result<Boolean>>(Result.Success(false))
+    val createGroupResult: StateFlow<Result<Boolean>> = _createGroupResult
 
     fun onNameChange(newValue: String) {
         uiState.value = uiState.value.copy(name = newValue)
@@ -31,9 +31,9 @@ class CreateNewGroupViewModel(
 
     fun createNewGroup(name: String, description: String) {
         launchCatching {
-            _createGroupResponse.value = Response.Loading(null)
-            _createGroupResponse.value = groupsRepository.createNewGroup(name, description)
-            if (_createGroupResponse.value is Response.Success) {
+            _createGroupResult.value = Result.Loading
+            _createGroupResult.value = groupsRepository.createNewGroup(name, description)
+            if (_createGroupResult.value is Result.Success) {
                 uiState.value = uiState.value.copy(
                     name = "",
                     description = "",

@@ -1,52 +1,70 @@
 package com.snowtouch.home_feature.presentation
 
-import com.snowtouch.core.domain.model.AdvertisementPreview
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.home_feature.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
-class HomeViewModel(
+internal class HomeViewModel(
     private val homeRepository : HomeRepository,
 ) : GroupMarketViewModel() {
 
-    private val _newAdsDataResponse = MutableStateFlow<Response<List<AdvertisementPreview>>>(
-        Response.Loading(null)
-    )
-    val newAdsDataResponse : StateFlow<Response<List<AdvertisementPreview>>> = _newAdsDataResponse
+    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
+    internal val uiState = _uiState.asStateFlow()
 
-    private val _favoriteAdsDataResponse = MutableStateFlow<Response<List<AdvertisementPreview>>>(
-        Response.Loading(null)
-    )
-    val favoriteAdsDataResponse : StateFlow<Response<List<AdvertisementPreview>>> =
-        _favoriteAdsDataResponse
-
-    private val _recentlyViewedAdsDataResponse =
-        MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading(null)
-        )
-    val recentlyViewedAdsDataResponse : StateFlow<Response<List<AdvertisementPreview>>> =
-        _recentlyViewedAdsDataResponse
-
-    fun getUserFavoriteAdvertisements() {
-        launchCatching {
-            _favoriteAdsDataResponse.value = Response.Loading(null)
-            _favoriteAdsDataResponse.value = homeRepository.getUserFavoriteAdsPreview()
-        }
+    init {
+        getLatestAdvertisements()
+        getUserRecentlyViewedAds()
+        getUserFavoriteAdvertisements()
     }
 
     fun getLatestAdvertisements() {
         launchCatching {
-            _newAdsDataResponse.value = Response.Loading(null)
-            _newAdsDataResponse.value = homeRepository.getLatestAdsPreview()
+            homeRepository.getLatestAdsPreview().collect { result ->
+                when (result) {
+                    is Result.Failure -> _uiState.update { HomeUiState.Error(result.e) }
+                    is Result.Loading -> _uiState.update { HomeUiState.Loading }
+                    is Result.Success -> _uiState.update {
+                        HomeUiState.Success(
+                            newAdsList = result.data ?: emptyList()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun getUserFavoriteAdvertisements() {
+        launchCatching {
+            homeRepository.getUserFavoriteAdsPreview().collect { result ->
+                when (result) {
+                    is Result.Failure -> _uiState.update { HomeUiState.Error(result.e) }
+                    is Result.Loading -> _uiState.update { HomeUiState.Loading }
+                    is Result.Success -> _uiState.update {
+                        HomeUiState.Success(
+                            userFavoritesList = result.data ?: emptyList()
+                        )
+                    }
+                }
+            }
         }
     }
 
     fun getUserRecentlyViewedAds() {
         launchCatching {
-            _recentlyViewedAdsDataResponse.value = Response.Loading(null)
-            _recentlyViewedAdsDataResponse.value = homeRepository.getRecentlyViewedAdsPreview()
+            homeRepository.getRecentlyViewedAdsPreview().collect { result ->
+                when (result) {
+                    is Result.Failure -> _uiState.update { HomeUiState.Error(result.e) }
+                    is Result.Loading -> _uiState.update { HomeUiState.Loading }
+                    is Result.Success -> _uiState.update {
+                        HomeUiState.Success(
+                            recentlyWatchedAdsList = result.data ?: emptyList()
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -12,13 +12,12 @@ import com.snowtouch.core.presentation.components.CommonTopAppBar
 fun GroupsTopAppBar(
     onCreateGroupClick: () -> Unit,
     modifier : Modifier = Modifier,
-    onNavigateBackClick: () -> Unit = {}
 ) {
     CommonTopAppBar(
         modifier = modifier,
         title = "Your groups",
-        canNavigateBack = true,
-        onNavigateBackClick = onNavigateBackClick,
+        canNavigateBack = false,
+        onNavigateBackClick = {},
         actions = {
             IconButton(onClick = onCreateGroupClick) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Create new group")

@@ -2,29 +2,34 @@ package com.snowtouch.account_feature.presentation
 
 import com.snowtouch.account_feature.domain.repository.AccountRepository
 import com.snowtouch.core.domain.model.AdvertisementPreview
-import com.snowtouch.core.domain.model.Response
+import com.snowtouch.core.domain.model.Result
+import com.snowtouch.core.domain.repository.CoreRepository
 import com.snowtouch.core.presentation.GroupMarketViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 internal class AccountViewModel(
     private val accountRepository : AccountRepository,
+    private val coreRepository : CoreRepository,
 ) : GroupMarketViewModel() {
 
-    private val _activeAdsResponse =
-        MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading(null))
-    val activeAdsResponse : StateFlow<Response<List<AdvertisementPreview>>> = _activeAdsResponse
+    private val _activeAdsResult =
+        MutableStateFlow<Result<List<AdvertisementPreview>>>(
+            Result.Loading)
+    val activeAdsResult : StateFlow<Result<List<AdvertisementPreview>>> = _activeAdsResult
 
-    private val _finishedAdsResponse =
-        MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading(null))
-    val finishedAdsResponse : StateFlow<Response<List<AdvertisementPreview>>> = _finishedAdsResponse
+    private val _finishedAdsResult =
+        MutableStateFlow<Result<List<AdvertisementPreview>>>(
+            Result.Loading)
+    val finishedAdsResult : StateFlow<Result<List<AdvertisementPreview>>> = _finishedAdsResult
 
-    private val _draftsResponse =
-        MutableStateFlow<Response<List<AdvertisementPreview>>>(
-            Response.Loading(null))
-    val draftsResponse : StateFlow<Response<List<AdvertisementPreview>>> = _draftsResponse
+    private val _draftsResult =
+        MutableStateFlow<Result<List<AdvertisementPreview>>>(
+            Result.Loading)
+    val draftsResult : StateFlow<Result<List<AdvertisementPreview>>> = _draftsResult
+
+    val currentUserFavoriteAdsIds: Flow<List<String>> = coreRepository.currentUserFavoriteAdsIds
 
     fun signOut() {
         accountRepository.signOut()
@@ -32,22 +37,28 @@ internal class AccountViewModel(
 
     fun getUserActiveAds() {
         launchCatching {
-            _activeAdsResponse.value = Response.Loading(null)
-            _activeAdsResponse.value = accountRepository.getUserActiveAds()
+            _activeAdsResult.value = Result.Loading
+            _activeAdsResult.value = accountRepository.getUserActiveAds()
+        }
+    }
+
+    fun toggleFavoriteAd(adId : String) {
+        launchCatching {
+            coreRepository.toggleFavoriteAd(adId)
         }
     }
 
     fun getUserFinishedAds() {
         launchCatching {
-            _finishedAdsResponse.value = Response.Loading(null)
-            _finishedAdsResponse.value = accountRepository.getUserFinishedAds()
+            _finishedAdsResult.value = Result.Loading
+            _finishedAdsResult.value = accountRepository.getUserFinishedAds()
         }
     }
 
     fun getUserDrafts() {
         launchCatching {
-            _draftsResponse.value = Response.Loading(null)
-            _draftsResponse.value = accountRepository.getUserDraftAds()
+            _draftsResult.value = Result.Loading
+            _draftsResult.value = accountRepository.getUserDraftAds()
         }
     }
 }

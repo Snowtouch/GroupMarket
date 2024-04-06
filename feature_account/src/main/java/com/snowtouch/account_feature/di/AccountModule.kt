@@ -12,5 +12,5 @@ val accountModule = module {
     single<AccountRepository> { AccountRepositoryImpl(get(), get(), get()) }
     single<CoroutineDispatcher> { Dispatchers.IO }
 
-    viewModel { AccountViewModel(get()) }
+    viewModel { AccountViewModel(get(), get()) }
 }
