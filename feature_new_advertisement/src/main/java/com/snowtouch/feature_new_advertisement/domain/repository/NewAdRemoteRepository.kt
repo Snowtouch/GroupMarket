@@ -11,7 +11,7 @@ interface NewAdRemoteRepository {
 
     suspend fun getNewAdId() : String?
 
-    suspend fun postNewAdvertisement(advertisement : Advertisement) : Result<String>
+    suspend fun postNewAdvertisement(advertisement : Advertisement) : Result<Boolean>
 
     fun uploadAdImage(adId : String, imageName : String, imageBytes : ByteArray) : Flow<UploadStatus>
 }

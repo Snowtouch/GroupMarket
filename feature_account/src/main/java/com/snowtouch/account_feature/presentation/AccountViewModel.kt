@@ -1,5 +1,6 @@
 package com.snowtouch.account_feature.presentation
 
+import android.util.Log
 import com.snowtouch.account_feature.domain.repository.AccountRepository
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Result
@@ -39,6 +40,7 @@ internal class AccountViewModel(
         launchCatching {
             _activeAdsResult.value = Result.Loading
             _activeAdsResult.value = accountRepository.getUserActiveAds()
+            Log.e("getUserActiveAds", "run")
         }
     }
 

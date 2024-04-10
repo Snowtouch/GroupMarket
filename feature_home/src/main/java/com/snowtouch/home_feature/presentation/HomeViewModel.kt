@@ -14,12 +14,6 @@ internal class HomeViewModel(
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     internal val uiState = _uiState.asStateFlow()
 
-    init {
-        getLatestAdvertisements()
-        getUserRecentlyViewedAds()
-        getUserFavoriteAdvertisements()
-    }
-
     fun getLatestAdvertisements() {
         launchCatching {
             homeRepository.getLatestAdsPreview().collect { result ->

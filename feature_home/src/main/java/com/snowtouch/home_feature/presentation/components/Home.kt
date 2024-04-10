@@ -1,6 +1,7 @@
 package com.snowtouch.home_feature.presentation.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -20,6 +21,12 @@ internal fun Home(
     viewModel : HomeViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getLatestAdvertisements()
+        viewModel.getUserRecentlyViewedAds()
+        viewModel.getUserFavoriteAdvertisements()
+    }
 
     when (uiState) {
         is HomeUiState.Loading -> { Loading(modifier = modifier) }

@@ -41,7 +41,7 @@ class NewAdRemoteRepositoryImpl(
                     it.getValue<Map<String, String>>()
                 }
                 Result.Success(userGroupsData)
-            } catch (e: Exception) {
+            } catch (e : Exception) {
                 Result.Failure(e)
             }
         }
@@ -52,70 +52,67 @@ class NewAdRemoteRepositoryImpl(
             try {
                 val newAdKey = dbReferences.advertisements.push().key
                 newAdKey
-            } catch (e: Exception) {
+            } catch (e : Exception) {
                 e.printStackTrace()
                 null
             }
         }
     }
 
-    override suspend fun postNewAdvertisement(advertisement : Advertisement) : Result<String> {
-        return withContext(dispatcher) {
-            try {
-                val newAdKey = advertisement.uid
-                val adWithOwnerUid = advertisement.copy(
-                    ownerUid = auth.currentUser?.uid,
-                    postDateTimestamp = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()
-                )
-
-                if (newAdKey != null) {
-                    dbReferences.advertisements.child(newAdKey)
-                        .setValue(adWithOwnerUid).await()
-                    dbReferences.advertisementsPreview.child(newAdKey)
-                        .setValue(adWithOwnerUid.toAdvertisementPreview()).await()
-                    dbReferences.groupAdsIdList.child(adWithOwnerUid.groupId!!).push()
-                        .setValue(newAdKey).await()
-                    dbReferences.groupAdsCounter.child(adWithOwnerUid.groupId!!)
-                        .setValue(ServerValue.increment(1))
-                    dbReferences.currentUserActiveAdsIds.push()
-                        .setValue(newAdKey).await()
-                    Result.Success(advertisement.uid)
-                } else {
-                    Result.Failure(Exception("Unknown error"))
-                }
-            } catch (e : Exception) {
-                Result.Failure(e)
+    override suspend fun postNewAdvertisement(advertisement : Advertisement) : Result<Boolean> {
+        return try {
+            val newAdKey = advertisement.uid
+            val adWithOwnerUid = advertisement.copy(
+                ownerUid = auth.currentUser?.uid,
+                postDateTimestamp = LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli()
+            )
+            if (newAdKey != null) {
+                dbReferences.advertisements.child(newAdKey)
+                    .setValue(adWithOwnerUid).await()
+                dbReferences.advertisementsPreview.child(newAdKey)
+                    .setValue(adWithOwnerUid.toAdvertisementPreview()).await()
+                dbReferences.groupAdsIdList.child(adWithOwnerUid.groupId!!).push()
+                    .setValue(newAdKey).await()
+                dbReferences.groupAdsCounter.child(adWithOwnerUid.groupId!!)
+                    .setValue(ServerValue.increment(1))
+                dbReferences.currentUserActiveAdsIds.push()
+                    .setValue(newAdKey).await()
+                Result.Success(true)
+            } else {
+                Result.Failure(Exception("Unknown error"))
             }
+        } catch (e : Exception) {
+            Result.Failure(e)
         }
     }
 
     override fun uploadAdImage(adId : String, imageName : String, imageBytes : ByteArray)
-    : Flow<UploadStatus> = callbackFlow {
+            : Flow<UploadStatus> = callbackFlow {
         withContext(dispatcher) {
             var progress : Long
-            val downloadUrl = storageReference.child("$adId/$imageName.jpg")
+            storageReference.child("$adId/$imageName.jpg")
                 .putBytes(imageBytes)
-
                 .addOnProgressListener { (bytesTransferred, totalByteCount) ->
                     progress = (100 * bytesTransferred / totalByteCount)
                     Log.d("Storage upload progress: ", "$progress")
                     trySend(UploadStatus.Progress(progress))
-                    close()
                 }
-                .addOnFailureListener {
-                    Log.d("Storage upload error: ", "$it")
-                    trySend(UploadStatus.Failure(it))
-                    close()
+                .addOnFailureListener { exception ->
+                    Log.d("Storage upload error: ", "$exception")
+                    trySend(UploadStatus.Failure(exception))
+                }
+                .addOnSuccessListener {  task ->
+                    val downloadUrlTask = task.storage.downloadUrl
+                    if (!downloadUrlTask.isSuccessful) {
+                        trySend(UploadStatus.Failure(downloadUrlTask.exception ?: Exception("Error")))
                     }
-                .await()
-
-                .storage
-                .downloadUrl
-                .addOnSuccessListener { uri ->
-                    trySend(UploadStatus.Success(uri))
+                    downloadUrlTask
+                        .addOnSuccessListener {
+                            trySend(UploadStatus.Success(it))
+                            Log.d("Storage upload url: ", "$it")
+                            close()
+                        }
                 }
-                .await()
-            Log.d("Storage upload url: ", "$downloadUrl")
         }
         awaitClose()
     }
@@ -127,6 +124,7 @@ fun Advertisement.toAdvertisementPreview() : AdvertisementPreview {
         groupId = this.groupId,
         title = this.title,
         image = this.images?.get(0),
-        price = this.price
+        price = this.price,
+        postDateTimestamp = this.postDateTimestamp
     )
 }

@@ -1,59 +1,75 @@
 package com.snowtouch.feature_new_advertisement.presentation.new_advertisement.components
 
+import android.net.Uri
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.snowtouch.core.presentation.components.CommonTopAppBar
 import com.snowtouch.core.presentation.components.Loading
 import com.snowtouch.core.presentation.components.LoadingFailed
-import com.snowtouch.feature_new_advertisement.presentation.NewAdvertisementViewModel
+import com.snowtouch.core.presentation.components.ScaffoldTemplate
 import com.snowtouch.feature_new_advertisement.presentation.advertisement_post_result.AdvertisementPostSuccess
-import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.NewAdUiState
-import org.koin.androidx.compose.koinViewModel
+import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.ScreenState
+import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.UiState
 
 @Composable
 internal fun NewAdvertisement(
+    uiState : UiState,
+    onImagesChanged : (List<Uri>) -> Unit,
+    onTitleChanged : (String) -> Unit,
+    onDescriptionChanged : (String) -> Unit,
+    onPriceChanged : (String) -> Unit,
+    onGroupSelected : (String) -> Unit,
+    onPostAdvertisementClick : () -> Unit,
+    onFailedLoadingButtonClick : () -> Unit,
+    navigateBack : () -> Unit,
     navigateToHome : () -> Unit,
     navigateToPostedAdvertisement : (String) -> Unit,
-    modifier : Modifier = Modifier,
-    viewModel : NewAdvertisementViewModel = koinViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    ScaffoldTemplate(
+        topBar = {
+            CommonTopAppBar(
+                title = "new advertisement",
+                canNavigateBack = true,
+                onNavigateBackClick = navigateBack
+            )
+        }
+    ) { innerPadding ->
+        when (uiState.screenState) {
+            is ScreenState.Success -> NewAdvertisementContent(
+                uiState = uiState,
+                userGroupsList = uiState.groupIdNames,
+                onImagesChanged = onImagesChanged,
+                onTitleChanged = onTitleChanged,
+                onDescriptionChanged = onDescriptionChanged,
+                onPriceChanged = onPriceChanged,
+                onGroupSelected = onGroupSelected,
+                onPostAdvertisementClick = onPostAdvertisementClick,
+                onSaveAsDraftClick = { /*TODO*/ },
+                modifier = Modifier.padding(innerPadding)
+            )
 
-    when (val state = uiState) {
-        is NewAdUiState.EditingNewAd -> NewAdvertisementContent(
-            uiState = state,
-            userGroupsList = state.groupIdNames,
-            onImagesChanged = viewModel::onImagesUriChange,
-            onTitleChanged = viewModel::onTitleChange,
-            onDescriptionChanged = viewModel::onDescriptionChange,
-            onPriceChanged = viewModel::onPriceChange,
-            onGroupSelected = viewModel::onUserGroupSelected,
-            onPostAdvertisementClick = { viewModel.postNewAdvertisement(context) },
-            onSaveAsDraftClick = { /*TODO*/ },
-            modifier = modifier
-        )
+            is ScreenState.Loading -> Loading(modifier = Modifier.padding(innerPadding))
+            is ScreenState.Uploading -> Loading(
+                modifier = Modifier.padding(innerPadding),
+                progress = uiState.screenState.progress.toFloat(),
+                message = "Uploading image ${uiState.screenState.currentImageIndex} " +
+                        "of ${uiState.screenState.imageCount}"
+            )
 
-        is NewAdUiState.Loading -> Loading(modifier = modifier)
-        is NewAdUiState.Uploading -> Loading(
-            modifier = modifier,
-            progress = state.progress.toFloat(),
-            message = "Uploading image ${state.currentImageIndex} of ${state.imageCount}"
-        )
+            is ScreenState.AdPostSuccess -> AdvertisementPostSuccess(
+                navigateToHome = navigateToHome,
+                navigateToAdDetails = { navigateToPostedAdvertisement(uiState.newAdId) },
+                modifier = Modifier.padding(innerPadding)
+            )
 
-        is NewAdUiState.Success -> AdvertisementPostSuccess(
-            navigateToHome = navigateToHome,
-            navigateToAdDetails = { navigateToPostedAdvertisement(state.newAdId) },
-            modifier = modifier
-        )
-
-        is NewAdUiState.Error -> LoadingFailed(
-            canRefresh = true,
-            onErrorIconClick = { viewModel.getUserGroupsIdNamePairs() },
-            modifier = modifier,
-            errorMessage = state.e.localizedMessage
-        )
+            is ScreenState.Error -> LoadingFailed(
+                canRefresh = true,
+                onErrorIconClick = onFailedLoadingButtonClick,
+                modifier = Modifier.padding(innerPadding),
+                errorMessage = uiState.screenState.e.localizedMessage
+            )
+        }
     }
+
 }

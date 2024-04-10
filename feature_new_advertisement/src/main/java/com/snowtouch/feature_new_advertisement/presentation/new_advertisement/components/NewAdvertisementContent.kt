@@ -11,11 +11,11 @@ import androidx.compose.ui.Modifier
 import com.snowtouch.core.presentation.components.CommonButton
 import com.snowtouch.core.presentation.components.ext.adaptiveColumnWidth
 import com.snowtouch.core.presentation.components.ext.cardContentPadding
-import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.NewAdUiState
+import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.UiState
 
 @Composable
 internal fun NewAdvertisementContent(
-    uiState : NewAdUiState.EditingNewAd,
+    uiState : UiState,
     userGroupsList : List<Map<String, String>>,
     onImagesChanged : (List<Uri>) -> Unit,
     onTitleChanged : (String) -> Unit,

@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.snowtouch.account_feature.presentation.account.AccountScreen
+import com.snowtouch.account_feature.presentation.active_ads.ActiveAdsScreen
 import com.snowtouch.core.navigation.NavBarItem
 import com.snowtouch.core.presentation.util.DisplaySize
 
@@ -53,7 +54,11 @@ fun NavGraphBuilder.accountFeature(
         }
 
         composable(AccountRoutes.ActiveAds.route) {
-
+            ActiveAdsScreen(
+                displaySize = displaySize,
+                navigateBack = { navController.navigateUp() },
+                onAdCardClick = { adId -> navigateToAdDetails(adId) }
+                )
         }
 
         composable(AccountRoutes.FinishedAds.route) {
