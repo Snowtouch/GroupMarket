@@ -9,8 +9,8 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val adDetailsModule = module {
-    single<AdDetailsRepository> { AdDetailsRepositoryImpl(get(), get(), get()) }
+    single<AdDetailsRepository> { AdDetailsRepositoryImpl(get()) }
     single<CoroutineDispatcher> { Dispatchers.IO }
 
-    viewModel { AdvertisementDetailViewModel(get(), get()) }
+    viewModel { AdvertisementDetailViewModel(get(), get(), get()) }
 }

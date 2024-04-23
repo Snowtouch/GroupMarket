@@ -8,6 +8,8 @@ import androidx.navigation.navigation
 import com.snowtouch.core.navigation.NavBarItem
 import com.snowtouch.core.presentation.util.DisplaySize
 import com.snowtouch.home_feature.presentation.HomeScreen
+import com.snowtouch.home_feature.presentation.HomeViewModel
+import org.koin.androidx.compose.koinViewModel
 
 sealed class HomeRoute(val route : String) {
     data object HomeFeature : HomeRoute("home_feature")
@@ -23,11 +25,14 @@ fun NavGraphBuilder.homeFeature(
     navigation(startDestination = HomeRoute.Home.route, route = HomeRoute.HomeFeature.route) {
         composable(route = HomeRoute.Home.route) {
 
+            val viewModel : HomeViewModel = koinViewModel()
+
             HomeScreen(
                 currentScreen = currentScreen,
                 displaySize = displaySize,
                 navigateToAdDetails = { advertisementId -> navigateToAdDetails(advertisementId) },
-                onBottomBarIconClick = { route -> navController.navigate(route) }
+                onNavMenuItemClick = { route -> navController.navigate(route) },
+                viewModel = viewModel
             )
         }
     }

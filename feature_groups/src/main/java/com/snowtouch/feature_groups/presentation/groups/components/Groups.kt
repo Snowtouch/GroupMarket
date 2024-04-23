@@ -1,43 +1,80 @@
 package com.snowtouch.feature_groups.presentation.groups.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.unit.dp
+import com.snowtouch.core.navigation.NavBarItem
+import com.snowtouch.core.presentation.components.AdaptiveNavigationBar
 import com.snowtouch.core.presentation.components.Loading
 import com.snowtouch.core.presentation.components.LoadingFailed
+import com.snowtouch.core.presentation.components.SinglePageScaffold
 import com.snowtouch.core.presentation.util.DisplaySize
-import com.snowtouch.feature_groups.presentation.GroupsViewModel
+import com.snowtouch.feature_groups.presentation.group_ads.components.GroupAds
+import com.snowtouch.feature_groups.presentation.groups.GroupAdsUiState
 import com.snowtouch.feature_groups.presentation.groups.GroupsUiState
-import org.koin.androidx.compose.koinViewModel
+import com.snowtouch.feature_groups.presentation.groups.UiState
 
 @Composable
 internal fun Groups(
     displaySize : DisplaySize,
-    onGoToGroupAdsClick: (String) -> Unit,
-    onAdvertisementCardClick:  (String) -> Unit,
+    currentScreen : NavBarItem,
+    groupsUiState : GroupsUiState,
+    groupAdsUiState : GroupAdsUiState,
+    navigateToNewGroupScreen : () -> Unit,
+    onNavMenuItemClick : (String) -> Unit,
+    onGoToGroupAdsClick : (String) -> Unit,
+    onAdvertisementCardClick : (String) -> Unit,
+    onFavoriteButtonClick : (String) -> Unit,
+    onSelectedGroupChanged : (String) -> Unit,
     modifier : Modifier = Modifier,
-    viewModel: GroupsViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    when (uiState) {
-        is GroupsUiState.Loading -> Loading(modifier = modifier)
-
-        is GroupsUiState.Success ->
-            GroupsContent(
-                userGroupsList = (uiState as GroupsUiState.Success).groupsPreviewList,
+    SinglePageScaffold(
+        topBar = { GroupsTopAppBar(onCreateGroupClick = navigateToNewGroupScreen) },
+        bottomBar = {
+            AdaptiveNavigationBar(
+                currentScreen = currentScreen,
                 displaySize = displaySize,
-                onGoToGroupAdsClick = onGoToGroupAdsClick,
-                onAdvertisementCardClick = onAdvertisementCardClick,
-                modifier = modifier
+                onNavMenuItemClick = onNavMenuItemClick
             )
+        }
+    ) { _ ->
+        Row(
+            modifier = Modifier
+                .padding(start = if (displaySize == DisplaySize.Extended) 82.dp else 0.dp)
+        ) {
+            Box(modifier = Modifier.weight(0.6f)) {
+                when (groupsUiState.uiState) {
+                    is UiState.Loading -> Loading(modifier = modifier)
 
-        is GroupsUiState.Error -> LoadingFailed(
-            canRefresh = true,
-            onErrorIconClick = viewModel::getUserGroupsData,
-            modifier = modifier,
-            errorMessage = (uiState as GroupsUiState.Error).e?.localizedMessage
-        )
+                    is UiState.Success -> GroupsContent(
+                        userGroupsList = groupsUiState.userGroupsList,
+                        onGoToGroupAdsClick = onGoToGroupAdsClick,
+                    )
+
+                    is UiState.Error -> LoadingFailed(
+                        canRefresh = false,
+                        errorMessage = groupsUiState.uiState.e.localizedMessage
+                    )
+                }
+            }
+            if (displaySize == DisplaySize.Extended) {
+                Box(modifier = Modifier.weight(0.4f)) {
+                    LaunchedEffect(key1 = groupAdsUiState.selectedGroup) {
+                        onSelectedGroupChanged(groupAdsUiState.selectedGroup)
+                    }
+                    GroupAds(
+                        displaySize = displaySize,
+                        groupAdsUiState = groupAdsUiState,
+                        onAdvertisementCardClick = onAdvertisementCardClick,
+                        onFavoriteButtonClick = onFavoriteButtonClick
+                    )
+                }
+            }
+        }
     }
+
 }

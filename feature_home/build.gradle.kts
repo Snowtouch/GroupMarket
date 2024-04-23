@@ -41,6 +41,7 @@ android {
 dependencies {
 
     implementation(project(":core"))
+    implementation(project(":feature_advertisement_details"))
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

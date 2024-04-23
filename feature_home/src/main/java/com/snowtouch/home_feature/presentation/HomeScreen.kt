@@ -1,37 +1,70 @@
 package com.snowtouch.home_feature.presentation
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.snowtouch.core.data.SamplePreviewData
+import com.snowtouch.core.di.snackbarModule
 import com.snowtouch.core.navigation.NavBarItem
-import com.snowtouch.core.presentation.components.BottomNavigationBar
-import com.snowtouch.core.presentation.components.NavigationRail
-import com.snowtouch.core.presentation.components.ScaffoldTemplate
+import com.snowtouch.core.navigation.navMenuItems
 import com.snowtouch.core.presentation.util.DisplaySize
+import com.snowtouch.core.presentation.util.KoinPreviewApplication
+import com.snowtouch.home_feature.di.homeModule
 import com.snowtouch.home_feature.presentation.components.Home
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
+    viewModel : HomeViewModel,
     currentScreen : NavBarItem,
     displaySize : DisplaySize,
-    navigateToAdDetails: (String) -> Unit,
-    onBottomBarIconClick: (String) -> Unit,
-){
-    ScaffoldTemplate(
-        bottomBar = {
+    navigateToAdDetails : (String) -> Unit,
+    onNavMenuItemClick : (String) -> Unit,
+) {
+    val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
+    val adDetailsUiState by viewModel.adDetailsUiState.collectAsStateWithLifecycle()
+
+    Home(
+        displaySize = displaySize,
+        currentScreen = currentScreen,
+        homeUiState = homeUiState,
+        adDetailsUiState = adDetailsUiState,
+        navigateToAdvertisementDetails = { adId ->
             when (displaySize) {
-                DisplaySize.Compact -> BottomNavigationBar(
-                    currentScreen = currentScreen,
-                    onNavItemClick = onBottomBarIconClick
-                )
-                DisplaySize.Extended -> NavigationRail(onNavItemClick = onBottomBarIconClick) }
-        }
-    ) { innerPadding ->
+                DisplaySize.Compact -> navigateToAdDetails(adId)
+                DisplaySize.Medium -> navigateToAdDetails(adId)
+                DisplaySize.Extended -> {
+                    viewModel.updateSelectedAdId(adId)
+                    viewModel.getAdvertisementDetails(adId)
+                }
+            }
+        },
+        onFavoriteButtonClick = { adId -> viewModel.toggleFavoriteAd(adId) },
+        onNavMenuItemClick = onNavMenuItemClick,
+    )
+}
+
+@PreviewScreenSizes
+@Composable
+fun SampleNavigationRailComposable() {
+    KoinPreviewApplication(modules = { listOf(homeModule, snackbarModule) }) {
         Home(
-            displaySize = displaySize,
-            onAdvertisementClick = navigateToAdDetails,
-            onFavoriteButtonClick = { TODO() },
-            modifier = Modifier.padding(innerPadding)
+            displaySize = DisplaySize.Medium,
+            currentScreen = navMenuItems[0],
+            homeUiState = HomeUiState(
+                uiState = UiState.Success,
+                newAdsList = SamplePreviewData.adPreviewList,
+                favoriteAdsList = SamplePreviewData.adPreviewList.asReversed(),
+                recentlyViewedList = SamplePreviewData.adPreviewList.subList(0, 3)
+            ),
+            adDetailsUiState = AdDetailsUiState(
+                uiState = UiState.Success,
+                selectedAdId = SamplePreviewData.sampleAd1Preview.uid,
+                adDetails = SamplePreviewData.sampleAd1Details
+            ),
+            navigateToAdvertisementDetails = {},
+            onFavoriteButtonClick = {},
+            onNavMenuItemClick = {}
         )
     }
 }

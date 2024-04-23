@@ -6,7 +6,6 @@ import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.repository.CoreRepository
 import com.snowtouch.core.presentation.GroupMarketViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -30,7 +29,7 @@ internal class AccountViewModel(
             Result.Loading)
     val draftsResult : StateFlow<Result<List<AdvertisementPreview>>> = _draftsResult
 
-    val currentUserFavoriteAdsIds: Flow<List<String>> = coreRepository.currentUserFavoriteAdsIds
+    //TODO() val currentUserFavoriteAdsIds: Flow<List<String>> = coreRepository.currentUserFavoriteAdsIds
 
     fun signOut() {
         accountRepository.signOut()

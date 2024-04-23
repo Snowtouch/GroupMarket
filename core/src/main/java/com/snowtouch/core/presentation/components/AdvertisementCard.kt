@@ -1,5 +1,7 @@
 package com.snowtouch.core.presentation.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -32,26 +35,32 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.snowtouch.core.R
+import com.snowtouch.core.data.SamplePreviewData
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.presentation.util.timestampToDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 @Composable
 fun AdvertisementCard(
     advertisement : AdvertisementPreview,
-    favoritesList : List<String> = emptyList(),
+    isFavorite : Boolean,
     onCardClick : () -> Unit,
     onFavoriteButtonClick : (String) -> Unit,
 ) {
-    Card(
+    ElevatedCard(
         onClick = onCardClick,
         modifier = Modifier
-            .size(width = 300.dp, height = 350.dp),
+            .size(width = 250.dp, height = 300.dp)
+            .border(
+                BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)),
+                shape = MaterialTheme.shapes.small
+            ),
         shape = MaterialTheme.shapes.small
     ) {
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -69,19 +78,25 @@ fun AdvertisementCard(
                         .crossfade(true)
                         .build(),
                     placeholder = painterResource(R.drawable.placeholder_image),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
+                    contentDescription = "Ad image",
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.small)
                 )
+                SetFavoriteButton(
+                    isFavorite = isFavorite,
+                    advertisementId = advertisement.uid ?: "",
+                    onFavoriteButtonClick = onFavoriteButtonClick,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                )
             }
-            HorizontalDivider()
-            Box(modifier = Modifier.fillMaxWidth()) {
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            Box(modifier = Modifier) {
                 Text(
                     text = advertisement.title ?: "",
-                    modifier = Modifier.padding(12.dp),
+                    modifier = Modifier,
                     fontSize = 20.sp,
-                    overflow = TextOverflow.Clip,
+                    overflow = TextOverflow.Ellipsis,
                     softWrap = true,
                     maxLines = 2
                 )
@@ -92,24 +107,14 @@ fun AdvertisementCard(
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
-                    text = advertisement.price.toString(),
-                    modifier = Modifier.padding(8.dp),
+                    text = "$ ${advertisement.price}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
                 )
-                Column(
-                    modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    SetFavoriteButton(
-                        favoritesList = favoritesList,
-                        advertisementId = advertisement.uid ?: "",
-                        onFavoriteButtonClick = onFavoriteButtonClick
-                    )
-                    Text(
-                        text = timestampToDate(advertisement.postDateTimestamp ?: 0),
-                    )
-                }
+                Text(
+                    text = timestampToDate(advertisement.postDateTimestamp ?: 0),
+                    fontSize = 12.sp,
+                )
             }
         }
     }
@@ -117,18 +122,22 @@ fun AdvertisementCard(
 
 @Composable
 fun SetFavoriteButton(
-    favoritesList : List<String>? = emptyList(),
+    isFavorite : Boolean,
     advertisementId : String,
     onFavoriteButtonClick : (String) -> Unit,
+    modifier : Modifier = Modifier,
 ) {
-    IconButton(onClick = { onFavoriteButtonClick(advertisementId) }) {
+    IconButton(
+        onClick = { onFavoriteButtonClick(advertisementId) },
+        modifier = modifier
+    ) {
         Icon(
-            imageVector = if (favoritesList?.contains(advertisementId) == true)
+            imageVector = if (isFavorite)
                 Icons.Filled.Favorite
             else
                 Icons.Outlined.FavoriteBorder,
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize()
+            contentDescription = "Favorite toggle button",
+            modifier = Modifier
         )
     }
 }
@@ -136,22 +145,9 @@ fun SetFavoriteButton(
 @Preview
 @Composable
 fun CardPreview() {
-    val list : List<String> = emptyList()
-    val userFavorites = listOf("2")
-    val dateLong = LocalDateTime
-        .now()
-        .toInstant(ZoneOffset.UTC)
-        .toEpochMilli()
-
     AdvertisementCard(
-        AdvertisementPreview(
-            groupId = "2",
-            title = "aaaaaaaaa",
-            image = "",
-            price = "3223.0",
-            postDateTimestamp = dateLong
-        ),
-        userFavorites,
-        {}
-    ) {}
+        advertisement = SamplePreviewData.sampleAd1Preview,
+        isFavorite = true,
+        onCardClick = {},
+        onFavoriteButtonClick = {})
 }

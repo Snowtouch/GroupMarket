@@ -37,7 +37,7 @@ fun AdvertisementsList(
                     Log.d("active ads", "$ad")
                     AdvertisementCard(
                         advertisement = ad,
-                        favoritesList = favoritesList,
+                        isFavorite = favoritesList.contains(ad.uid),
                         onCardClick = { onAdvertisementCardClick(ad.uid!!) },
                         onFavoriteButtonClick = { onFavoriteButtonClick(ad.uid!!) }
                     )

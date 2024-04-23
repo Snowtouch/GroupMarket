@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import com.snowtouch.core.presentation.components.CommonTopAppBar
 import com.snowtouch.core.presentation.components.Loading
 import com.snowtouch.core.presentation.components.LoadingFailed
-import com.snowtouch.core.presentation.components.ScaffoldTemplate
+import com.snowtouch.core.presentation.components.SinglePageScaffold
 import com.snowtouch.feature_new_advertisement.presentation.advertisement_post_result.AdvertisementPostSuccess
 import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.ScreenState
 import com.snowtouch.feature_new_advertisement.presentation.new_advertisement.UiState
@@ -26,7 +26,7 @@ internal fun NewAdvertisement(
     navigateToHome : () -> Unit,
     navigateToPostedAdvertisement : (String) -> Unit,
 ) {
-    ScaffoldTemplate(
+    SinglePageScaffold(
         topBar = {
             CommonTopAppBar(
                 title = "new advertisement",

@@ -1,57 +1,44 @@
 package com.snowtouch.feature_groups.presentation.groups.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.snowtouch.core.presentation.components.ext.adaptiveColumnWidth
-import com.snowtouch.core.presentation.util.DisplaySize
 import com.snowtouch.feature_groups.domain.model.GroupPreview
 import com.snowtouch.feature_groups.presentation.components.GroupCard
-import com.snowtouch.feature_groups.presentation.group_ads.components.GroupAds
 
 @Composable
 fun GroupsContent(
     userGroupsList : List<GroupPreview>,
-    displaySize : DisplaySize,
     onGoToGroupAdsClick : (String) -> Unit,
-    onAdvertisementCardClick : (String) -> Unit,
-    modifier : Modifier = Modifier
+    modifier : Modifier = Modifier,
 ) {
-    var selectedGroup by rememberSaveable { mutableStateOf("") }
-
-    Row(modifier = modifier) {
-        LazyColumn(
-            modifier = Modifier.adaptiveColumnWidth()
-        ) {
-            if (userGroupsList.isNotEmpty())
-                items(items = userGroupsList) { group ->
-                    GroupCard(
-                        groupId = group.uid ?: "",
-                        groupName = group.name ?: "",
-                        groupOwner = group.ownerName ?: "",
-                        groupDescription = group.description ?: "",
-                        numberOfAdvertisements = group.advertisementsCount ?: 0,
-                        numberOfMembers = group.membersCount ?: 1,
-                        onGoToGroupAdsClick = {
-                            if (displaySize == DisplaySize.Compact) onGoToGroupAdsClick(group.uid!!)
-                            else selectedGroup = group.uid!!
-                        }
-                    )
+    LazyColumn(modifier = modifier) {
+        if (userGroupsList.isNotEmpty()) {
+            items(items = userGroupsList) { group ->
+                GroupCard(
+                    groupId = group.uid ?: "",
+                    groupName = group.name ?: "",
+                    groupOwner = group.ownerName ?: "",
+                    groupDescription = group.description ?: "",
+                    numberOfAdvertisements = group.advertisementsCount ?: 0,
+                    numberOfMembers = group.membersCount ?: 1,
+                    onGoToGroupAdsClick = onGoToGroupAdsClick
+                )
+            }
+        } else {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "You are not part of any group")
                 }
-        }
-        AnimatedVisibility(visible = displaySize == DisplaySize.Extended) {
-            GroupAds(
-                groupId = selectedGroup,
-                displaySize = displaySize,
-                onAdvertisementCardClick = onAdvertisementCardClick
-            )
+            }
         }
     }
 }

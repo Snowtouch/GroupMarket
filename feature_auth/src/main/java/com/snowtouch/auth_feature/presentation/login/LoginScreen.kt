@@ -5,29 +5,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.snowtouch.auth_feature.presentation.login.components.Login
 import com.snowtouch.core.navigation.NavBarItem
-import com.snowtouch.core.presentation.components.BottomNavigationBar
-import com.snowtouch.core.presentation.components.NavigationRail
-import com.snowtouch.core.presentation.components.ScaffoldTemplate
+import com.snowtouch.core.presentation.components.AdaptiveNavigationBar
+import com.snowtouch.core.presentation.components.SinglePageScaffold
 import com.snowtouch.core.presentation.util.DisplaySize
 
 @Composable
 fun LoginScreen(
     currentScreen : NavBarItem,
     displaySize : DisplaySize,
-    onBottomBarIconClick : (String) -> Unit,
+    onNavMenuItemClick : (String) -> Unit,
     navigateToCreateAccount : () -> Unit,
-    navigateToLoginScreen : () -> Unit
+    navigateToLoginScreen : () -> Unit,
 ) {
 
-    ScaffoldTemplate(
+    SinglePageScaffold(
         bottomBar = {
-            when (displaySize) {
-                DisplaySize.Compact -> BottomNavigationBar(
-                    currentScreen = currentScreen,
-                    onNavItemClick = onBottomBarIconClick
-                )
-                DisplaySize.Extended -> NavigationRail(onNavItemClick = onBottomBarIconClick)
-            }
+            AdaptiveNavigationBar(
+                currentScreen = currentScreen,
+                displaySize = displaySize,
+                onNavMenuItemClick = onNavMenuItemClick
+            )
         }
     ) { innerPadding ->
         Login(

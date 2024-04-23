@@ -7,60 +7,49 @@ import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.model.asResult
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import com.snowtouch.home_feature.domain.repository.HomeRepository
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 class HomeRepositoryImpl(
     private val dbReferences : DatabaseReferenceManager,
-    private val dispatcher : CoroutineDispatcher,
 ) : HomeRepository {
 
-    override fun getLatestAdsPreview(): Flow<Result<List<AdvertisementPreview>>> {
+    override fun getLatestAdsPreview() : Flow<Result<List<AdvertisementPreview>>> {
         return flow {
-        val userGroupsIdList = withContext(dispatcher) {
-            dbReferences.currentUserGroupsIds.get().await()
-                .children.mapNotNull { id ->
-                    id.getValue<String>()
-                }
-        }
-        if (userGroupsIdList.isEmpty()) {
-            emit(emptyList())
-            return@flow
-        }
+            val userGroupsIdList = dbReferences.currentUserGroupsIds
+                .get()
+                .await()
+                .children.mapNotNull { id -> id.getValue<String>() }
 
-        val latestAdsIds = mutableListOf<String>()
-        for (groupId in userGroupsIdList) {
-            val groupAdsIdsSnap = withContext(dispatcher) {
-                dbReferences.groupAdsIdList.child(groupId)
+            if (userGroupsIdList.isEmpty()) {
+                emit(emptyList())
+                return@flow
+            }
+
+            val latestAdsIds = mutableListOf<String>()
+
+            for (groupId in userGroupsIdList) {
+                val groupAdsIdsList = dbReferences.groupAdsIdList.child(groupId)
                     .limitToLast(10)
                     .get()
                     .await()
+                    .children.mapNotNull { adSnap -> adSnap.getValue<String>() }
+                latestAdsIds.addAll(groupAdsIdsList)
             }
 
-            val groupAdsIdsList = groupAdsIdsSnap.children.mapNotNull { adSnap ->
-                adSnap.getValue<String>()
-            }
-            latestAdsIds.addAll(groupAdsIdsList)
-        }
+            val tenNewAdsIds = latestAdsIds
+                .sortedDescending()
+                .take(10)
 
-        val tenNewAdsIds = latestAdsIds
-            .sortedDescending()
-            .take(10)
-
-        val newestAdsPreviewSnap = withContext(dispatcher) {
-            dbReferences.advertisementsPreview
+            val newestAdsPreview = dbReferences.advertisementsPreview
+                .orderByKey()
                 .startAt(tenNewAdsIds.first())
                 .endAt(tenNewAdsIds.last())
                 .get()
                 .await()
-        }
+                .children.mapNotNull { adSnap -> adSnap.getValue<AdvertisementPreview>() }
 
-        val newestAdsPreview = newestAdsPreviewSnap.children.mapNotNull { adSnap ->
-            adSnap.getValue<AdvertisementPreview>()
-        }
             emit(newestAdsPreview)
         }.asResult()
     }

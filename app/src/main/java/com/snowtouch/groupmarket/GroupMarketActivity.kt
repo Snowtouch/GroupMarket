@@ -1,26 +1,29 @@
 package com.snowtouch.groupmarket
 
-import android.Manifest
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.permissions.shouldShowRationale
-import com.snowtouch.core.presentation.components.PermissionDialog
-import com.snowtouch.core.presentation.components.RationaleDialog
+import com.snowtouch.core.domain.network_utils.ConnectionState
 import com.snowtouch.core.presentation.components.theme.GroupMarketTheme
 import com.snowtouch.core.presentation.util.DisplaySize
 import org.koin.android.ext.android.inject
@@ -40,24 +43,23 @@ class GroupMarketActivity : ComponentActivity() {
             val navController = rememberNavController()
             val widthSizeClass = calculateWindowSizeClass(this)
             val isUserLoggedIn = viewModel.getAuthState().collectAsStateWithLifecycle()
+            val networkStatus =
+                viewModel.getNetworkState(applicationContext).collectAsStateWithLifecycle()
 
             val displaySizeClass = calculateWindowSize(widthSizeClass)
 
             GroupMarketTheme {
-
                 KoinAndroidContext {
-
                     Surface(color = MaterialTheme.colorScheme.background) {
-
-                        MainNavigation(
-                            navController = navController,
-                            displaySize = displaySizeClass,
-                            isLoggedIn = !isUserLoggedIn.value
-                        )
+                        Column {
+                            ConnectivityStatusBar(connectionState = networkStatus.value)
+                            MainNavigation(
+                                navController = navController,
+                                displaySize = displaySizeClass,
+                                isLoggedIn = !isUserLoggedIn.value
+                            )
+                        }
                     }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                        RequestNotificationPermissionDialog()
                 }
             }
         }
@@ -66,23 +68,39 @@ class GroupMarketActivity : ComponentActivity() {
     private fun calculateWindowSize(windowSizeClass : WindowSizeClass) : DisplaySize {
         return when (windowSizeClass.widthSizeClass) {
             WindowWidthSizeClass.Compact -> DisplaySize.Compact
+            WindowWidthSizeClass.Medium -> DisplaySize.Medium
             WindowWidthSizeClass.Expanded -> DisplaySize.Extended
-            WindowWidthSizeClass.Medium -> DisplaySize.Extended
-            else -> { DisplaySize.Compact }
+            else -> DisplaySize.Compact
         }
     }
 }
 
-@OptIn(ExperimentalPermissionsApi::class)
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun RequestNotificationPermissionDialog() {
-    val permissionState = rememberPermissionState(
-        permission = Manifest.permission.POST_NOTIFICATIONS)
-
-    if (!permissionState.status.isGranted) {
-        if (permissionState.status.shouldShowRationale) RationaleDialog()
-        else PermissionDialog { permissionState.launchPermissionRequest() }
+fun ConnectivityStatusBar(
+    connectionState : ConnectionState,
+    modifier : Modifier = Modifier,
+) {
+    AnimatedVisibility(visible = connectionState == ConnectionState.Unavailable) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(
+                    if (connectionState == ConnectionState.Unavailable) Color.Red
+                    else Color.Green.copy(alpha = 0.6f)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Network $connectionState",
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
+@Preview
+@Composable
+private fun ConnectivityStatusBarPreview() {
+    ConnectivityStatusBar(connectionState = ConnectionState.Unavailable)
+}

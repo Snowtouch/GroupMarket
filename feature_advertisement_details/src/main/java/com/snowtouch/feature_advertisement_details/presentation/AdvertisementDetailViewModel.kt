@@ -1,23 +1,32 @@
 package com.snowtouch.feature_advertisement_details.presentation
 
+import androidx.lifecycle.viewModelScope
 import com.snowtouch.core.domain.model.Advertisement
 import com.snowtouch.core.domain.model.Result
-import com.snowtouch.core.domain.repository.CoreRepository
+import com.snowtouch.core.domain.use_case.GetUserFavoriteAdsIdsFlowUseCase
+import com.snowtouch.core.domain.use_case.ToggleFavoriteAdUseCase
 import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.feature_advertisement_details.domain.repository.AdDetailsRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 
 internal class AdvertisementDetailViewModel(
     private val adDetailsRepository : AdDetailsRepository,
-    private val coreRepository : CoreRepository,
+    getUserFavoriteAdsIdsFlowUseCase : GetUserFavoriteAdsIdsFlowUseCase,
+    private val toggleFavoriteAdUseCase : ToggleFavoriteAdUseCase,
 ) : GroupMarketViewModel() {
 
     private val _adDetailsResult = MutableStateFlow<Result<Advertisement>>(Result.Loading)
     val adDetailsResult : StateFlow<Result<Advertisement>> = _adDetailsResult
 
-    val currentUserFavoriteAdsIds: Flow<List<String>> = coreRepository.currentUserFavoriteAdsIds
+    val currentUserFavoriteAdsIds = getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).map { result ->
+        when (result) {
+            is Result.Failure -> TODO()
+            is Result.Loading -> TODO()
+            is Result.Success -> TODO()
+        }
+    }
 
     fun getAdvertisementDetails(adId : String) {
         launchCatching {
@@ -28,7 +37,7 @@ internal class AdvertisementDetailViewModel(
 
     fun toggleFavoriteAd(adId : String) {
         launchCatching {
-            coreRepository.toggleFavoriteAd(adId)
+            toggleFavoriteAdUseCase.invoke(adId)
         }
     }
 }

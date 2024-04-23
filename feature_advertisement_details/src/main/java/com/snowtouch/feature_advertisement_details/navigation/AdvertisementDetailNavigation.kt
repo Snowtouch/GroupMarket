@@ -7,11 +7,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.snowtouch.feature_advertisement_details.presentation.AdvertisementDetailScreen
 
-sealed class AdvertisementRoute(val route: String) {
-    data object Advertisement: AdvertisementRoute("advertisement")
+sealed class AdvertisementRoute(val route : String) {
+    data object Advertisement : AdvertisementRoute("advertisement")
 }
 
-fun NavGraphBuilder.advertisementDetailFeature(onNavigateBack: () -> Unit) {
+fun NavGraphBuilder.advertisementDetailFeature(onNavigateBack : () -> Unit) {
 
     composable(
         route = AdvertisementRoute.Advertisement.route + "/{advertisementId}",
@@ -25,10 +25,12 @@ fun NavGraphBuilder.advertisementDetailFeature(onNavigateBack: () -> Unit) {
 
         AdvertisementDetailScreen(
             advertisementId = advertisementId,
-            navigateBack = onNavigateBack
+            navigateBack = onNavigateBack,
+            navigateToChatWithSeller = { TODO() }
         )
     }
 }
-fun NavController.navigateToAdvertisement(advertisementId: String) {
+
+fun NavController.navigateToAdvertisement(advertisementId : String) {
     this.navigate(route = "advertisement/$advertisementId")
 }

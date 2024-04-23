@@ -1,10 +1,18 @@
 package com.snowtouch.core.domain.repository
 
-import kotlinx.coroutines.flow.Flow
+import com.snowtouch.core.domain.model.Advertisement
 import com.snowtouch.core.domain.model.Result
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface CoreRepository {
-    val currentUserFavoriteAdsIds : Flow<List<String>>
+
+    fun getAuthState(viewModelScope : CoroutineScope) : StateFlow<Boolean>
+
+    fun getUserFavoriteAdIds(viewModelScope : CoroutineScope) : Flow<Result<List<String>>>
 
     suspend fun toggleFavoriteAd(adId : String) : Result<Boolean>
+
+    suspend fun getAdDetails(adId : String) : Result<Advertisement>
 }

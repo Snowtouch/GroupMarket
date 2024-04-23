@@ -14,14 +14,15 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 internal fun AdvertisementDetail(
-    advertisementId: String,
-    navigateBack: () -> Unit,
+    advertisementId : String,
+    navigateToChatWithSeller : (String) -> Unit,
+    onReserveItemClick : (String) -> Unit,
     modifier : Modifier = Modifier,
     viewModel : AdvertisementDetailViewModel = koinViewModel(),
 ) {
     val adDetailData by viewModel.adDetailsResult.collectAsStateWithLifecycle()
     val userFavorites by viewModel.currentUserFavoriteAdsIds.collectAsStateWithLifecycle(
-        initialValue = emptyList()
+        initialValue = Result.Loading
     )
 
     LaunchedEffect(Unit) {
@@ -31,11 +32,14 @@ internal fun AdvertisementDetail(
     when (val adDetail = adDetailData) {
         is Result.Loading -> Loading(modifier = modifier)
         is Result.Success -> AdvertisementDetailContent(
-            advertisement = adDetail.data?: Advertisement(),
-            isFavorite = userFavorites.contains(advertisementId),
-            onFavoriteButtonClick = { viewModel.toggleFavoriteAd(advertisementId)},
+            advertisement = adDetail.data ?: Advertisement(),
+            isFavorite = true, //TODO
+            onFavoriteButtonClick = { viewModel.toggleFavoriteAd(advertisementId) },
+            onContactSellerClick = navigateToChatWithSeller,
+            onReserveItemClick = onReserveItemClick,
             modifier = modifier,
         )
+
         is Result.Failure -> LoadingFailed(
             canRefresh = true,
             onErrorIconClick = { viewModel.getAdvertisementDetails(advertisementId) },

@@ -4,14 +4,11 @@ package com.snowtouch.feature_advertisement_details.presentation.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
@@ -35,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.lerp
 import androidx.compose.ui.res.painterResource
@@ -42,14 +40,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.snowtouch.core.data.SamplePreviewData
 import com.snowtouch.core.domain.model.Advertisement
 import com.snowtouch.core.presentation.components.CommonButton
 import com.snowtouch.core.presentation.components.ext.adaptiveColumnWidth
 import com.snowtouch.core.presentation.components.theme.GroupMarketTheme
 import com.snowtouch.core.presentation.util.timestampToDate
 import com.snowtouch.feature_advertisement_details.R
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlin.math.absoluteValue
 
 @Composable
@@ -57,79 +54,79 @@ fun AdvertisementDetailContent(
     advertisement : Advertisement,
     isFavorite : Boolean,
     onFavoriteButtonClick : (String) -> Unit,
+    onContactSellerClick : (String) -> Unit,
+    onReserveItemClick : (String) -> Unit,
     modifier : Modifier = Modifier,
 ) {
     val verticalScrollState = rememberScrollState(0)
 
     Column(
         modifier = modifier
+            .padding(horizontal = 6.dp)
             .adaptiveColumnWidth()
             .verticalScroll(state = verticalScrollState),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ElevatedCard {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                AdImageCarousel(adImages = advertisement.images ?: emptyList())
-                IconButton(
-                    onClick = { onFavoriteButtonClick(advertisement.uid ?: "") },
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                ) {
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite
-                        else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "favorite toggle",
-                        modifier = Modifier.scale(1.5f)
-                    )
-                }
-            }
-            HorizontalDivider(
-                modifier = modifier,
-                thickness = 2.dp
+        Box {
+            AdImageCarousel(
+                adTitle = advertisement.title ?: "",
+                adImages = advertisement.images ?: emptyList()
             )
-            Column(modifier = Modifier.padding(6.dp)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Price: ${advertisement.price}",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Text(
-                        text = timestampToDate(advertisement.postDateTimestamp ?: 0),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                }
-                Text(
-                    text = "Group: ${advertisement.groupName}",
-                    style = MaterialTheme.typography.titleLarge
+            IconButton(
+                onClick = { onFavoriteButtonClick(advertisement.uid ?: "") },
+                modifier = Modifier.align(Alignment.BottomEnd)
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite
+                    else Icons.Outlined.FavoriteBorder,
+                    contentDescription = "favorite toggle",
+                    modifier = Modifier.scale(1.5f)
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
         ElevatedCard {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(6.dp)
-            ) {
+            Column(modifier = Modifier.padding(6.dp)) {
+                Text(
+                    text = "Added: " + timestampToDate(advertisement.postDateTimestamp ?: 0),
+                    style = MaterialTheme.typography.titleSmall
+                )
                 Text(
                     text = "${advertisement.title}",
-                    fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
                 )
-                HorizontalDivider()
+                HorizontalDivider(
+                    thickness = 8.dp,
+                    color = MaterialTheme.colorScheme.surface
+                )
+                Text(
+                    text = "Price: ${advertisement.price}",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+
+                Text(
+                    text = "Group: ${advertisement.groupName}",
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+
+            }
+            HorizontalDivider(
+                thickness = 8.dp,
+                color = MaterialTheme.colorScheme.surface
+            )
+            Column(modifier = Modifier.padding(6.dp)) {
+                Text(text = "Description", fontWeight = FontWeight.Bold)
                 Text(text = "${advertisement.description}")
             }
         }
         CommonButton(
-            onClick = { /*TODO*/ },
+            onClick = { onContactSellerClick(advertisement.uid ?: "") },
             text = "Contact seller"
         )
         CommonButton(
-            onClick = { /*TODO*/ },
+            onClick = { onReserveItemClick(advertisement.uid ?: "") },
             text = "Reserve"
         )
     }
@@ -138,6 +135,7 @@ fun AdvertisementDetailContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AdImageCarousel(
+    adTitle : String,
     adImages : List<String>,
     modifier : Modifier = Modifier,
 ) {
@@ -147,16 +145,19 @@ fun AdImageCarousel(
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         HorizontalPager(
             state = pagerState,
-            contentPadding = PaddingValues(horizontal = 32.dp),
+            contentPadding = PaddingValues(horizontal = 48.dp),
             pageSpacing = 16.dp
         ) { page ->
             AsyncImage(
                 model = if (adImages.isNotEmpty()) adImages[page]
                 else painterResource(id = R.drawable.placeholder_image),
-                contentDescription = null,
+                modifier = Modifier
+                    .carouselTransition(page, pagerState)
+                    .fillMaxSize(),
+                contentDescription = adTitle,
                 placeholder = painterResource(R.drawable.placeholder_image),
-                modifier = Modifier.carouselTransition(page, pagerState)
-            )
+                contentScale = ContentScale.FillWidth
+                )
         }
         DotIndicators(
             pageCount = adImages.size,
@@ -207,32 +208,14 @@ fun Modifier.carouselTransition(page : Int, pagerState : PagerState) =
 @Preview(showSystemUi = true)
 @Composable
 fun AdvertisementDetailScreenPreview() {
-    val date = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
     GroupMarketTheme {
         AdvertisementDetailContent(
-            advertisement = Advertisement(
-                uid = "3463563456",
-                ownerUid = "64573674567",
-                groupId = "23423423fffsdf",
-                groupName = "moja grupa",
-                title = "Buty",
-                images = emptyList(),
-                description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit." +
-                        " Suspendisse dapibus sollicitudin pharetra. Quisque varius nulla elit," +
-                        " et accumsan tellus aliquet eget. Nam interdum odio in orci eleifend, id " +
-                        "facilisis mi dapibus. Nullam placerat neque et iaculis pharetra. Class aptent " +
-                        "taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos." +
-                        " Maecenas maximus dictum finibus. Suspendisse nec diam lobortis, rutrum neque eget, " +
-                        "feugiat urna. In eu eleifend mi. In ut congue justo, in sagittis arcu." +
-                        " Nulla sodales venenatis lorem, tristique consequat ante cursus in. " +
-                        "Sed vitae mauris id dolor sagittis scelerisque. " +
-                        "Morbi gravida mauris sed urna maximus, pharetra tincidunt arcu suscipit.",
-                price = "3554",
-                postDateTimestamp = date
-            ),
+            advertisement = SamplePreviewData.sampleAd3Details,
             isFavorite = false,
             modifier = Modifier,
-            onFavoriteButtonClick = {}
+            onFavoriteButtonClick = {},
+            onContactSellerClick = {},
+            onReserveItemClick = {}
         )
     }
 }

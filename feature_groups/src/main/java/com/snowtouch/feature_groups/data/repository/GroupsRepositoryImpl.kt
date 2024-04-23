@@ -21,26 +21,30 @@ class GroupsRepositoryImpl(
     private val dispatcher : CoroutineDispatcher,
 ) : GroupsRepository {
 
-    override fun getUserGroupsPreviewData(): Flow<Result<List<GroupPreview>>> {
+    override fun getUserGroupsPreviewData() : Flow<Result<List<GroupPreview>>> {
         return flow {
-            val userGroupsIdsList = getCurrentUserGroupsIds()
+            when (val userGroupsIdsList = getCurrentUserGroupsIds()) {
+                is Result.Failure -> return@flow
+                is Result.Loading -> Unit
+                is Result.Success -> {
+                    val idList = userGroupsIdsList.data ?: emptyList()
 
-            val groupPreviewData = withContext(dispatcher) {
-                if (userGroupsIdsList.isNotEmpty()) {
-                    dbReferences.groupsPreview
-                        .orderByKey()
-                        .startAt(userGroupsIdsList.first())
-                        .endAt(userGroupsIdsList.last())
-                        .get()
-                        .await()
-                        .children.mapNotNull { group ->
-                            group.getValue(GroupPreview::class.java)
-                        }
-                } else {
-                    emptyList()
+                    if (idList.isNotEmpty()) {
+                        val groupList = dbReferences.groupsPreview
+                            .orderByKey()
+                            .startAt(idList.first())
+                            .endAt(idList.last())
+                            .get()
+                            .await()
+                            .children.mapNotNull { group ->
+                                group.getValue(GroupPreview::class.java)
+                            }
+                        emit(groupList)
+                    } else {
+                        emptyList<GroupPreview>()
+                    }
                 }
             }
-            emit(groupPreviewData)
         }.asResult()
     }
 
@@ -126,7 +130,7 @@ class GroupsRepositoryImpl(
                     .endAt(groupAdsId.last())
                     .get()
                     .await()
-                    .children.mapNotNull {  ad ->
+                    .children.mapNotNull { ad ->
                         ad.getValue<AdvertisementPreview>()
                     }
                 emit(groupAdsPreview)
@@ -136,13 +140,21 @@ class GroupsRepositoryImpl(
         }.asResult()
     }
 
-    private suspend fun getCurrentUserGroupsIds() : List<String?> {
-        return withContext(dispatcher) {
-            dbReferences.currentUserGroupsIds
+    private suspend fun getCurrentUserGroupsIds() : Result<List<String?>> {
+        return try {
+            val groupsIds = dbReferences.currentUserGroupsIds
                 .get()
                 .await()
-                .children.map { it.getValue<String>() }
+                .children.mapNotNull { it.getValue<String>() }
+            if (groupsIds.isEmpty()) {
+                Result.Success(emptyList())
+            } else {
+                Result.Success(groupsIds)
+            }
+        } catch (e : Exception) {
+            Result.Failure(e)
         }
+
     }
 }
 

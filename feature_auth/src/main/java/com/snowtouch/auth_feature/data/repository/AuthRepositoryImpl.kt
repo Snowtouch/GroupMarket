@@ -58,10 +58,6 @@ class AuthRepositoryImpl(
                     uid = auth.currentUser?.uid,
                     email = email,
                     name = name,
-                    groups = null,
-                    advertisements = null,
-                    favoritesList = null,
-                    recentlyWatched = null
                 )
                 dbReferences.users
                     .child(currentUser?.uid!!)

@@ -4,6 +4,7 @@ import android.app.Application
 import com.snowtouch.account_feature.di.accountModule
 import com.snowtouch.auth_feature.di.authModule
 import com.snowtouch.core.di.commonRepositoryModule
+import com.snowtouch.core.di.commonUseCaseModule
 import com.snowtouch.core.di.firebaseModule
 import com.snowtouch.core.di.servicesModule
 import com.snowtouch.core.di.snackbarModule
@@ -29,6 +30,7 @@ class GroupMarketKoinApp : Application() {
                 appModule,
                 servicesModule,
                 commonRepositoryModule,
+                commonUseCaseModule,
                 authModule,
                 firebaseModule,
                 snackbarModule,

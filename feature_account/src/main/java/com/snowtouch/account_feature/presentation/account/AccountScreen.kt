@@ -12,14 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.snowtouch.account_feature.navigation.AccountRoutes
 import com.snowtouch.account_feature.presentation.AccountCategoryOption
 import com.snowtouch.account_feature.presentation.AccountScreenCategory
 import com.snowtouch.account_feature.presentation.account.components.Account
 import com.snowtouch.core.navigation.NavBarItem
-import com.snowtouch.core.presentation.components.BottomNavigationBar
-import com.snowtouch.core.presentation.components.NavigationRail
-import com.snowtouch.core.presentation.components.ScaffoldTemplate
+import com.snowtouch.core.presentation.components.AdaptiveNavigationBar
+import com.snowtouch.core.presentation.components.SinglePageScaffold
 import com.snowtouch.core.presentation.util.DisplaySize
 
 @Composable
@@ -30,18 +28,16 @@ internal fun AccountScreen(
     navigateToLogin : () -> Unit,
     navigateToAccountOption : (String) -> Unit,
     navigateToAdDetails : (String) -> Unit,
-    onNavBarIconClick : (String) -> Unit,
+    onNavMenuIconClick : (String) -> Unit,
 
     ) {
-    ScaffoldTemplate(
+    SinglePageScaffold(
         bottomBar = {
-            when (displaySize) {
-                DisplaySize.Compact -> BottomNavigationBar(
-                    currentScreen = currentScreen,
-                    onNavItemClick = onNavBarIconClick
-                )
-                DisplaySize.Extended -> NavigationRail(onNavItemClick = onNavBarIconClick)
-            }
+            AdaptiveNavigationBar(
+                currentScreen = currentScreen,
+                displaySize = displaySize,
+                onNavMenuItemClick = onNavMenuIconClick
+            )
         }
     ) { innerPadding ->
         Account(

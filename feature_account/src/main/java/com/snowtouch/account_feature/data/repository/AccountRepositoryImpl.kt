@@ -4,17 +4,16 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.getValue
 import com.snowtouch.account_feature.domain.repository.AccountRepository
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.tasks.await
 
 class AccountRepositoryImpl(
     private val dbReferences : DatabaseReferenceManager,
     private val auth : FirebaseAuth,
-    private val dispatcher : CoroutineDispatcher,
 ) : AccountRepository {
 
     override val currentUser : FirebaseUser?
@@ -51,13 +50,14 @@ class AccountRepositoryImpl(
             }
 
             val adsPreviewSnap = dbReferences.advertisementsPreview
+                .orderByKey()
                 .startAt(adsIds.first())
                 .endAt(adsIds.last())
                 .get()
                 .await()
 
             val adsPreview = adsPreviewSnap.children.mapNotNull { adPreview ->
-                adPreview.getValue(AdvertisementPreview::class.java)
+                adPreview.getValue<AdvertisementPreview>()
             }
 
             if (adsPreview.isEmpty()) {

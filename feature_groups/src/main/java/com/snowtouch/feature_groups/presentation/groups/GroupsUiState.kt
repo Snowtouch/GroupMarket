@@ -1,9 +1,23 @@
 package com.snowtouch.feature_groups.presentation.groups
 
+import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.feature_groups.domain.model.GroupPreview
 
-internal sealed interface GroupsUiState {
-    data object Loading : GroupsUiState
-    data class Error(val e : Exception?) : GroupsUiState
-    data class Success(val groupsPreviewList : List<GroupPreview>) : GroupsUiState
+internal data class GroupsUiState(
+    val uiState : UiState = UiState.Loading,
+    val userGroupsList : List<GroupPreview> = emptyList(),
+    val snackbarMessage : String = "",
+)
+
+internal data class GroupAdsUiState(
+    val uiState : UiState = UiState.Success,
+    val groupAds : List<AdvertisementPreview> = emptyList(),
+    val favoritesList : List<String> = emptyList(),
+    val selectedGroup : String = ""
+)
+
+internal sealed interface UiState {
+    data object Loading : UiState
+    data class Error(val e : Exception) : UiState
+    data object Success : UiState
 }

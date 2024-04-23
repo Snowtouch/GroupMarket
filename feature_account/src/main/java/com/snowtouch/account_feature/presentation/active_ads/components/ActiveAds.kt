@@ -21,9 +21,7 @@ internal fun ActiveAds(
     viewModel : AccountViewModel = koinViewModel(),
 ) {
     val activeAdsResponse by viewModel.activeAdsResult.collectAsStateWithLifecycle()
-    val userFavorites by viewModel.currentUserFavoriteAdsIds.collectAsStateWithLifecycle(
-        initialValue = emptyList()
-    )
+    val userFavorites = emptyList<String>() //TODO
 
     LaunchedEffect(Unit) {
         viewModel.getUserActiveAds()

@@ -8,7 +8,6 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.component1
 import com.google.firebase.storage.component2
 import com.snowtouch.core.domain.model.Advertisement
-import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import com.snowtouch.feature_new_advertisement.domain.model.UploadStatus
@@ -73,8 +72,9 @@ class NewAdRemoteRepositoryImpl(
                     .setValue(adWithOwnerUid.toAdvertisementPreview()).await()
                 dbReferences.groupAdsIdList.child(adWithOwnerUid.groupId!!).push()
                     .setValue(newAdKey).await()
-                dbReferences.groupAdsCounter.child(adWithOwnerUid.groupId!!)
-                    .setValue(ServerValue.increment(1))
+                dbReferences.groups.child(adWithOwnerUid.groupId!!)
+                    .child("advertisementsCount")
+                    .setValue(ServerValue.increment(1)).await()
                 dbReferences.currentUserActiveAdsIds.push()
                     .setValue(newAdKey).await()
                 Result.Success(true)
@@ -116,15 +116,4 @@ class NewAdRemoteRepositoryImpl(
         }
         awaitClose()
     }
-}
-
-fun Advertisement.toAdvertisementPreview() : AdvertisementPreview {
-    return AdvertisementPreview(
-        uid = this.uid,
-        groupId = this.groupId,
-        title = this.title,
-        image = this.images?.get(0),
-        price = this.price,
-        postDateTimestamp = this.postDateTimestamp
-    )
 }

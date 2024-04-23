@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.snowtouch.account_feature.presentation.active_ads.components.ActiveAds
 import com.snowtouch.core.presentation.components.CommonTopAppBar
-import com.snowtouch.core.presentation.components.ScaffoldTemplate
+import com.snowtouch.core.presentation.components.SinglePageScaffold
 import com.snowtouch.core.presentation.util.DisplaySize
 
 @Composable
@@ -14,7 +14,7 @@ internal fun ActiveAdsScreen(
     navigateBack : () -> Unit,
     onAdCardClick : (String) -> Unit,
 ) {
-    ScaffoldTemplate(
+    SinglePageScaffold(
         topBar = {
             CommonTopAppBar(
                 title = "Your active ads",

@@ -8,9 +8,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.snowtouch.core.navigation.NavBarItem
 import com.snowtouch.core.presentation.util.DisplaySize
+import com.snowtouch.feature_groups.presentation.GroupsViewModel
 import com.snowtouch.feature_groups.presentation.group_ads.GroupAdsScreen
 import com.snowtouch.feature_groups.presentation.groups.GroupsScreen
 import com.snowtouch.feature_groups.presentation.new_group.CreateNewGroupScreen
+import org.koin.androidx.compose.koinViewModel
 
 sealed class GroupsRoute(val route : String) {
     data object GroupsFeature : GroupsRoute("groups_feature")
@@ -25,13 +27,19 @@ fun NavGraphBuilder.groupsFeature(
     navController : NavController,
     navigateToAdDetails : (String) -> Unit,
 ) {
-    navigation(startDestination = GroupsRoute.Groups.route, route = GroupsRoute.GroupsFeature.route) {
+    navigation(
+        startDestination = GroupsRoute.Groups.route,
+        route = GroupsRoute.GroupsFeature.route
+    ) {
         composable(GroupsRoute.Groups.route) {
 
+            val viewModel : GroupsViewModel = koinViewModel()
+
             GroupsScreen(
+                viewModel = viewModel,
                 currentScreen = currentScreen,
                 displaySize = displaySize,
-                onNavBarIconClick = { route ->
+                onNavMenuItemClick = { route ->
                     navController.navigate(route)
                 },
                 navigateToGroupAdsScreen = { groupId ->
@@ -45,16 +53,20 @@ fun NavGraphBuilder.groupsFeature(
         }
 
         composable(
-            route = GroupsRoute.GroupAds.route,
-            arguments = listOf(navArgument("groupId") { type = NavType.StringType })
+            route = GroupsRoute.GroupAds.route + "/{groupId}",
+            arguments = listOf(
+                navArgument(name = "groupId") { type = NavType.StringType }
+            )
         ) {
 
             val groupId = it.arguments?.getString("groupId") ?: ""
+            val viewModel : GroupsViewModel = koinViewModel()
 
             GroupAdsScreen(
+                viewModel = viewModel,
                 displaySize = displaySize,
                 groupId = groupId,
-                onNavigateBackClick = { navController.popBackStack() },
+                onNavigateBackClick = { navController.navigateUp() },
                 navigateToAdDetailsScreen = navigateToAdDetails
             )
         }
@@ -69,7 +81,7 @@ fun NavGraphBuilder.groupsFeature(
 }
 
 fun NavController.navigateToGroupAds(groupId : String) {
-    this.navigate(route = GroupsRoute.GroupAds.route + "/$groupId")
+    this.navigate(route = "groupAdsScreen/$groupId")
 }
 
 fun NavController.navigateToNewGroup() {
