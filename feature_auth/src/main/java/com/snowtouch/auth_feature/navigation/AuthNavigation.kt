@@ -29,7 +29,7 @@ fun NavGraphBuilder.authFeature(
             LoginScreen(
                 currentScreen = currentScreen,
                 displaySize = displaySize,
-                onBottomBarIconClick = { route -> navController.navigate(route) },
+                onNavMenuItemClick = { route -> navController.navigate(route) },
                 navigateToCreateAccount = { navController.navigateToCreateAccount() },
                 navigateToLoginScreen = { navController.navigateToLogin() }
             )
