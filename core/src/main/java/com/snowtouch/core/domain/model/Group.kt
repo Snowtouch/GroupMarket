@@ -11,3 +11,15 @@ data class Group(
     val advertisements: List<Advertisement>? = null,
     val advertisementsCount: Int? = null
 )
+
+fun Group.toGroupPreview() : GroupPreview {
+    return GroupPreview(
+        uid = uid,
+        ownerId = ownerId,
+        ownerName = ownerName,
+        membersCount = membersCount,
+        name = name,
+        description = description,
+        advertisementsCount = advertisementsCount
+    )
+}

@@ -8,30 +8,43 @@ import com.snowtouch.core.domain.use_case.ToggleFavoriteAdUseCase
 import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.feature_advertisement_details.domain.repository.AdDetailsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 internal class AdvertisementDetailViewModel(
     private val adDetailsRepository : AdDetailsRepository,
-    getUserFavoriteAdsIdsFlowUseCase : GetUserFavoriteAdsIdsFlowUseCase,
+    private val getUserFavoriteAdsIdsFlowUseCase : GetUserFavoriteAdsIdsFlowUseCase,
     private val toggleFavoriteAdUseCase : ToggleFavoriteAdUseCase,
 ) : GroupMarketViewModel() {
 
-    private val _adDetailsResult = MutableStateFlow<Result<Advertisement>>(Result.Loading)
-    val adDetailsResult : StateFlow<Result<Advertisement>> = _adDetailsResult
+    private val _adDetailsUiState = MutableStateFlow(AdDetailsUiState(UiState.Loading))
+    val adDetailsUiState = _adDetailsUiState.asStateFlow()
 
-    val currentUserFavoriteAdsIds = getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).map { result ->
-        when (result) {
-            is Result.Failure -> TODO()
-            is Result.Loading -> TODO()
-            is Result.Success -> TODO()
-        }
+    init {
+        getFavoritesIds()
     }
 
     fun getAdvertisementDetails(adId : String) {
         launchCatching {
-            _adDetailsResult.value = Result.Loading
-            _adDetailsResult.value = adDetailsRepository.getAdDetails(adId)
+            _adDetailsUiState.update { it.copy(uiState = UiState.Loading) }
+            when (val result = adDetailsRepository.getAdDetails(adId)) {
+                is Result.Failure -> {
+                    _adDetailsUiState.update { it.copy(uiState = UiState.Error(result.e)) }
+                }
+
+                is Result.Loading -> {
+                    _adDetailsUiState.update { it.copy(uiState = UiState.Loading) }
+                }
+
+                is Result.Success -> {
+                    _adDetailsUiState.update {
+                        it.copy(
+                            uiState = UiState.Success,
+                            advertisement = result.data ?: Advertisement()
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -40,4 +53,28 @@ internal class AdvertisementDetailViewModel(
             toggleFavoriteAdUseCase.invoke(adId)
         }
     }
+
+    private fun getFavoritesIds() {
+        launchCatching {
+            getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
+                when (result) {
+                    is Result.Loading -> _adDetailsUiState.update {
+                        it.copy(uiState = UiState.Loading)
+                    }
+
+                    is Result.Failure -> _adDetailsUiState.update {
+                        it.copy(uiState = UiState.Error(result.e))
+                    }
+
+                    is Result.Success -> _adDetailsUiState.update {
+                        it.copy(
+                            uiState = UiState.Success,
+                            favoritesIdsList = result.data ?: emptyList()
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 }

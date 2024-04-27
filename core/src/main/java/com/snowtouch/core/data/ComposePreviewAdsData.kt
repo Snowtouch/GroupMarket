@@ -2,6 +2,7 @@ package com.snowtouch.core.data
 
 import com.snowtouch.core.R
 import com.snowtouch.core.domain.model.Advertisement
+import com.snowtouch.core.domain.model.GroupPreview
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -88,4 +89,14 @@ object SamplePreviewData {
     val sampleAd4Preview = sampleAd4Details.toAdvertisementPreview()
 
     val adPreviewList = listOf(sampleAd1Preview, sampleAd2Preview, sampleAd3Preview, sampleAd4Preview, sampleAd1Preview, sampleAd4Preview)
+
+    val sampleGroupPreview = GroupPreview(
+        uid = "KHUTFIulHIgiygIU@#Gugkg",
+        ownerId = "CfjYFJGchtfIKHg&",
+        ownerName = "John",
+        membersCount = 2,
+        name = "Sample group",
+        description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque",
+        advertisementsCount = 3
+    )
 }

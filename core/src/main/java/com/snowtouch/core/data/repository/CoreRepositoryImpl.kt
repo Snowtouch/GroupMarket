@@ -31,6 +31,22 @@ class CoreRepositoryImpl(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), auth.currentUser == null)
 
     override fun getUserFavoriteAdIds(viewModelScope : CoroutineScope) = callbackFlow {
+        try {
+            val initialData = dbReference
+                .currentUserFavoriteAdsIds
+                .get()
+                .await()
+                .children.mapNotNull { it.getValue<String>() }
+
+            if (!initialData.isNullOrEmpty()) {
+                this@callbackFlow.trySend(Result.Success(initialData))
+            } else {
+                this@callbackFlow.trySend(Result.Success(emptyList()))
+            }
+        } catch (e : Exception) {
+            this@callbackFlow.trySend(Result.Failure(e))
+        }
+
         val favoriteAdsListener = object : ValueEventListener {
             override fun onDataChange(snapshot : DataSnapshot) {
                 val adIds = snapshot.children.mapNotNull { it.getValue<String>() }

@@ -27,13 +27,14 @@ internal class GroupsViewModel(
     val groupAdsUiState = _groupAdsUiState.asStateFlow()
 
     init {
-        getFavoritesIds()
+        //getFavoritesIds()
         getUserGroupsData()
     }
 
     fun updateSelectedGroup(groupId : String) {
         _groupAdsUiState.update { it.copy(selectedGroup = groupId) }
     }
+
     fun getGroupAdvertisements(groupId : String) {
         launchCatching {
             groupsRepository.getGroupAdvertisements(groupId).collect { result ->

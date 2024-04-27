@@ -1,4 +1,4 @@
-package com.snowtouch.feature_groups.domain.model
+package com.snowtouch.core.domain.model
 
 data class GroupPreview(
     val uid : String? = null,

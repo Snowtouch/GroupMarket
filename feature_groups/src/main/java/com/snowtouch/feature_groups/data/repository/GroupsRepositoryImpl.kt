@@ -1,13 +1,15 @@
 package com.snowtouch.feature_groups.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.getValue
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Group
+import com.snowtouch.core.domain.model.GroupPreview
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.model.asResult
+import com.snowtouch.core.domain.model.toGroupPreview
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
-import com.snowtouch.feature_groups.domain.model.GroupPreview
 import com.snowtouch.feature_groups.domain.repository.GroupsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -23,27 +25,27 @@ class GroupsRepositoryImpl(
 
     override fun getUserGroupsPreviewData() : Flow<Result<List<GroupPreview>>> {
         return flow {
-            when (val userGroupsIdsList = getCurrentUserGroupsIds()) {
-                is Result.Failure -> return@flow
-                is Result.Loading -> Unit
-                is Result.Success -> {
-                    val idList = userGroupsIdsList.data ?: emptyList()
+            val groupsIds = dbReferences.currentUserGroupsIds
+                .get()
+                .await()
+                .children.mapNotNull { it.getValue<String>() }
+            Log.d("getUserGroupsPrev", "groupsId: $groupsIds")
 
-                    if (idList.isNotEmpty()) {
-                        val groupList = dbReferences.groupsPreview
-                            .orderByKey()
-                            .startAt(idList.first())
-                            .endAt(idList.last())
-                            .get()
-                            .await()
-                            .children.mapNotNull { group ->
-                                group.getValue(GroupPreview::class.java)
-                            }
-                        emit(groupList)
-                    } else {
-                        emptyList<GroupPreview>()
+            if (groupsIds.isEmpty()) {
+                emit(emptyList())
+                return@flow
+            } else {
+                val groupList = dbReferences.groupsPreview
+                    .orderByKey()
+                    .startAt(groupsIds.first())
+                    .endAt(groupsIds.last())
+                    .get()
+                    .await()
+                    .children.mapNotNull { group ->
+                        group.getValue<GroupPreview>()
                     }
-                }
+                Log.d("getUserGroupsPrev", "groupPrevList: $groupList")
+                emit(groupList)
             }
         }.asResult()
     }
@@ -131,7 +133,7 @@ class GroupsRepositoryImpl(
                     .get()
                     .await()
                     .children.mapNotNull { ad ->
-                        ad.getValue<AdvertisementPreview>()
+                        ad.getValue(AdvertisementPreview::class.java)
                     }
                 emit(groupAdsPreview)
             } else {
@@ -139,33 +141,5 @@ class GroupsRepositoryImpl(
             }
         }.asResult()
     }
-
-    private suspend fun getCurrentUserGroupsIds() : Result<List<String?>> {
-        return try {
-            val groupsIds = dbReferences.currentUserGroupsIds
-                .get()
-                .await()
-                .children.mapNotNull { it.getValue<String>() }
-            if (groupsIds.isEmpty()) {
-                Result.Success(emptyList())
-            } else {
-                Result.Success(groupsIds)
-            }
-        } catch (e : Exception) {
-            Result.Failure(e)
-        }
-
-    }
 }
 
-fun Group.toGroupPreview() : GroupPreview {
-    return GroupPreview(
-        uid = uid,
-        ownerId = ownerId,
-        ownerName = ownerName,
-        membersCount = membersCount,
-        name = name,
-        description = description,
-        advertisementsCount = advertisementsCount
-    )
-}

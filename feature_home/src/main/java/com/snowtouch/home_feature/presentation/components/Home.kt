@@ -47,7 +47,8 @@ internal fun Home(
     ) {
         Row(
             modifier = Modifier
-                .padding(start = if (displaySize != DisplaySize.Compact) 82.dp else 0.dp)
+                .padding(start = if (displaySize != DisplaySize.Compact) 72.dp else 0.dp)
+                .padding(10.dp)
         ) {
             Box(modifier = Modifier.weight(0.6f)) {
                 when (homeUiState.uiState) {

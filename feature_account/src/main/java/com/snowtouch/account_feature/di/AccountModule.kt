@@ -9,7 +9,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val accountModule = module {
-    single<AccountRepository> { AccountRepositoryImpl(get(), get(), get()) }
+    single<AccountRepository> { AccountRepositoryImpl(get(), get()) }
     single<CoroutineDispatcher> { Dispatchers.IO }
 
     viewModel { AccountViewModel(get(), get()) }

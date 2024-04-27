@@ -41,7 +41,7 @@ internal fun Groups(
                 onNavMenuItemClick = onNavMenuItemClick
             )
         }
-    ) { _ ->
+    ) { innerPadding ->
         Row(
             modifier = Modifier
                 .padding(start = if (displaySize == DisplaySize.Extended) 82.dp else 0.dp)
@@ -53,6 +53,7 @@ internal fun Groups(
                     is UiState.Success -> GroupsContent(
                         userGroupsList = groupsUiState.userGroupsList,
                         onGoToGroupAdsClick = onGoToGroupAdsClick,
+                        modifier = Modifier.padding(innerPadding)
                     )
 
                     is UiState.Error -> LoadingFailed(

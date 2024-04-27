@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.snowtouch.auth_feature.presentation.login.components.Login
 import com.snowtouch.core.navigation.NavBarItem
-import com.snowtouch.core.presentation.components.AdaptiveNavigationBar
 import com.snowtouch.core.presentation.components.SinglePageScaffold
 import com.snowtouch.core.presentation.util.DisplaySize
 
@@ -19,13 +18,6 @@ fun LoginScreen(
 ) {
 
     SinglePageScaffold(
-        bottomBar = {
-            AdaptiveNavigationBar(
-                currentScreen = currentScreen,
-                displaySize = displaySize,
-                onNavMenuItemClick = onNavMenuItemClick
-            )
-        }
     ) { innerPadding ->
         Login(
             onCreateAccountClick = navigateToCreateAccount,

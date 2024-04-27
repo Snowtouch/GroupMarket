@@ -13,6 +13,6 @@ val groupsModule = module {
     single<GroupsRepository> { GroupsRepositoryImpl(get(), get(), get()) }
     single<CoroutineDispatcher> { Dispatchers.IO }
 
-    viewModel { GroupsViewModel(get(), get()) }
+    viewModel { GroupsViewModel(get(), get(), get()) }
     viewModel { CreateNewGroupViewModel(get()) }
 }

@@ -1,7 +1,7 @@
 package com.snowtouch.feature_groups.presentation.groups
 
 import com.snowtouch.core.domain.model.AdvertisementPreview
-import com.snowtouch.feature_groups.domain.model.GroupPreview
+import com.snowtouch.core.domain.model.GroupPreview
 
 internal data class GroupsUiState(
     val uiState : UiState = UiState.Loading,

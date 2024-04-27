@@ -5,11 +5,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.snowtouch.core.domain.model.Advertisement
-import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.presentation.components.Loading
 import com.snowtouch.core.presentation.components.LoadingFailed
 import com.snowtouch.feature_advertisement_details.presentation.AdvertisementDetailViewModel
+import com.snowtouch.feature_advertisement_details.presentation.UiState
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -20,31 +19,28 @@ internal fun AdvertisementDetail(
     modifier : Modifier = Modifier,
     viewModel : AdvertisementDetailViewModel = koinViewModel(),
 ) {
-    val adDetailData by viewModel.adDetailsResult.collectAsStateWithLifecycle()
-    val userFavorites by viewModel.currentUserFavoriteAdsIds.collectAsStateWithLifecycle(
-        initialValue = Result.Loading
-    )
+    val adDetailsUiState by viewModel.adDetailsUiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.getAdvertisementDetails(advertisementId)
     }
 
-    when (val adDetail = adDetailData) {
-        is Result.Loading -> Loading(modifier = modifier)
-        is Result.Success -> AdvertisementDetailContent(
-            advertisement = adDetail.data ?: Advertisement(),
-            isFavorite = true, //TODO
+    when (adDetailsUiState.uiState) {
+        is UiState.Loading -> Loading(modifier = modifier)
+        is UiState.Success -> AdvertisementDetailContent(
+            advertisement = adDetailsUiState.advertisement,
+            isFavorite = adDetailsUiState.favoritesIdsList.contains(advertisementId),
             onFavoriteButtonClick = { viewModel.toggleFavoriteAd(advertisementId) },
             onContactSellerClick = navigateToChatWithSeller,
             onReserveItemClick = onReserveItemClick,
             modifier = modifier,
         )
 
-        is Result.Failure -> LoadingFailed(
+        is UiState.Error -> LoadingFailed(
             canRefresh = true,
             onErrorIconClick = { viewModel.getAdvertisementDetails(advertisementId) },
             modifier = modifier,
-            errorMessage = adDetail.e.localizedMessage
+            errorMessage = (adDetailsUiState.uiState as UiState.Error).e.localizedMessage
         )
     }
 }

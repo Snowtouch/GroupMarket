@@ -28,7 +28,6 @@ fun NavGraphBuilder.accountFeature(
     currentScreen : NavBarItem,
     displaySize : DisplaySize,
     navController : NavController,
-    isLoggedIn : Boolean,
     navigateToLoginScreen : () -> Unit,
     navigateToAdDetails : (String) -> Unit,
 ) {
@@ -36,7 +35,6 @@ fun NavGraphBuilder.accountFeature(
     navigation(startDestination = AccountRoutes.Account.route, route = AccountRoutes.AccountFeature.route) {
 
         composable(AccountRoutes.Account.route) {
-            if (!isLoggedIn) navigateToLoginScreen()
             AccountScreen(
                 currentScreen = currentScreen,
                 displaySize = displaySize,
@@ -46,11 +44,7 @@ fun NavGraphBuilder.accountFeature(
                     navController.navigate(optionRoute)
                 },
                 navigateToAdDetails = navigateToAdDetails,
-            ) { route ->
-                navController.navigate(route) {
-                    popUpToRoute
-                }
-            }
+            ) { route -> navController.navigate(route) }
         }
 
         composable(AccountRoutes.ActiveAds.route) {

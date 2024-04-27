@@ -31,9 +31,14 @@ fun MainNavigation(
     val currentScreen =
         navMenuItems.find { it.featureStartRoute == currentDestination?.route } ?: navMenuItems[0]
 
+    val startDestination =
+        when (isLoggedIn) {
+            true -> HomeRoute.HomeFeature.route
+            false -> AuthRoutes.AuthFeature.route
+        }
     NavHost(
         navController = navController,
-        startDestination = HomeRoute.HomeFeature.route
+        startDestination = startDestination
     ) {
         homeFeature(
             currentScreen = currentScreen,
@@ -61,7 +66,6 @@ fun MainNavigation(
             currentScreen = currentScreen,
             displaySize = displaySize,
             navController = navController,
-            isLoggedIn = isLoggedIn,
             navigateToLoginScreen = { navController.navigate(AuthRoutes.AuthFeature.route) },
             navigateToAdDetails = { adId -> navController.navigateToAdvertisement(adId) }
         )
