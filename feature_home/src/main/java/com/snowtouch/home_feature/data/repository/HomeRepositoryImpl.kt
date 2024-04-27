@@ -1,5 +1,6 @@
 package com.snowtouch.home_feature.data.repository
 
+import android.util.Log
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.getValue
 import com.snowtouch.core.domain.model.AdvertisementPreview
@@ -21,7 +22,7 @@ class HomeRepositoryImpl(
                 .get()
                 .await()
                 .children.mapNotNull { id -> id.getValue<String>() }
-
+            Log.d("HomeScreenUsrGroups", "$userGroupsIdList")
             if (userGroupsIdList.isEmpty()) {
                 emit(emptyList())
                 return@flow
@@ -37,20 +38,23 @@ class HomeRepositoryImpl(
                     .children.mapNotNull { adSnap -> adSnap.getValue<String>() }
                 latestAdsIds.addAll(groupAdsIdsList)
             }
+            Log.d("HomeScreenLatestAdsIds", "$latestAdsIds")
 
             val tenNewAdsIds = latestAdsIds
-                .sortedDescending()
+                .sorted()
                 .take(10)
-
+            Log.d("HomeScreen10LatestAds", "$latestAdsIds")
             val newestAdsPreview = dbReferences.advertisementsPreview
                 .orderByKey()
                 .startAt(tenNewAdsIds.first())
                 .endAt(tenNewAdsIds.last())
                 .get()
                 .await()
-                .children.mapNotNull { adSnap -> adSnap.getValue<AdvertisementPreview>() }
+                .children.mapNotNull { adSnap ->
+                    adSnap.getValue<AdvertisementPreview>() }
 
             emit(newestAdsPreview)
+            Log.d("HomeScreenLastAdsPrev", "${newestAdsPreview}")
         }.asResult()
     }
 

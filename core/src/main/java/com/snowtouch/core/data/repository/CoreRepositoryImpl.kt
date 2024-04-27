@@ -38,7 +38,7 @@ class CoreRepositoryImpl(
                 .await()
                 .children.mapNotNull { it.getValue<String>() }
 
-            if (!initialData.isNullOrEmpty()) {
+            if (initialData.isNotEmpty()) {
                 this@callbackFlow.trySend(Result.Success(initialData))
             } else {
                 this@callbackFlow.trySend(Result.Success(emptyList()))

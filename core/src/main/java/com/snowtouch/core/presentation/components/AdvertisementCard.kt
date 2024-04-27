@@ -23,13 +23,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -38,6 +44,7 @@ import com.snowtouch.core.R
 import com.snowtouch.core.data.SamplePreviewData
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.presentation.util.timestampToDate
+import kotlin.math.tan
 
 @Composable
 fun AdvertisementCard(
@@ -137,7 +144,28 @@ fun SetFavoriteButton(
             else
                 Icons.Outlined.FavoriteBorder,
             contentDescription = "Favorite toggle button",
-            modifier = Modifier
+            modifier = Modifier,
+        )
+    }
+}
+
+class Parallelogram(private val angle: Float) : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        return Outline.Generic(
+
+            Path().apply {
+                val radian = (90 - angle) * Math.PI / 180
+                val xOnOpposite = (size.height * tan(radian)).toFloat()
+                moveTo(0f, size.height)
+                lineTo(x = xOnOpposite, y = 0f)
+                lineTo(x = size.width, y = 0f)
+                lineTo(x = size.width - xOnOpposite, y = size.height)
+                lineTo(x = xOnOpposite, y = size.height)
+            }
         )
     }
 }
