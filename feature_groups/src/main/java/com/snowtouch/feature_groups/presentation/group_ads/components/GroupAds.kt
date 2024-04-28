@@ -2,6 +2,8 @@ package com.snowtouch.feature_groups.presentation.group_ads.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.snowtouch.core.data.SamplePreviewData
 import com.snowtouch.core.presentation.components.AdvertisementsList
 import com.snowtouch.core.presentation.components.Loading
 import com.snowtouch.core.presentation.components.LoadingFailed
@@ -38,4 +40,19 @@ internal fun GroupAds(
             errorMessage = groupAdsUiState.uiState.e.localizedMessage
         )
     }
+}
+
+@Preview
+@Composable
+private fun GroupAdPreview() {
+    GroupAds(
+        displaySize = DisplaySize.Compact,
+        groupAdsUiState = GroupAdsUiState(
+            uiState = UiState.Success,
+            groupAds = SamplePreviewData.adPreviewList,
+            favoritesList = listOf("3213")
+        ),
+        onAdvertisementCardClick = {},
+        onFavoriteButtonClick = {}
+    )
 }

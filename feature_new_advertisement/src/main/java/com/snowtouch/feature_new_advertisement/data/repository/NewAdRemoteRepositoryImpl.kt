@@ -75,6 +75,9 @@ class NewAdRemoteRepositoryImpl(
                 dbReferences.groups.child(adWithOwnerUid.groupId!!)
                     .child("advertisementsCount")
                     .setValue(ServerValue.increment(1)).await()
+                dbReferences.groupsPreview.child(adWithOwnerUid.groupId!!)
+                    .child("advertisementsCount")
+                    .setValue(ServerValue.increment(1)).await()
                 dbReferences.currentUserActiveAdsIds.push()
                     .setValue(newAdKey).await()
                 Result.Success(true)
@@ -92,15 +95,18 @@ class NewAdRemoteRepositoryImpl(
             var progress : Long
             storageReference.child("$adId/$imageName.jpg")
                 .putBytes(imageBytes)
+
                 .addOnProgressListener { (bytesTransferred, totalByteCount) ->
                     progress = (100 * bytesTransferred / totalByteCount)
                     Log.d("Storage upload progress: ", "$progress")
                     trySend(UploadStatus.Progress(progress))
                 }
+
                 .addOnFailureListener { exception ->
                     Log.d("Storage upload error: ", "$exception")
                     trySend(UploadStatus.Failure(exception))
                 }
+
                 .addOnSuccessListener {  task ->
                     val downloadUrlTask = task.storage.downloadUrl
                     if (!downloadUrlTask.isSuccessful) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.snowtouch.core.presentation.components.CommonTopAppBar
 import com.snowtouch.core.presentation.components.SinglePageScaffold
@@ -36,7 +37,7 @@ internal fun GroupAdsScreen(
             groupAdsUiState = groupAdsUiState,
             onAdvertisementCardClick = { adId -> navigateToAdDetailsScreen(adId) },
             onFavoriteButtonClick = { adId -> viewModel.toggleFavoriteAd(adId) },
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding).padding(horizontal = 8.dp)
         )
     }
 }

@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.snowtouch.core.domain.network_utils.ConnectionState
-import com.snowtouch.core.presentation.components.theme.GroupMarketTheme
+import com.snowtouch.core.presentation.util.theme.GroupMarketTheme
 import com.snowtouch.core.presentation.util.DisplaySize
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext

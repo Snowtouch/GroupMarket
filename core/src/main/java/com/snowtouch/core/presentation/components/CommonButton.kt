@@ -11,11 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.snowtouch.core.presentation.util.theme.Typography
 
 @Composable
 fun CommonButton(
-    onClick: () -> Unit,
-    text: String
+    onClick : () -> Unit,
+    text : String,
 ) {
     TextButton(
         onClick = onClick,
@@ -28,11 +29,16 @@ fun CommonButton(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         )
-    ) { Text(text = text) }
+    ) {
+        Text(
+            text = text,
+            style = Typography.titleMedium
+        )
+    }
 }
 
 @Preview
 @Composable
 fun CommonButtonPreview() {
-    CommonButton(onClick = {  }, text = "Text")
+    CommonButton(onClick = { }, text = "Text")
 }

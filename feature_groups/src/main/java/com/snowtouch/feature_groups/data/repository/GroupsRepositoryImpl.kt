@@ -35,17 +35,19 @@ class GroupsRepositoryImpl(
                 emit(emptyList())
                 return@flow
             } else {
-                val groupList = dbReferences.groupsPreview
-                    .orderByKey()
-                    .startAt(groupsIds.first())
-                    .endAt(groupsIds.last())
-                    .get()
-                    .await()
-                    .children.mapNotNull { group ->
-                        group.getValue<GroupPreview>()
+                val groupPrevList = mutableListOf<GroupPreview>()
+                for (id in groupsIds) {
+                    val groupData = dbReferences.groupsPreview
+                        .child(id)
+                        .get()
+                        .await()
+                        .getValue<GroupPreview>()
+                    if (groupData != null) {
+                        groupPrevList.add(groupData)
                     }
-                Log.d("getUserGroupsPrev", "groupPrevList: $groupList")
-                emit(groupList)
+                }
+                Log.d("getUserGroupsPrev", "groupPrevList: $groupPrevList")
+                emit(groupPrevList)
             }
         }.asResult()
     }
@@ -124,18 +126,18 @@ class GroupsRepositoryImpl(
                 .children.mapNotNull { adId ->
                     adId.getValue<String>()
                 }
-
+            val adsPreview = mutableListOf<AdvertisementPreview>()
             if (groupAdsId.isNotEmpty()) {
-                val groupAdsPreview = dbReferences.advertisementsPreview
-                    .orderByKey()
-                    .startAt(groupAdsId.first())
-                    .endAt(groupAdsId.last())
-                    .get()
-                    .await()
-                    .children.mapNotNull { ad ->
-                        ad.getValue(AdvertisementPreview::class.java)
-                    }
-                emit(groupAdsPreview)
+                for (id in groupAdsId) {
+                    val ad = dbReferences.advertisementsPreview
+                        .child(id)
+                        .get()
+                        .await()
+                        .getValue<AdvertisementPreview>()
+                    if (ad != null) adsPreview.add(ad)
+                }
+
+                emit(adsPreview.toList())
             } else {
                 emit(emptyList())
             }

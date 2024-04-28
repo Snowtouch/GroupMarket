@@ -1,4 +1,4 @@
-package com.snowtouch.core.presentation.components.theme
+package com.snowtouch.core.presentation.util.theme
 
 import android.app.Activity
 import android.os.Build

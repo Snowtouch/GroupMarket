@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -37,12 +37,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.snowtouch.core.R
 import com.snowtouch.core.data.SamplePreviewData
 import com.snowtouch.core.domain.model.AdvertisementPreview
+import com.snowtouch.core.presentation.util.theme.Typography
 import com.snowtouch.core.presentation.util.timestampToDate
 import kotlin.math.tan
 
@@ -52,11 +52,12 @@ fun AdvertisementCard(
     isFavorite : Boolean,
     onCardClick : () -> Unit,
     onFavoriteButtonClick : (String) -> Unit,
+    modifier : Modifier = Modifier,
 ) {
     ElevatedCard(
         onClick = onCardClick,
-        modifier = Modifier
-            .size(width = 250.dp, height = 300.dp)
+        modifier = modifier
+            .sizeIn(maxWidth = 250.dp, maxHeight = 300.dp)
             .border(
                 BorderStroke(1.dp, Color.Black.copy(alpha = 0.2f)),
                 shape = MaterialTheme.shapes.small
@@ -88,24 +89,28 @@ fun AdvertisementCard(
                     contentDescription = "Ad image",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
+                        .sizeIn(maxHeight = 200.dp)
                         .clip(MaterialTheme.shapes.small)
+                )
+
+            }
+            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = advertisement.title ?: "",
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = true,
+                    maxLines = 2,
+                    style = Typography.labelLarge
                 )
                 SetFavoriteButton(
                     isFavorite = isFavorite,
                     advertisementId = advertisement.uid ?: "",
                     onFavoriteButtonClick = onFavoriteButtonClick,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                )
-            }
-            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-            Box(modifier = Modifier) {
-                Text(
-                    text = advertisement.title ?: "",
-                    modifier = Modifier,
-                    fontSize = 20.sp,
-                    overflow = TextOverflow.Ellipsis,
-                    softWrap = true,
-                    maxLines = 2
+                    modifier = Modifier
                 )
             }
             Row(
@@ -115,12 +120,12 @@ fun AdvertisementCard(
             ) {
                 Text(
                     text = "$ ${advertisement.price}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
+                    style = Typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = timestampToDate(advertisement.postDateTimestamp ?: 0),
-                    fontSize = 12.sp,
+                    style = Typography.bodySmall,
                 )
             }
         }

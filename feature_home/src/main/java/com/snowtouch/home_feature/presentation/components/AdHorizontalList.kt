@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.presentation.components.AdvertisementCard
-import com.snowtouch.core.presentation.components.theme.GroupMarketTheme
+import com.snowtouch.core.presentation.util.theme.GroupMarketTheme
 
 @Composable
 internal fun AdHorizontalList(

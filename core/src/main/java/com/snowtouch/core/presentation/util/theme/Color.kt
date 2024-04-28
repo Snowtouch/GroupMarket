@@ -1,4 +1,4 @@
-package com.snowtouch.core.presentation.components.theme
+package com.snowtouch.core.presentation.util.theme
 
 import androidx.compose.ui.graphics.Color
 

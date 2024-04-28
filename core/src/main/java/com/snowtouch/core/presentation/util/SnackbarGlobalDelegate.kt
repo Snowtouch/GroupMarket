@@ -5,7 +5,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.snowtouch.core.presentation.components.theme.md_theme_light_error
+import com.snowtouch.core.presentation.util.theme.md_theme_light_error
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

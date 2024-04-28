@@ -58,17 +58,17 @@ internal class GroupsViewModel(
     fun toggleFavoriteAd(adId : String) {
         launchCatching {
             when (val result = toggleFavoriteAdUseCase.invoke(adId)) {
-                is Result.Failure -> {
+                is Result.Failure ->
                     result.e.localizedMessage?.let { showSnackbar(SnackbarState.ERROR, it) }
-                }
+
 
                 is Result.Loading -> _groupAdsUiState.update {
                     it.copy(uiState = UiState.Loading)
                 }
 
-                is Result.Success -> {
+                is Result.Success ->
                     showSnackbar(SnackbarState.DEFAULT, "Advertisement successfully added")
-                }
+
             }
         }
     }
@@ -100,14 +100,12 @@ internal class GroupsViewModel(
         launchCatching {
             getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
                 when (result) {
-                    is Result.Loading -> _groupAdsUiState.update {
-                        it.copy(uiState = UiState.Loading)
-                    }
-
                     is Result.Failure -> _groupAdsUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
                     }
-
+                    Result.Loading -> _groupAdsUiState.update {
+                        it.copy(uiState = UiState.Loading)
+                    }
                     is Result.Success -> _groupAdsUiState.update {
                         it.copy(
                             uiState = UiState.Success,

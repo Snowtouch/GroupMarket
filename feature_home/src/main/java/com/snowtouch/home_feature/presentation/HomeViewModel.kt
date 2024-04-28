@@ -25,10 +25,10 @@ internal class HomeViewModel(
     val adDetailsUiState = _adDetailsUiState.asStateFlow()
 
     init {
-        //getFavoritesIds()
-        //getRecentlyViewedAdvertisements()
+        getFavoritesIds()
+        getRecentlyViewedAdvertisements()
         getNewAdvertisements()
-        //getFavoriteAdvertisements()
+        getFavoriteAdvertisements()
     }
 
     fun toggleFavoriteAd(adId : String) {
