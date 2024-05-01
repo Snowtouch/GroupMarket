@@ -19,13 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.snowtouch.core.domain.network_utils.ConnectionState
-import com.snowtouch.core.presentation.util.theme.GroupMarketTheme
 import com.snowtouch.core.presentation.util.DisplaySize
+import com.snowtouch.core.presentation.util.theme.GroupMarketTheme
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -44,7 +45,7 @@ class GroupMarketActivity : ComponentActivity() {
             val widthSizeClass = calculateWindowSizeClass(this)
             val isUserLoggedIn = viewModel.getAuthState().collectAsStateWithLifecycle()
             val networkStatus =
-                viewModel.getNetworkState(applicationContext).collectAsStateWithLifecycle()
+                viewModel.getNetworkState(LocalContext.current).collectAsStateWithLifecycle()
 
             val displaySizeClass = calculateWindowSize(widthSizeClass)
 

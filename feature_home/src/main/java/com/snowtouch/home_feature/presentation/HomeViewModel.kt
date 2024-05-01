@@ -5,6 +5,7 @@ import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.use_case.GetAdDetailsUseCase
 import com.snowtouch.core.domain.use_case.GetUserFavoriteAdsIdsFlowUseCase
 import com.snowtouch.core.domain.use_case.ToggleFavoriteAdUseCase
+import com.snowtouch.core.domain.use_case.UpdateRecentlyViewedAdsListUseCase
 import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.home_feature.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,7 @@ internal class HomeViewModel(
     private val getAdDetailsUseCase : GetAdDetailsUseCase,
     private val getUserFavoriteAdsIdsFlowUseCase : GetUserFavoriteAdsIdsFlowUseCase,
     private val toggleFavoriteAdUseCase : ToggleFavoriteAdUseCase,
+    private val updateRecentlyViewedAdsListUseCase : UpdateRecentlyViewedAdsListUseCase,
 ) : GroupMarketViewModel() {
 
     private val _homeUiState = MutableStateFlow(HomeUiState(UiState.Loading))
@@ -35,11 +37,14 @@ internal class HomeViewModel(
         launchCatching { toggleFavoriteAdUseCase.invoke(adId) }
     }
 
+    fun
+
     fun updateSelectedAdId(adId : String) {
         _adDetailsUiState.update {
             it.copy(selectedAdId = adId)
         }
     }
+
     private fun getFavoritesIds() {
         launchCatching {
             getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
@@ -115,11 +120,16 @@ internal class HomeViewModel(
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
                     }
+
                     is Result.Loading -> _homeUiState.update {
                         it.copy(uiState = UiState.Loading)
                     }
+
                     is Result.Success -> _homeUiState.update {
-                        it.copy(uiState = UiState.Success, favoriteAdsList = result.data ?: emptyList())
+                        it.copy(
+                            uiState = UiState.Success,
+                            favoriteAdsList = result.data ?: emptyList()
+                        )
                     }
                 }
             }
@@ -133,9 +143,11 @@ internal class HomeViewModel(
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
                     }
+
                     is Result.Loading -> _homeUiState.update {
                         it.copy(uiState = UiState.Loading)
                     }
+
                     is Result.Success -> _homeUiState.update {
                         it.copy(
                             uiState = UiState.Success,

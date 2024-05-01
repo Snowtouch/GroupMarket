@@ -27,7 +27,7 @@ internal class GroupsViewModel(
     val groupAdsUiState = _groupAdsUiState.asStateFlow()
 
     init {
-        //getFavoritesIds()
+        getFavoritesIds()
         getUserGroupsData()
     }
 
@@ -66,8 +66,14 @@ internal class GroupsViewModel(
                     it.copy(uiState = UiState.Loading)
                 }
 
-                is Result.Success ->
-                    showSnackbar(SnackbarState.DEFAULT, "Advertisement successfully added")
+                is Result.Success -> {
+                    if (result.data == true) {
+                        showSnackbar(SnackbarState.DEFAULT, "Advertisement successfully added")
+                    } else {
+                        showSnackbar(SnackbarState.DEFAULT, "Advertisement successfully removed")
+                    }
+                }
+
 
             }
         }

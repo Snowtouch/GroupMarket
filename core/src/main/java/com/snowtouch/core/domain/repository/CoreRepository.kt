@@ -12,6 +12,8 @@ interface CoreRepository {
 
     fun getUserFavoriteAdIds(viewModelScope : CoroutineScope) : Flow<Result<List<String>>>
 
+    suspend fun updateRecentlyViewedAdsIds(adId : String) : Result<Boolean>
+
     suspend fun toggleFavoriteAd(adId : String) : Result<Boolean>
 
     suspend fun getAdDetails(adId : String) : Result<Advertisement>

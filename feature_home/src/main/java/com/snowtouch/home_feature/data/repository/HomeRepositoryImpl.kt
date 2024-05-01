@@ -44,6 +44,9 @@ class HomeRepositoryImpl(
                 .sorted()
                 .take(10)
             Log.d("HomeScreen10LatestAds", "$latestAdsIds")
+            for (id in tenNewAdsIds) {
+
+            }
             val newestAdsPreview = dbReferences.advertisementsPreview
                 .orderByKey()
                 .startAt(tenNewAdsIds.first())
@@ -59,7 +62,7 @@ class HomeRepositoryImpl(
     }
 
     override fun getRecentlyViewedAdsPreview() : Flow<Result<List<AdvertisementPreview>>> {
-        return getAdsPreview(dbReferences.currentUserRecentAdsIds)
+        return getAdsPreview(dbReferences.currentUserRecentlyViewedAdsIds)
     }
 
     override fun getUserFavoriteAdsPreview() : Flow<Result<List<AdvertisementPreview>>> {
