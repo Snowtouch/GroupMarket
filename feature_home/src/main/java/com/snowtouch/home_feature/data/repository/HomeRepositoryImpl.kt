@@ -44,20 +44,18 @@ class HomeRepositoryImpl(
                 .sorted()
                 .take(10)
             Log.d("HomeScreen10LatestAds", "$latestAdsIds")
+
+            val adPreviewList = mutableListOf<AdvertisementPreview>()
             for (id in tenNewAdsIds) {
-
+                val ad = dbReferences.advertisementsPreview
+                    .child(id)
+                    .get()
+                    .await()
+                    .getValue<AdvertisementPreview>()
+                ad?.let { adPreviewList.add(ad) }
             }
-            val newestAdsPreview = dbReferences.advertisementsPreview
-                .orderByKey()
-                .startAt(tenNewAdsIds.first())
-                .endAt(tenNewAdsIds.last())
-                .get()
-                .await()
-                .children.mapNotNull { adSnap ->
-                    adSnap.getValue<AdvertisementPreview>() }
-
-            emit(newestAdsPreview)
-            Log.d("HomeScreenLastAdsPrev", "${newestAdsPreview}")
+            emit(adPreviewList)
+            Log.d("HomeScreenLastAdsPrev", "$adPreviewList")
         }.asResult()
     }
 

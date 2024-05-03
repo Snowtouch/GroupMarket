@@ -37,7 +37,9 @@ internal class HomeViewModel(
         launchCatching { toggleFavoriteAdUseCase.invoke(adId) }
     }
 
-    fun
+    fun updateRecentlyViewedList(adId : String) {
+        launchCatching { updateRecentlyViewedAdsListUseCase.invoke(adId) }
+    }
 
     fun updateSelectedAdId(adId : String) {
         _adDetailsUiState.update {
