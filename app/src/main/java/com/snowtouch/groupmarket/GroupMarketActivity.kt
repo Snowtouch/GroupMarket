@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,7 +44,7 @@ class GroupMarketActivity : ComponentActivity() {
             val widthSizeClass = calculateWindowSizeClass(this)
             val isUserLoggedIn = viewModel.getAuthState().collectAsStateWithLifecycle()
             val networkStatus =
-                viewModel.getNetworkState(LocalContext.current).collectAsStateWithLifecycle()
+                viewModel.getNetworkState(applicationContext).collectAsStateWithLifecycle()
 
             val displaySizeClass = calculateWindowSize(widthSizeClass)
 
