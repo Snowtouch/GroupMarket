@@ -10,5 +10,5 @@ interface HomeRepository {
 
     fun getRecentlyViewedAdsPreview(viewModelScope : CoroutineScope) : Flow<Result<List<AdvertisementPreview>>>
 
-    fun getUserFavoriteAdsPreview(viewModelScope : CoroutineScope) : Flow<Result<List<AdvertisementPreview>>>
+    fun getUserFavoriteAdsPreview(favoriteAdsIds : List<String>, viewModelScope : CoroutineScope) : Flow<Result<List<AdvertisementPreview>>>
 }

@@ -57,7 +57,7 @@ internal class HomeViewModel(
         }
     }
 
-    fun getFavoritesIds() {
+    fun getFavoriteAdvertisementsIds() {
         viewModelScope.launch {
             getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
                 when (result) {
@@ -69,11 +69,13 @@ internal class HomeViewModel(
                         it.copy(uiState = UiState.Error(result.e))
                     }
 
-                    is Result.Success -> _homeUiState.update {
-                        it.copy(
-                            uiState = UiState.Success,
-                            favoritesIdsList = result.data ?: emptyList()
-                        )
+                    is Result.Success -> {
+                        _homeUiState.update {
+                            it.copy(
+                                uiState = UiState.Success,
+                                favoritesIdsList = result.data ?: emptyList()
+                            )
+                        }
                     }
                 }
             }
@@ -125,9 +127,9 @@ internal class HomeViewModel(
         }
     }
 
-    fun getFavoriteAdvertisements() {
+    fun getFavoriteAdvertisements(adsIds : List<String>) {
         viewModelScope.launch {
-            homeRepository.getUserFavoriteAdsPreview(viewModelScope).collect { result ->
+            homeRepository.getUserFavoriteAdsPreview(adsIds, viewModelScope).collect { result ->
                 when (result) {
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))

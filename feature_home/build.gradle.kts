@@ -70,6 +70,8 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation (libs.mockito.kotlin)
     testImplementation (libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.truth)
     androidTestImplementation (libs.mockito.android)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

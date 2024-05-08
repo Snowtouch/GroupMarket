@@ -14,7 +14,7 @@ firebaseBom = "33.0.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 koinAndroid = "3.5.3"
-kotlinxCoroutinesTest = "1.7.3"
+kotlinxCoroutinesTest = "1.8.0"
 lifecycleRuntimeKtx = "2.7.0"
 materialIconsCoreAndroid = "1.6.7"
 materialIconsExtendedAndroid = "1.6.7"
@@ -26,6 +26,8 @@ preferenceKtx = "1.2.1"
 appcompat = "1.6.1"
 material = "1.12.0"
 material3Android = "1.2.1"
+truth = "1.1.4"
+turbine = "1.1.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -71,6 +73,8 @@ androidx-material3-android = { group = "androidx.compose.material3", name = "mat
 mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroid" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -26,10 +26,10 @@ internal fun HomeScreen(
     val adDetailsUiState by viewModel.adDetailsUiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.getFavoritesIds()
+        viewModel.getFavoriteAdvertisementsIds()
         viewModel.getRecentlyViewedAdvertisements()
         viewModel.getNewAdvertisements()
-        viewModel.getFavoriteAdvertisements()
+        //viewModel.getFavoriteAdvertisements()
     }
 
     Home(

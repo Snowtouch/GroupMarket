@@ -3,7 +3,6 @@ package com.snowtouch.home_feature.data.repository
 import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
 import com.snowtouch.core.domain.model.AdvertisementPreview
@@ -126,29 +125,11 @@ class HomeRepositoryImpl(
         }
     }
 
-    override fun getUserFavoriteAdsPreview(viewModelScope : CoroutineScope) : Flow<Result<List<AdvertisementPreview>>> {
-        return getAdsPreview(dbReferences.currentUserFavoriteAdsIds)
-    }
+    override fun getUserFavoriteAdsPreview(favoriteAdsIds : List<String>, viewModelScope : CoroutineScope) = callbackFlow {
+        try {
 
-    private fun getAdsPreview(adIdRef : DatabaseReference) : Flow<Result<List<AdvertisementPreview>>> {
-        return flow {
-            val adsIdsSnap = adIdRef.get().await()
-            val adsIds = adsIdsSnap.children.mapNotNull { adId ->
-                adId.getValue<String>()
-            }
-            if (adsIds.isNotEmpty()) {
-                val adsPreview = dbReferences.advertisementsPreview
-                    .startAt(adsIds.first())
-                    .endAt(adsIds.last())
-                    .get()
-                    .await()
-                    .children.mapNotNull { ad ->
-                        ad.getValue<AdvertisementPreview>()
-                    }
-                emit(adsPreview)
-            } else {
-                emit(emptyList())
-            }
-        }.asResult()
+        } catch (e : Exception) {
+            this@callbackFlow.trySend(Result.Failure(e))
+        }
     }
 }
