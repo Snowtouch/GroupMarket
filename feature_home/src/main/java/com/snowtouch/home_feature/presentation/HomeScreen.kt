@@ -29,7 +29,7 @@ internal fun HomeScreen(
         viewModel.getFavoriteAdvertisementsIds()
         viewModel.getRecentlyViewedAdvertisements()
         viewModel.getNewAdvertisements()
-        //viewModel.getFavoriteAdvertisements()
+        viewModel.getFavoriteAdvertisements(homeUiState.favoritesIdsList)
     }
 
     Home(

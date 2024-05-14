@@ -37,10 +37,11 @@ internal class HomeViewModel(
                     is Result.Failure -> {
                         snackbar.showSnackbar(
                             state = SnackbarState.ERROR,
-                            message = result.e.message ?: "Unknown error",
+                            message = "Error toggling favorite ad: ${result.e.message}",
                             withDismissAction = false
                         )
                     }
+
                     else -> {}
                 }
             }
@@ -48,7 +49,21 @@ internal class HomeViewModel(
     }
 
     fun updateRecentlyViewedList(adId : String) {
-        viewModelScope.launch { updateRecentlyViewedAdsListUseCase.invoke(adId) }
+        viewModelScope.launch {
+            updateRecentlyViewedAdsListUseCase.invoke(adId).let { result ->
+                when (result) {
+                    is Result.Failure -> {
+                        snackbar.showSnackbar(
+                            state = SnackbarState.ERROR,
+                            message = "Error updating recently viewed list: ${result.e.message}",
+                            withDismissAction = false
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+        }
     }
 
     fun updateSelectedAdId(adId : String) {
@@ -120,7 +135,10 @@ internal class HomeViewModel(
                     }
 
                     is Result.Success -> _homeUiState.update {
-                        it.copy(uiState = UiState.Success, newAdsList = result.data ?: emptyList())
+                        it.copy(
+                            uiState = UiState.Success,
+                            newAdsList = result.data ?: emptyList()
+                        )
                     }
                 }
             }

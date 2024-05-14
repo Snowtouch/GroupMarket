@@ -67,7 +67,7 @@ class HomeViewModelTest {
     @Test
     fun `toggleFavoriteAd shows snackbar when error`() = runTest {
         val newAdId = "123"
-        val snackbarMessage = "Error"
+        val snackbarMessage = "Error toggling favorite ad: Error"
         val snackbarState = SnackbarState.ERROR
 
         `when`(mockToggleFavoriteAdUseCase.invoke(newAdId)).thenReturn(Result.Failure(Exception("Error")))
@@ -82,7 +82,20 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun updateRecentlyViewedList() {
+    fun `updateRecentlyViewedList shows snackbar when error`() = runTest {
+        val newAdId = "123"
+        val snackbarMessage = "Error updating recently viewed list: Error"
+        val snackbarState = SnackbarState.ERROR
+
+        `when`(mockUpdateRecentlyViewedListUseCase.invoke(newAdId)).thenReturn(Result.Failure(Exception("Error")))
+        doNothing().`when`(mockSnackbar).showSnackbar(
+            snackbarState,
+            snackbarMessage,
+            withDismissAction = false
+        )
+        viewModel.updateRecentlyViewedList(newAdId)
+
+        verify(mockSnackbar).showSnackbar(snackbarState, snackbarMessage, withDismissAction = false)
     }
 
     @Test
