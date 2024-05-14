@@ -85,6 +85,8 @@ class HomeRepositoryImpl(
                     preview?.let { initialPreviews.add(it) }
                     ensureActive()
                 }
+            } else {
+                this@callbackFlow.trySend(Result.Success(initialPreviews))
             }
             this@callbackFlow.trySend(Result.Success(initialPreviews))
 
@@ -126,7 +128,55 @@ class HomeRepositoryImpl(
 
     override fun getUserFavoriteAdsPreview(favoriteAdsIds : List<String>) = callbackFlow {
         try {
+            val previews = mutableListOf<AdvertisementPreview>()
 
+            if (favoriteAdsIds.isEmpty()) {
+                this@callbackFlow.trySend(Result.Success(previews))
+            }
+
+            for (id in favoriteAdsIds) {
+                val preview = dbReferences
+                    .advertisementsPreview
+                    .child(id)
+                    .get()
+                    .await()
+                preview.getValue<AdvertisementPreview>()?.let { previews.add(it) }
+                ensureActive()
+            }
+            this@callbackFlow.trySend(Result.Success(previews))
+
+            val favoriteAdsListener = object : ValueEventListener {
+                override fun onDataChange(snapshot : DataSnapshot) {
+                    val prevIds = snapshot.children.mapNotNull { it.getValue<String>() }
+                    val adPreviews = mutableListOf<AdvertisementPreview>()
+
+                    if (prevIds.isNotEmpty()) {
+                        prevIds.forEach { id ->
+                            this@callbackFlow.launch {
+                                val preview = dbReferences
+                                    .advertisementsPreview
+                                    .child(id)
+                                    .get()
+                                    .await()
+                                    .getValue<AdvertisementPreview>()
+                                    ?: return@launch
+                                ensureActive()
+                                adPreviews.add(preview)
+                            }
+                        }
+                    }
+                    this@callbackFlow.trySend(Result.Success(previews))
+                }
+
+                override fun onCancelled(error : DatabaseError) {
+                    this@callbackFlow.trySend(Result.Failure(error.toException()))
+                }
+            }
+            dbReferences.currentUserFavoriteAdsIds.addValueEventListener(favoriteAdsListener)
+
+            awaitClose {
+                dbReferences.currentUserFavoriteAdsIds.removeEventListener(favoriteAdsListener)
+            }
         } catch (e : Exception) {
             this@callbackFlow.trySend(Result.Failure(e))
         }
