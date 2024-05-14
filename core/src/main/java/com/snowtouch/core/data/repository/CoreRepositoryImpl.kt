@@ -31,7 +31,7 @@ class CoreRepositoryImpl(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), auth.currentUser == null)
 
-    override fun getUserFavoriteAdIds(viewModelScope : CoroutineScope) = callbackFlow {
+    override fun getUserFavoriteAdIds() = callbackFlow {
         try {
             val initialData = dbReference
                 .currentUserFavoriteAdsIds

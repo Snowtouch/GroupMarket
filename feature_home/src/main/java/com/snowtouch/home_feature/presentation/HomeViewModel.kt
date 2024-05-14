@@ -59,7 +59,7 @@ internal class HomeViewModel(
 
     fun getFavoriteAdvertisementsIds() {
         viewModelScope.launch {
-            getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
+            getUserFavoriteAdsIdsFlowUseCase.invoke().collect { result ->
                 when (result) {
                     is Result.Loading -> _homeUiState.update {
                         it.copy(uiState = UiState.Loading)
@@ -109,7 +109,7 @@ internal class HomeViewModel(
 
     fun getNewAdvertisements() {
         viewModelScope.launch {
-            homeRepository.getLatestAdsPreview(viewModelScope).collect { result ->
+            homeRepository.getLatestAdsPreview().collect { result ->
                 when (result) {
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
@@ -129,7 +129,7 @@ internal class HomeViewModel(
 
     fun getFavoriteAdvertisements(adsIds : List<String>) {
         viewModelScope.launch {
-            homeRepository.getUserFavoriteAdsPreview(adsIds, viewModelScope).collect { result ->
+            homeRepository.getUserFavoriteAdsPreview(adsIds).collect { result ->
                 when (result) {
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
@@ -152,7 +152,7 @@ internal class HomeViewModel(
 
     fun getRecentlyViewedAdvertisements() {
         viewModelScope.launch {
-            homeRepository.getRecentlyViewedAdsPreview(viewModelScope).collect { result ->
+            homeRepository.getRecentlyViewedAdsPreview().collect { result ->
                 when (result) {
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))

@@ -10,7 +10,6 @@ import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.model.asResult
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import com.snowtouch.home_feature.domain.repository.HomeRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +22,7 @@ class HomeRepositoryImpl(
     private val dbReferences : DatabaseReferenceManager,
 ) : HomeRepository {
 
-    override fun getLatestAdsPreview(viewModelScope : CoroutineScope) : Flow<Result<List<AdvertisementPreview>>> {
+    override fun getLatestAdsPreview() : Flow<Result<List<AdvertisementPreview>>> {
         return flow {
             val userGroupsIdList = dbReferences.currentUserGroupsIds
                 .get()
@@ -66,7 +65,7 @@ class HomeRepositoryImpl(
         }.asResult()
     }
 
-    override fun getRecentlyViewedAdsPreview(viewModelScope : CoroutineScope) = callbackFlow {
+    override fun getRecentlyViewedAdsPreview() = callbackFlow {
         try {
             val initialPrevIds = dbReferences
                 .currentUserRecentlyViewedAdsIds
@@ -125,7 +124,7 @@ class HomeRepositoryImpl(
         }
     }
 
-    override fun getUserFavoriteAdsPreview(favoriteAdsIds : List<String>, viewModelScope : CoroutineScope) = callbackFlow {
+    override fun getUserFavoriteAdsPreview(favoriteAdsIds : List<String>) = callbackFlow {
         try {
 
         } catch (e : Exception) {
