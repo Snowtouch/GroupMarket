@@ -1,6 +1,5 @@
 package com.snowtouch.feature_groups.presentation
 
-import androidx.lifecycle.viewModelScope
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.use_case.GetUserFavoriteAdsIdsFlowUseCase
 import com.snowtouch.core.domain.use_case.ToggleFavoriteAdUseCase
