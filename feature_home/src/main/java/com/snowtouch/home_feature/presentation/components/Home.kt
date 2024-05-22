@@ -31,7 +31,7 @@ internal fun Home(
     currentScreen : NavBarItem,
     homeUiState : HomeUiState,
     adDetailsUiState : AdDetailsUiState,
-    onAdvertisementClick : (String) -> Unit,
+    navigateToAdvertisementDetails : (String) -> Unit,
     onFavoriteButtonClick : (String) -> Unit,
     onNavMenuItemClick : (String) -> Unit,
 ) {
@@ -48,7 +48,6 @@ internal fun Home(
         Row(
             modifier = Modifier
                 .padding(start = if (displaySize != DisplaySize.Compact) 72.dp else 0.dp)
-                .padding(it)
                 .padding(10.dp)
         ) {
             Box(modifier = Modifier.weight(0.6f)) {
@@ -58,7 +57,7 @@ internal fun Home(
                     is UiState.Success -> {
                         HomeContent(
                             favoriteAdIds = homeUiState.favoritesIdsList,
-                            onAdvertisementClick = onAdvertisementClick,
+                            onAdvertisementClick = navigateToAdvertisementDetails,
                             onFavoriteButtonClick = onFavoriteButtonClick,
                             modifier = Modifier,
                             newestAds = homeUiState.newAdsList,
@@ -107,7 +106,7 @@ fun HomeScreenPreview() {
                 uiState = UiState.Success,
                 selectedAdId = SamplePreviewData.sampleAd1Preview.uid,
                 adDetails = SamplePreviewData.sampleAd1Details),
-            onAdvertisementClick = {},
+            navigateToAdvertisementDetails = {},
             onFavoriteButtonClick = {},
             onNavMenuItemClick = {},
         )
