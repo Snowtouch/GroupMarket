@@ -1,5 +1,6 @@
 package com.snowtouch.feature_advertisement_details.presentation
 
+import androidx.lifecycle.viewModelScope
 import com.snowtouch.core.domain.model.Advertisement
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.use_case.GetUserFavoriteAdsIdsFlowUseCase
@@ -55,7 +56,7 @@ internal class AdvertisementDetailViewModel(
 
     private fun getFavoritesIds() {
         launchCatching {
-            getUserFavoriteAdsIdsFlowUseCase.invoke().collect { result ->
+            getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
                 when (result) {
                     is Result.Loading -> _adDetailsUiState.update {
                         it.copy(uiState = UiState.Loading)

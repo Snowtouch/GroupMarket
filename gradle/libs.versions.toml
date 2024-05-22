@@ -2,35 +2,24 @@
 agp = "8.2.2"
 kotlin = "1.9.0"
 googleServices = "4.4.1"
-
-koinTest = "3.5.3"
-koinTestJunit4 = "3.5.3"
+accompanistPermissions = "0.30.1"
+activityCompose = "1.8.2"
+composeBom = "2024.03.00"
+coilCompose = "2.5.0"
+coreKtx = "1.12.0"
 espressoCore = "3.5.1"
+firebaseBom = "32.8.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
-mockitoAndroid = "5.11.0"
-mockitoCore = "5.11.0"
-mockitoKotlin = "5.3.1"
-truth = "1.1.4"
-turbine = "1.1.0"
-kotlinxCoroutinesTest = "1.8.0"
-
-appcompat = "1.6.1"
-
-composeBom = "2024.05.00"
-activityCompose = "1.9.0"
-lifecycleRuntimeKtx = "2.8.0"
-coreKtx = "1.13.1"
-navigationRuntimeKtx = "2.8.0-beta01"
-preferenceKtx = "1.2.1"
-coilCompose = "2.5.0"
-firebaseBom = "33.0.0"
 koinAndroid = "3.5.3"
-accompanistPermissions = "0.30.1"
-materialIconsCoreAndroid = "1.6.7"
-materialIconsExtendedAndroid = "1.6.7"
-material = "1.12.0"
-serialization = "1.6.3"
+lifecycleRuntimeKtx = "2.7.0"
+materialIconsCoreAndroid = "1.6.4"
+materialIconsExtendedAndroid = "1.6.4"
+navigationRuntimeKtx = "2.7.7"
+preferenceKtx = "1.2.1"
+appcompat = "1.6.1"
+material = "1.11.0"
+material3Android = "1.2.1"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -54,7 +43,7 @@ androidx-material-icons-extended-android = { module = "androidx.compose.material
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-runtime-ktx = { module = "androidx.navigation:navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization"}
+
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -65,20 +54,14 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage"}
 junit = { module = "junit:junit", version.ref = "junit" }
 
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
+koin-androidx-compose-navigation = { module = "io.insert-koin:koin-androidx-compose-navigation", version.ref = "koinAndroid" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroid" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4", version.ref = "koinTestJunit4" }
-koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinTest" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-mockito-android = { module = "org.mockito:mockito-android", version.ref = "mockitoAndroid" }
-mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
-truth = { module = "com.google.truth:truth", version.ref = "truth" }
-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 
 [plugins]
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
-google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-android-library = { id = "com.android.library", version.ref = "agp" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+jetbrainsKotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
