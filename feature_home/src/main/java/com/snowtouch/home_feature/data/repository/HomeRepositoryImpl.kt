@@ -1,15 +1,21 @@
 package com.snowtouch.home_feature.data.repository
 
 import android.util.Log
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
 import com.snowtouch.core.domain.model.AdvertisementPreview
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.model.asResult
 import com.snowtouch.core.domain.repository.DatabaseReferenceManager
 import com.snowtouch.home_feature.domain.repository.HomeRepository
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class HomeRepositoryImpl(
@@ -44,47 +50,135 @@ class HomeRepositoryImpl(
                 .sorted()
                 .take(10)
             Log.d("HomeScreen10LatestAds", "$latestAdsIds")
-            val newestAdsPreview = dbReferences.advertisementsPreview
-                .orderByKey()
-                .startAt(tenNewAdsIds.first())
-                .endAt(tenNewAdsIds.last())
-                .get()
-                .await()
-                .children.mapNotNull { adSnap ->
-                    adSnap.getValue<AdvertisementPreview>() }
 
-            emit(newestAdsPreview)
-            Log.d("HomeScreenLastAdsPrev", "${newestAdsPreview}")
-        }.asResult()
-    }
-
-    override fun getRecentlyViewedAdsPreview() : Flow<Result<List<AdvertisementPreview>>> {
-        return getAdsPreview(dbReferences.currentUserRecentAdsIds)
-    }
-
-    override fun getUserFavoriteAdsPreview() : Flow<Result<List<AdvertisementPreview>>> {
-        return getAdsPreview(dbReferences.currentUserFavoriteAdsIds)
-    }
-
-    private fun getAdsPreview(adIdRef : DatabaseReference) : Flow<Result<List<AdvertisementPreview>>> {
-        return flow {
-            val adsIdsSnap = adIdRef.get().await()
-            val adsIds = adsIdsSnap.children.mapNotNull { adId ->
-                adId.getValue<String>()
-            }
-            if (adsIds.isNotEmpty()) {
-                val adsPreview = dbReferences.advertisementsPreview
-                    .startAt(adsIds.first())
-                    .endAt(adsIds.last())
+            val adPreviewList = mutableListOf<AdvertisementPreview>()
+            for (id in tenNewAdsIds) {
+                val ad = dbReferences.advertisementsPreview
+                    .child(id)
                     .get()
                     .await()
-                    .children.mapNotNull { ad ->
-                        ad.getValue<AdvertisementPreview>()
-                    }
-                emit(adsPreview)
-            } else {
-                emit(emptyList())
+                    .getValue<AdvertisementPreview>()
+                ad?.let { adPreviewList.add(ad) }
             }
+            emit(adPreviewList)
+            Log.d("HomeScreenLastAdsPrev", "$adPreviewList")
         }.asResult()
+    }
+
+    override fun getRecentlyViewedAdsPreview() = callbackFlow {
+        try {
+            val initialPrevIds = dbReferences
+                .currentUserRecentlyViewedAdsIds
+                .get()
+                .await()
+                .children.mapNotNull { it.getValue<String>() }
+            val initialPreviews = mutableListOf<AdvertisementPreview>()
+
+            if (initialPrevIds.isNotEmpty()) {
+                for (id in initialPrevIds) {
+                    val preview = dbReferences
+                        .advertisementsPreview
+                        .child(id)
+                        .get()
+                        .await()
+                        .getValue<AdvertisementPreview>()
+                    preview?.let { initialPreviews.add(it) }
+                    ensureActive()
+                }
+            } else {
+                this@callbackFlow.trySend(Result.Success(initialPreviews))
+            }
+            this@callbackFlow.trySend(Result.Success(initialPreviews))
+
+            val recentAdsListener = object : ValueEventListener {
+                override fun onDataChange(snapshot : DataSnapshot) {
+                    val prevIds = snapshot.children.mapNotNull { it.getValue<String>() }
+                    val previews = mutableListOf<AdvertisementPreview>()
+
+                    if (prevIds.isNotEmpty()) {
+                        prevIds.forEach { id ->
+                            this@callbackFlow.launch {
+                                val preview = dbReferences
+                                    .advertisementsPreview
+                                    .child(id)
+                                    .get()
+                                    .await()
+                                    .getValue<AdvertisementPreview>()
+                                ensureActive()
+                                preview?.let { previews.add(it) }
+                            }
+                        }
+                    }
+                    this@callbackFlow.trySend(Result.Success(previews))
+                }
+
+                override fun onCancelled(error : DatabaseError) {
+                    this@callbackFlow.trySend(Result.Failure(error.toException()))
+                }
+            }
+            dbReferences.currentUserRecentlyViewedAdsIds.addValueEventListener(recentAdsListener)
+
+            awaitClose {
+                dbReferences.currentUserRecentlyViewedAdsIds.removeEventListener(recentAdsListener)
+            }
+        } catch (e : Exception) {
+            this@callbackFlow.trySend(Result.Failure(e))
+        }
+    }
+
+    override fun getUserFavoriteAdsPreview(favoriteAdsIds : List<String>) = callbackFlow {
+        try {
+            val previews = mutableListOf<AdvertisementPreview>()
+
+            if (favoriteAdsIds.isEmpty()) {
+                this@callbackFlow.trySend(Result.Success(previews))
+            }
+
+            for (id in favoriteAdsIds) {
+                val preview = dbReferences
+                    .advertisementsPreview
+                    .child(id)
+                    .get()
+                    .await()
+                preview.getValue<AdvertisementPreview>()?.let { previews.add(it) }
+                ensureActive()
+            }
+            this@callbackFlow.trySend(Result.Success(previews))
+
+            val favoriteAdsListener = object : ValueEventListener {
+                override fun onDataChange(snapshot : DataSnapshot) {
+                    val prevIds = snapshot.children.mapNotNull { it.getValue<String>() }
+                    val adPreviews = mutableListOf<AdvertisementPreview>()
+
+                    if (prevIds.isNotEmpty()) {
+                        prevIds.forEach { id ->
+                            this@callbackFlow.launch {
+                                val preview = dbReferences
+                                    .advertisementsPreview
+                                    .child(id)
+                                    .get()
+                                    .await()
+                                    .getValue<AdvertisementPreview>()
+                                    ?: return@launch
+                                ensureActive()
+                                adPreviews.add(preview)
+                            }
+                        }
+                    }
+                    this@callbackFlow.trySend(Result.Success(previews))
+                }
+
+                override fun onCancelled(error : DatabaseError) {
+                    this@callbackFlow.trySend(Result.Failure(error.toException()))
+                }
+            }
+            dbReferences.currentUserFavoriteAdsIds.addValueEventListener(favoriteAdsListener)
+
+            awaitClose {
+                dbReferences.currentUserFavoriteAdsIds.removeEventListener(favoriteAdsListener)
+            }
+        } catch (e : Exception) {
+            this@callbackFlow.trySend(Result.Failure(e))
+        }
     }
 }
