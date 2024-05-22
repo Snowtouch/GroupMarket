@@ -10,9 +10,7 @@ interface CoreRepository {
 
     fun getAuthState(viewModelScope : CoroutineScope) : StateFlow<Boolean>
 
-    fun getUserFavoriteAdIds() : Flow<Result<List<String>>>
-
-    suspend fun updateRecentlyViewedAdsIds(adId : String) : Result<Boolean>
+    fun getUserFavoriteAdIds(viewModelScope : CoroutineScope) : Flow<Result<List<String>>>
 
     suspend fun toggleFavoriteAd(adId : String) : Result<Boolean>
 

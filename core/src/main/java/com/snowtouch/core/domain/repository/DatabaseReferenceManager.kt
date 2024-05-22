@@ -12,7 +12,7 @@ interface DatabaseReferenceManager {
     val currentUserGroupsIds : DatabaseReference
     val currentUserActiveAdsIds : DatabaseReference
     val currentUserFinishedAdsIds : DatabaseReference
-    val currentUserRecentlyViewedAdsIds : DatabaseReference
+    val currentUserRecentAdsIds : DatabaseReference
     val currentUserFavoriteAdsIds : DatabaseReference
     val currentUserGroupsIdNamesPairs : DatabaseReference
 
