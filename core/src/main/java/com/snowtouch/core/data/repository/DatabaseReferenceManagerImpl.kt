@@ -29,7 +29,7 @@ class DatabaseReferenceManagerImpl(
     override val currentUserFinishedAdsIds : DatabaseReference =
         db.getReference("user_finished_ads_ids").child(currentUserId)
 
-    override val currentUserRecentAdsIds : DatabaseReference =
+    override val currentUserRecentlyViewedAdsIds : DatabaseReference =
         db.getReference("user_recent_ads_ids").child(currentUserId)
 
     override val currentUserFavoriteAdsIds : DatabaseReference =
