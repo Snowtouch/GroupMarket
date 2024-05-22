@@ -78,7 +78,7 @@ internal class GroupsViewModel(
         }
     }
 
-    fun getUserGroupsData() {
+    private fun getUserGroupsData() {
         launchCatching {
             groupsRepository.getUserGroupsPreviewData().collect { result ->
                 when (result) {
@@ -108,9 +108,11 @@ internal class GroupsViewModel(
                     is Result.Failure -> _groupAdsUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
                     }
+
                     Result.Loading -> _groupAdsUiState.update {
                         it.copy(uiState = UiState.Loading)
                     }
+
                     is Result.Success -> _groupAdsUiState.update {
                         it.copy(
                             uiState = UiState.Success,
@@ -122,3 +124,4 @@ internal class GroupsViewModel(
         }
     }
 }
+
