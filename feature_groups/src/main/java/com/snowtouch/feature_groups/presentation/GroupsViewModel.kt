@@ -1,6 +1,5 @@
 package com.snowtouch.feature_groups.presentation
 
-import androidx.lifecycle.viewModelScope
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.use_case.GetUserFavoriteAdsIdsFlowUseCase
 import com.snowtouch.core.domain.use_case.ToggleFavoriteAdUseCase
@@ -27,7 +26,7 @@ internal class GroupsViewModel(
     val groupAdsUiState = _groupAdsUiState.asStateFlow()
 
     init {
-        //getFavoritesIds()
+        getFavoritesIds()
         getUserGroupsData()
     }
 
@@ -66,8 +65,14 @@ internal class GroupsViewModel(
                     it.copy(uiState = UiState.Loading)
                 }
 
-                is Result.Success ->
-                    showSnackbar(SnackbarState.DEFAULT, "Advertisement successfully added")
+                is Result.Success -> {
+                    if (result.data == true) {
+                        showSnackbar(SnackbarState.DEFAULT, "Advertisement successfully added")
+                    } else {
+                        showSnackbar(SnackbarState.DEFAULT, "Advertisement successfully removed")
+                    }
+                }
+
 
             }
         }
@@ -98,7 +103,7 @@ internal class GroupsViewModel(
 
     private fun getFavoritesIds() {
         launchCatching {
-            getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
+            getUserFavoriteAdsIdsFlowUseCase.invoke().collect { result ->
                 when (result) {
                     is Result.Failure -> _groupAdsUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
