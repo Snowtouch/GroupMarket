@@ -1,7 +1,6 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.jetbrainsKotlin)
 }
 
 android {
@@ -57,7 +56,6 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.material)
-    implementation(libs.kotlin.serialization.json)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
@@ -66,18 +64,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    testImplementation(libs.koin.test)
-    testImplementation(libs.koin.test.junit4)
     testImplementation(libs.junit)
-    testImplementation(libs.mockito.core)
-    testImplementation (libs.mockito.kotlin)
-    testImplementation (libs.kotlinx.coroutines.test)
-    testImplementation(libs.turbine)
-    testImplementation(libs.truth)
-    androidTestImplementation (libs.mockito.android)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

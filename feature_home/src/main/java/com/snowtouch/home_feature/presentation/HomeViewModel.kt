@@ -1,28 +1,22 @@
 package com.snowtouch.home_feature.presentation
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.snowtouch.core.domain.model.Result
 import com.snowtouch.core.domain.use_case.GetAdDetailsUseCase
 import com.snowtouch.core.domain.use_case.GetUserFavoriteAdsIdsFlowUseCase
 import com.snowtouch.core.domain.use_case.ToggleFavoriteAdUseCase
-import com.snowtouch.core.domain.use_case.UpdateRecentlyViewedAdsListUseCase
-import com.snowtouch.core.presentation.util.SnackbarGlobalDelegate
-import com.snowtouch.core.presentation.util.SnackbarState
+import com.snowtouch.core.presentation.GroupMarketViewModel
 import com.snowtouch.home_feature.domain.repository.HomeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 internal class HomeViewModel(
     private val homeRepository : HomeRepository,
     private val getAdDetailsUseCase : GetAdDetailsUseCase,
     private val getUserFavoriteAdsIdsFlowUseCase : GetUserFavoriteAdsIdsFlowUseCase,
     private val toggleFavoriteAdUseCase : ToggleFavoriteAdUseCase,
-    private val updateRecentlyViewedAdsListUseCase : UpdateRecentlyViewedAdsListUseCase,
-    private val snackbar : SnackbarGlobalDelegate,
-) : ViewModel() {
+) : GroupMarketViewModel() {
 
     private val _homeUiState = MutableStateFlow(HomeUiState(UiState.Loading))
     val homeUiState = _homeUiState.asStateFlow()
@@ -30,40 +24,15 @@ internal class HomeViewModel(
     private val _adDetailsUiState = MutableStateFlow(AdDetailsUiState())
     val adDetailsUiState = _adDetailsUiState.asStateFlow()
 
-    fun toggleFavoriteAd(adId : String) {
-        viewModelScope.launch {
-            toggleFavoriteAdUseCase.invoke(adId).let { result ->
-                when (result) {
-                    is Result.Failure -> {
-                        snackbar.showSnackbar(
-                            state = SnackbarState.ERROR,
-                            message = "Error toggling favorite ad: ${result.e.message}",
-                            withDismissAction = false
-                        )
-                    }
-
-                    else -> {}
-                }
-            }
-        }
+    init {
+        getFavoritesIds()
+        getRecentlyViewedAdvertisements()
+        getNewAdvertisements()
+        getFavoriteAdvertisements()
     }
 
-    fun updateRecentlyViewedList(adId : String) {
-        viewModelScope.launch {
-            updateRecentlyViewedAdsListUseCase.invoke(adId).let { result ->
-                when (result) {
-                    is Result.Failure -> {
-                        snackbar.showSnackbar(
-                            state = SnackbarState.ERROR,
-                            message = "Error updating recently viewed list: ${result.e.message}",
-                            withDismissAction = false
-                        )
-                    }
-
-                    else -> {}
-                }
-            }
-        }
+    fun toggleFavoriteAd(adId : String) {
+        launchCatching { toggleFavoriteAdUseCase.invoke(adId) }
     }
 
     fun updateSelectedAdId(adId : String) {
@@ -71,10 +40,9 @@ internal class HomeViewModel(
             it.copy(selectedAdId = adId)
         }
     }
-
-    fun getFavoriteAdvertisementsIds() {
-        viewModelScope.launch {
-            getUserFavoriteAdsIdsFlowUseCase.invoke().collect { result ->
+    private fun getFavoritesIds() {
+        launchCatching {
+            getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
                 when (result) {
                     is Result.Loading -> _homeUiState.update {
                         it.copy(uiState = UiState.Loading)
@@ -84,13 +52,11 @@ internal class HomeViewModel(
                         it.copy(uiState = UiState.Error(result.e))
                     }
 
-                    is Result.Success -> {
-                        _homeUiState.update {
-                            it.copy(
-                                uiState = UiState.Success,
-                                favoritesIdsList = result.data ?: emptyList()
-                            )
-                        }
+                    is Result.Success -> _homeUiState.update {
+                        it.copy(
+                            uiState = UiState.Success,
+                            favoritesIdsList = result.data ?: emptyList()
+                        )
                     }
                 }
             }
@@ -98,7 +64,7 @@ internal class HomeViewModel(
     }
 
     fun getAdvertisementDetails(adId : String) {
-        viewModelScope.launch {
+        launchCatching {
             _adDetailsUiState.update {
                 it.copy(uiState = UiState.Loading, selectedAdId = adId)
             }
@@ -123,7 +89,7 @@ internal class HomeViewModel(
     }
 
     fun getNewAdvertisements() {
-        viewModelScope.launch {
+        launchCatching {
             homeRepository.getLatestAdsPreview().collect { result ->
                 when (result) {
                     is Result.Failure -> _homeUiState.update {
@@ -135,33 +101,25 @@ internal class HomeViewModel(
                     }
 
                     is Result.Success -> _homeUiState.update {
-                        it.copy(
-                            uiState = UiState.Success,
-                            newAdsList = result.data ?: emptyList()
-                        )
+                        it.copy(uiState = UiState.Success, newAdsList = result.data ?: emptyList())
                     }
                 }
             }
         }
     }
 
-    fun getFavoriteAdvertisements(adsIds : List<String>) {
-        viewModelScope.launch {
-            homeRepository.getUserFavoriteAdsPreview(adsIds).collect { result ->
+    fun getFavoriteAdvertisements() {
+        launchCatching {
+            homeRepository.getUserFavoriteAdsPreview().collect { result ->
                 when (result) {
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
                     }
-
                     is Result.Loading -> _homeUiState.update {
                         it.copy(uiState = UiState.Loading)
                     }
-
                     is Result.Success -> _homeUiState.update {
-                        it.copy(
-                            uiState = UiState.Success,
-                            favoriteAdsList = result.data ?: emptyList()
-                        )
+                        it.copy(uiState = UiState.Success, favoriteAdsList = result.data ?: emptyList())
                     }
                 }
             }
@@ -169,17 +127,15 @@ internal class HomeViewModel(
     }
 
     fun getRecentlyViewedAdvertisements() {
-        viewModelScope.launch {
+        launchCatching {
             homeRepository.getRecentlyViewedAdsPreview().collect { result ->
                 when (result) {
                     is Result.Failure -> _homeUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
                     }
-
                     is Result.Loading -> _homeUiState.update {
                         it.copy(uiState = UiState.Loading)
                     }
-
                     is Result.Success -> _homeUiState.update {
                         it.copy(
                             uiState = UiState.Success,
