@@ -103,7 +103,7 @@ internal class GroupsViewModel(
 
     private fun getFavoritesIds() {
         launchCatching {
-            getUserFavoriteAdsIdsFlowUseCase.invoke(viewModelScope).collect { result ->
+            getUserFavoriteAdsIdsFlowUseCase.invoke().collect { result ->
                 when (result) {
                     is Result.Failure -> _groupAdsUiState.update {
                         it.copy(uiState = UiState.Error(result.e))
