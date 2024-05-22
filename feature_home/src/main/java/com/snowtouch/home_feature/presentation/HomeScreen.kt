@@ -1,6 +1,7 @@
 package com.snowtouch.home_feature.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -24,12 +25,20 @@ internal fun HomeScreen(
     val homeUiState by viewModel.homeUiState.collectAsStateWithLifecycle()
     val adDetailsUiState by viewModel.adDetailsUiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(key1 = Unit) {
+        viewModel.getFavoriteAdvertisementsIds()
+        viewModel.getRecentlyViewedAdvertisements()
+        viewModel.getNewAdvertisements()
+        viewModel.getFavoriteAdvertisements(homeUiState.favoritesIdsList)
+    }
+
     Home(
         displaySize = displaySize,
         currentScreen = currentScreen,
         homeUiState = homeUiState,
         adDetailsUiState = adDetailsUiState,
-        navigateToAdvertisementDetails = { adId ->
+        onAdvertisementClick = { adId ->
+            viewModel.updateRecentlyViewedList(adId)
             when (displaySize) {
                 DisplaySize.Compact -> navigateToAdDetails(adId)
                 DisplaySize.Medium -> navigateToAdDetails(adId)
@@ -62,7 +71,7 @@ fun SampleNavigationRailComposable() {
                 selectedAdId = SamplePreviewData.sampleAd1Preview.uid,
                 adDetails = SamplePreviewData.sampleAd1Details
             ),
-            navigateToAdvertisementDetails = {},
+            onAdvertisementClick = {},
             onFavoriteButtonClick = {},
             onNavMenuItemClick = {}
         )
