@@ -31,7 +31,7 @@ class CoreRepositoryImpl(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), auth.currentUser == null)
 
-    override fun getUserFavoriteAdIds() = callbackFlow {
+    override fun getUserFavoriteAdIds(viewModelScope : CoroutineScope) = callbackFlow {
         try {
             val initialData = dbReference
                 .currentUserFavoriteAdsIds
@@ -62,73 +62,6 @@ class CoreRepositoryImpl(
 
         awaitClose {
             dbReference.currentUserFavoriteAdsIds.removeEventListener(favoriteAdsListener)
-        }
-    }
-
-    override suspend fun updateRecentlyViewedAdsIds(adId : String) : Result<Boolean> {
-        return try {
-            val recentlyViewedAdsIds = dbReference
-                .currentUserRecentlyViewedAdsIds
-                .get()
-                .await()
-                .children
-                .mapNotNull { it.getValue<String>() }
-
-            when {
-                recentlyViewedAdsIds.isEmpty() -> {
-                    dbReference
-                        .currentUserRecentlyViewedAdsIds
-                        .push()
-                        .setValue(adId)
-                        .await()
-                    return Result.Success(true)
-                }
-
-                recentlyViewedAdsIds.contains(adId) -> {
-                    val newList = recentlyViewedAdsIds.toMutableList()
-                    newList.remove(adId)
-                    newList.add(0, adId)
-                    // Checking if list doesn't exceed maximum size of 10 elem
-                    if (newList.size <= 10) {
-                        dbReference
-                            .currentUserRecentlyViewedAdsIds
-                            .setValue(newList)
-                            .await()
-                        Result.Success(true)
-                    } else {
-                        // If size > 10 remove last element
-                        newList.removeAt(newList.size - 1)
-                        dbReference
-                            .currentUserRecentlyViewedAdsIds
-                            .setValue(newList)
-                            .await()
-                        Result.Success(true)
-                    }
-                }
-
-                recentlyViewedAdsIds.size < 10 -> {
-                    val newList = mutableListOf(adId)
-                    newList.addAll(recentlyViewedAdsIds)
-                    dbReference
-                        .currentUserRecentlyViewedAdsIds
-                        .setValue(newList)
-                        .await()
-                    Result.Success(true)
-                }
-
-                else -> {
-                    // Remove last and add new element on 0 index
-                    val newList = mutableListOf(adId)
-                    newList.addAll(recentlyViewedAdsIds.subList(0, 9))
-                    dbReference
-                        .currentUserRecentlyViewedAdsIds
-                        .setValue(newList)
-                        .await()
-                    Result.Success(true)
-                }
-            }
-        } catch (e : Exception) {
-            Result.Failure(e)
         }
     }
 
