@@ -41,7 +41,7 @@ internal fun AccountContent(
 ) {
     var selectedOption by rememberSaveable { mutableStateOf("") }
 
-    Row(modifier = modifier) {
+    Row(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier.adaptiveColumnWidth()
         ) {

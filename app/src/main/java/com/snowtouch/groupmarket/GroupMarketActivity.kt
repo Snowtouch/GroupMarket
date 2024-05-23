@@ -43,8 +43,7 @@ class GroupMarketActivity : ComponentActivity() {
             val navController = rememberNavController()
             val widthSizeClass = calculateWindowSizeClass(this)
             val isUserLoggedIn = viewModel.getAuthState().collectAsStateWithLifecycle()
-            val networkStatus =
-                viewModel.getNetworkState(applicationContext).collectAsStateWithLifecycle()
+            val networkStatus = viewModel.getNetworkState(applicationContext).collectAsStateWithLifecycle()
 
             val displaySizeClass = calculateWindowSize(widthSizeClass)
 

@@ -1,55 +1,92 @@
 package com.snowtouch.auth_feature.presentation.create_account
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.snowtouch.auth_feature.presentation.components.EmailField
 import com.snowtouch.auth_feature.presentation.components.NameField
 import com.snowtouch.auth_feature.presentation.components.PasswordField
 import com.snowtouch.auth_feature.presentation.components.RepeatPasswordField
 import com.snowtouch.core.presentation.components.CommonButton
+import com.snowtouch.core.presentation.components.CommonTopAppBar
+import com.snowtouch.core.presentation.components.Loading
+import com.snowtouch.core.presentation.components.LoadingFailed
+import com.snowtouch.core.presentation.components.SinglePageScaffold
 
 @Composable
-fun CreateAccountScreen(
-    viewModel: CreateAccountViewModel
+internal fun CreateAccountScreen(
+    viewModel : CreateAccountViewModel,
+    onNavigateBack : () -> Unit,
+    onAccountCreated : () -> Unit
 ) {
 
-    val uiState by viewModel.uiState
+    val createAccountUiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    CreateAccountScreenContent(
-        uiState = uiState,
-        onEmailChange = viewModel::onEmailChange,
-        onNameChange = viewModel::onNameChange,
-        onPasswordChange = viewModel::onPasswordChange,
-        onRepeatPasswordChange = viewModel::onRepeatPasswordChange,
-        onSignUpClick = { viewModel.createAccount(uiState.email, uiState.name, uiState.password) }
-    )
+    SinglePageScaffold(
+        topBar = {
+            CommonTopAppBar(
+                canNavigateBack = true,
+                onNavigateBackClick = onNavigateBack
+            )
+        }
+    ) {
+        when(createAccountUiState.uiState) {
+
+            is UiState.Error -> LoadingFailed(canRefresh = false)
+            is UiState.Idle ->
+                CreateAccountScreenContent(
+                    uiState = createAccountUiState,
+                    onEmailChange = viewModel::onEmailChange,
+                    onNameChange = viewModel::onNameChange,
+                    onPasswordChange = viewModel::onPasswordChange,
+                    onRepeatPasswordChange = viewModel::onRepeatPasswordChange,
+                    onSignUpClick = {
+                        viewModel.createAccount(
+                            createAccountUiState.email,
+                            createAccountUiState.name,
+                            createAccountUiState.password
+                        )
+                    }
+                )
+            is UiState.Loading -> Loading()
+            is UiState.Success -> onAccountCreated()
+        }
+    }
 
 }
+
 @Composable
-fun CreateAccountScreenContent(
-    modifier: Modifier = Modifier,
-    uiState: CreateAccountUiState,
-    onEmailChange: (String) -> Unit,
-    onNameChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onRepeatPasswordChange: (String) -> Unit,
-    onSignUpClick: () -> Unit
+internal fun CreateAccountScreenContent(
+    modifier : Modifier = Modifier,
+    uiState : CreateAccountUiState,
+    onEmailChange : (String) -> Unit,
+    onNameChange : (String) -> Unit,
+    onPasswordChange : (String) -> Unit,
+    onRepeatPasswordChange : (String) -> Unit,
+    onSignUpClick : () -> Unit,
 ) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopCenter
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = "New account",
+            style = MaterialTheme.typography.headlineLarge
+        )
         ElevatedCard(modifier = modifier.padding(16.dp)) {
             Column(
                 modifier = modifier.padding(8.dp),
@@ -75,11 +112,12 @@ fun CreateAccountScreenContent(
         }
     }
 }
+
 @Preview(showSystemUi = true)
 @Composable
 fun CreateAccountScreenPreview() {
     CreateAccountScreenContent(
-        uiState = CreateAccountUiState("123@gmail.com"),
+        uiState = CreateAccountUiState(UiState.Idle),
         onEmailChange = {},
         onPasswordChange = {},
         onRepeatPasswordChange = {},

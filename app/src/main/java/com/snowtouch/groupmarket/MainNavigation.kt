@@ -71,9 +71,8 @@ fun MainNavigation(
         )
 
         authFeature(
-            currentScreen = currentScreen,
-            displaySize = displaySize,
-            navController = navController
+            navController = navController,
+            navigateToHome = { navController.navigateToHome() }
         )
 
         advertisementDetailFeature(

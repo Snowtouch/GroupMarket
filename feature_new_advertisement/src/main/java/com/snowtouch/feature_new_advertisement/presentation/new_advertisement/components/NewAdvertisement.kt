@@ -1,8 +1,11 @@
 package com.snowtouch.feature_new_advertisement.presentation.new_advertisement.components
 
 import android.net.Uri
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.snowtouch.core.presentation.components.CommonTopAppBar
 import com.snowtouch.core.presentation.components.Loading
@@ -35,40 +38,47 @@ internal fun NewAdvertisement(
             )
         }
     ) { innerPadding ->
-        when (uiState.screenState) {
-            is ScreenState.Success -> NewAdvertisementContent(
-                uiState = uiState,
-                userGroupsList = uiState.groupIdNames,
-                onImagesChanged = onImagesChanged,
-                onTitleChanged = onTitleChanged,
-                onDescriptionChanged = onDescriptionChanged,
-                onPriceChanged = onPriceChanged,
-                onGroupSelected = onGroupSelected,
-                onPostAdvertisementClick = onPostAdvertisementClick,
-                onSaveAsDraftClick = { /*TODO*/ },
-                modifier = Modifier.padding(innerPadding)
-            )
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            when (uiState.screenState) {
+                is ScreenState.Success -> NewAdvertisementContent(
+                    uiState = uiState,
+                    userGroupsList = uiState.groupIdNames,
+                    onImagesChanged = onImagesChanged,
+                    onTitleChanged = onTitleChanged,
+                    onDescriptionChanged = onDescriptionChanged,
+                    onPriceChanged = onPriceChanged,
+                    onGroupSelected = onGroupSelected,
+                    onPostAdvertisementClick = onPostAdvertisementClick,
+                    onSaveAsDraftClick = { /*TODO*/ },
+                    modifier = Modifier.padding(innerPadding)
+                )
 
-            is ScreenState.Loading -> Loading(modifier = Modifier.padding(innerPadding))
-            is ScreenState.Uploading -> Loading(
-                modifier = Modifier.padding(innerPadding),
-                progress = uiState.screenState.progress.toFloat(),
-                message = "Uploading image ${uiState.screenState.currentImageIndex} " +
-                        "of ${uiState.screenState.imageCount}"
-            )
+                is ScreenState.Loading -> Loading(modifier = Modifier.padding(innerPadding))
+                is ScreenState.Uploading -> Loading(
+                    modifier = Modifier.padding(innerPadding),
+                    progress = uiState.screenState.progress.toFloat(),
+                    message = "Uploading image ${uiState.screenState.currentImageIndex} " +
+                            "of ${uiState.screenState.imageCount}"
+                )
 
-            is ScreenState.AdPostSuccess -> AdvertisementPostSuccess(
-                navigateToHome = navigateToHome,
-                navigateToAdDetails = { navigateToPostedAdvertisement(uiState.newAdId) },
-                modifier = Modifier.padding(innerPadding)
-            )
+                is ScreenState.AdPostSuccess -> AdvertisementPostSuccess(
+                    navigateToHome = navigateToHome,
+                    navigateToAdDetails = { navigateToPostedAdvertisement(uiState.newAdId) },
+                    modifier = Modifier.padding(innerPadding)
+                )
 
-            is ScreenState.Error -> LoadingFailed(
-                canRefresh = true,
-                onErrorIconClick = onFailedLoadingButtonClick,
-                modifier = Modifier.padding(innerPadding),
-                errorMessage = uiState.screenState.e.localizedMessage
-            )
+                is ScreenState.Error -> LoadingFailed(
+                    canRefresh = true,
+                    onErrorIconClick = onFailedLoadingButtonClick,
+                    modifier = Modifier.padding(innerPadding),
+                    errorMessage = uiState.screenState.e.localizedMessage
+                )
+            }
         }
     }
 
